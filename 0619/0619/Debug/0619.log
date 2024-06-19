@@ -1,0 +1,14 @@
+﻿  0619.c
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(152,9): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'double'입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(154,9): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'double'입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(161,9): warning C4477: 'printf' : 서식 문자열 '%lf'에 'double' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int'입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(163,9): warning C4477: 'printf' : 서식 문자열 '%lf'에 'double' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int'입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(51,13): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(57,14): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(158,15): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(159,13): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(83,9): warning C4101: 'tax' :참조되지 않은 지역 변수입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(12,12): warning C4101: 'c' :참조되지 않은 지역 변수입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(15,8): warning C4101: 'fa' :참조되지 않은 지역 변수입니다.
+D:\WorkSpace\InhaGame-2024\0619\0619\0619.c(13,6): warning C4101: 'nNumber' :참조되지 않은 지역 변수입니다.
+  0619.vcxproj -> D:\WorkSpace\InhaGame-2024\0619\Debug\0619.exe
