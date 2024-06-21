@@ -1,12 +1,37 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\WorkSpace\\InhaGame-2024\\0621_Practice5\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{639C7F17-9B71-4A3D-B4BB-40A2427708A2}|0621_Practice5\\0621_Practice5.vcxproj|D:\\WorkSpace\\InhaGame-2024\\0621_Practice5\\0621_Practice5\\0621_Practice5.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{639C7F17-9B71-4A3D-B4BB-40A2427708A2}|0621_Practice5\\0621_Practice5.vcxproj|solutionrelative:0621_Practice5\\0621_Practice5.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "0621_Practice5.c",
+              "DocumentMoniker": "D:\\WorkSpace\\InhaGame-2024\\0621_Practice5\\0621_Practice5\\0621_Practice5.c",
+              "RelativeDocumentMoniker": "0621_Practice5\\0621_Practice5.c",
+              "ToolTip": "D:\\WorkSpace\\InhaGame-2024\\0621_Practice5\\0621_Practice5\\0621_Practice5.c",
+              "RelativeToolTip": "0621_Practice5\\0621_Practice5.c",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2024-06-21T07:33:22.321Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
