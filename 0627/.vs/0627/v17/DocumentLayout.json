@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\WorkSpace\\InhaGame-2024\\0627\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D02C8CF6-2930-4DE9-8612-202D91402BC7}|0627\\0627.vcxproj|D:\\WorkSpace\\InhaGame-2024\\0627\\0627\\0627.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{D02C8CF6-2930-4DE9-8612-202D91402BC7}|0627\\0627.vcxproj|solutionrelative:0627\\0627.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "0627.c",
+              "DocumentMoniker": "D:\\WorkSpace\\InhaGame-2024\\0627\\0627\\0627.c",
+              "RelativeDocumentMoniker": "0627\\0627.c",
+              "ToolTip": "D:\\WorkSpace\\InhaGame-2024\\0627\\0627\\0627.c",
+              "RelativeToolTip": "0627\\0627.c",
+              "ViewState": "AQIAAI8AAAAAAAAAAAAAAKsAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2024-06-27T06:32:47.786Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

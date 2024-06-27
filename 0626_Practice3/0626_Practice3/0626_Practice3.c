@@ -38,30 +38,7 @@ strcpy(string, temp);
 #define REPEAT 3
 #define DELAY 500
 
-void GoodSolution()
-{
-	char sentence[128];
-	gets(sentence);
-
-	int sentenceLength = strlen(sentence) + 1;
-	sentence[sentenceLength - 1] = ' ';
-
-	int outputLength = sentenceLength - 1 > LENGTH ? LENGTH : sentenceLength - 1;
-	int start = 0;
-
-	while (start < sentenceLength + 1)
-	{
-		system("cls");
-		for (int i = 0; i < outputLength; i++)
-		{
-			printf("%c", sentence[(start + i) % sentenceLength]);
-		}
-		start++;
-		Sleep(DELAY);
-	}
-}
-
-void main()
+void OriginalSolution()
 {
 	while (1)
 	{
@@ -76,10 +53,45 @@ void main()
 		for (int i = 0; i < sentenceLength * REPEAT; i++)
 		{
 			system("cls");
-			for (int j = i, k = 0; k < outputLength; k++)
+			for (int k = 0; k < outputLength; k++)
 			{
-				printf("%c", sentence[j]);
-				j = (j + 1) % sentenceLength;
+				printf("%c", sentence[(i + k) % sentenceLength]);
+			}
+			Sleep(DELAY);
+		}
+		system("cls");
+	}
+}
+
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
+#include <Windows.h>
+
+#define LENGTH 20
+#define REPEAT 2
+#define DELAY 500
+
+void main()
+{
+	while (1)
+	{
+		char sentence[128] = { 0, };
+		char* ps = sentence;
+
+		printf("띄울 문장을 입력하세요 : ");
+		gets(sentence);
+
+		int sentenceLength = strlen(sentence) + 1;
+		int outputLength = sentenceLength > LENGTH ? LENGTH : sentenceLength;
+		ps[sentenceLength - 1] = ' ';
+
+		for (int i = 0; i < sentenceLength * REPEAT; i++)
+		{
+			system("cls");
+			for (int k = 0; k < outputLength; k++)
+			{
+				printf("%c", ps[(i + k) % sentenceLength]);
 			}
 			Sleep(DELAY);
 		}
