@@ -1,0 +1,4 @@
+﻿  0628_Practice1.c
+D:\WorkSpace\InhaGame-2024\0628_Practice1\0628_Practice1\0628_Practice1.c(9,26): warning C4013: 'strlen'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
+D:\WorkSpace\InhaGame-2024\0628_Practice1\0628_Practice1\0628_Practice1.c(22,41): warning C4101: 'result' :참조되지 않은 지역 변수입니다.
+  0628_Practice1.vcxproj -> D:\WorkSpace\InhaGame-2024\0628_Practice1\x64\Debug\0628_Practice1.exe
