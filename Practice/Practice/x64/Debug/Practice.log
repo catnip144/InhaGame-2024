@@ -1,3 +1,2 @@
 ﻿  _Practice.c
-D:\WorkSpace\InhaGame-2024\Practice\Practice\_Practice.c(17,2): warning C4013: 'gets'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
   Practice.vcxproj -> D:\WorkSpace\InhaGame-2024\Practice\x64\Debug\Practice.exe

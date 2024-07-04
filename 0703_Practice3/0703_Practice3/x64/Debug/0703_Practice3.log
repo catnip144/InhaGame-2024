@@ -1,18 +1,8 @@
 ﻿  0703_Practice3.c
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(40,10): warning C4047: '=': 'int'의 간접 참조 수준이 'int *'과(와) 다릅니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(41,10): warning C4047: '=': 'int'의 간접 참조 수준이 'int *'과(와) 다릅니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(50,17): warning C4047: '함수': 'int *'의 간접 참조 수준이 'int **'과(와) 다릅니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(50,17): warning C4024: 'MaxAndMin': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(50,26): warning C4047: '함수': 'int *'의 간접 참조 수준이 'int **'과(와) 다릅니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(50,26): warning C4024: 'MaxAndMin': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(53,10): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 3의 형식이 'int *'입니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(53,10): warning C4313: 'printf': 서식 문자열의 '%d'이(가) int *' 형식의 인수 3과(와) 충돌합니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(56,9): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int *'입니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(56,9): warning C4313: 'printf': 서식 문자열의 '%d'이(가) int *' 형식의 인수 1과(와) 충돌합니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(56,9): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 2의 형식이 'int *'입니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(56,9): warning C4313: 'printf': 서식 문자열의 '%d'이(가) int *' 형식의 인수 2과(와) 충돌합니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(58,9): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int **'입니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(58,9): warning C4313: 'printf': 서식 문자열의 '%d'이(가) int **' 형식의 인수 1과(와) 충돌합니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(59,9): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int **'입니다.
-D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(59,9): warning C4313: 'printf': 서식 문자열의 '%d'이(가) int **' 형식의 인수 1과(와) 충돌합니다.
+D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(53,9): warning C4477: 'printf' : 서식 문자열 '%12u'에 'unsigned int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int *'입니다.
+D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(53,9): warning C4313: 'printf': 서식 문자열의 '%u'이(가) int *' 형식의 인수 1과(와) 충돌합니다.
+D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(54,9): warning C4477: 'printf' : 서식 문자열 '%12u'에 'unsigned int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int *'입니다.
+D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(54,9): warning C4313: 'printf': 서식 문자열의 '%u'이(가) int *' 형식의 인수 1과(와) 충돌합니다.
+D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(55,9): warning C4477: 'printf' : 서식 문자열 '%12u'에 'unsigned int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'int *'입니다.
+D:\WorkSpace\InhaGame-2024\0703_Practice3\0703_Practice3\0703_Practice3.c(55,9): warning C4313: 'printf': 서식 문자열의 '%u'이(가) int *' 형식의 인수 1과(와) 충돌합니다.
   0703_Practice3.vcxproj -> D:\WorkSpace\InhaGame-2024\0703_Practice3\x64\Debug\0703_Practice3.exe
