@@ -1,0 +1,4 @@
+﻿  0705_Practice2.c
+D:\WorkSpace\InhaGame-2024\0705_Practice2\0705_Practice2\0705_Practice2.c(22,7): warning C4101: 'aWord' :참조되지 않은 지역 변수입니다.
+D:\WorkSpace\InhaGame-2024\0705_Practice2\0705_Practice2\0705_Practice2.c(23,7): warning C4101: 'bWord' :참조되지 않은 지역 변수입니다.
+  0705_Practice2.vcxproj -> D:\WorkSpace\InhaGame-2024\0705_Practice2\0705_Practice2\x64\Debug\0705_Practice2.exe

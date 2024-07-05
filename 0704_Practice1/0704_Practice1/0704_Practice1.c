@@ -27,31 +27,28 @@ void main()
 		if (!strcmp(userInput, "Quit"))
 			break;
 
-		for (int i = 0; i < strlen(userInput); i++)
+		for (int i = 0; i <= strlen(userInput); i++)
 		{
-			if (userInput[i] == ' ')
+			if (userInput[i] == ' ' || userInput[i] == '\0')
 			{
 				if (count >= size)
 				{
 					size += 5;
 					str = (char**)realloc(str, sizeof(char*) * (size + 1));
 				}
-				str[count] = (char*)calloc(80, sizeof(char));
+				str[count] = (char*)calloc(tempIdx + 1, sizeof(char));
 				strcpy(str[count], temp);
-				strcpy(temp, "");
+				memset(temp, 0, sizeof(temp));
 				tempIdx = 0;
 				count++;
 			}
 			else
 				temp[tempIdx++] = userInput[i];
 		}
-		str[count] = (char*)calloc(80, sizeof(char));
-		strcpy(str[count], temp);
-
-		for (int i = count; i >= 0; i--)
+		for (int i = count - 1; i >= 0; i--)
 			printf("%s\n", str[i]);
 
-		for (int i = 0; i <= count; i++)
+		for (int i = 0; i <= count - 1; i++)
 			free(str[i]), str[i] = NULL;
 	}
 	free(str);

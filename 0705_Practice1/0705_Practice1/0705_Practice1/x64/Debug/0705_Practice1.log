@@ -1,0 +1,3 @@
+﻿  0705_Practice1.c
+D:\WorkSpace\InhaGame-2024\0705_Practice1\0705_Practice1\0705_Practice1.c(63,10): warning C4101: 'grades' :참조되지 않은 지역 변수입니다.
+  0705_Practice1.vcxproj -> D:\WorkSpace\InhaGame-2024\0705_Practice1\0705_Practice1\x64\Debug\0705_Practice1.exe
