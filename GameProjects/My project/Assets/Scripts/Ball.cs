@@ -12,7 +12,7 @@ public class Ball : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         this.transform.Rotate(new Vector3(1, 1, 1));
     }

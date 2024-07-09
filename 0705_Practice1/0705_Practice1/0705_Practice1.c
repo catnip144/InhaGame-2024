@@ -19,74 +19,102 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct student
-{
-	char name[30];
-	int num;
-	double avgGrade;
-	struct student* nextStudent;
+struct student {
+    char name[30];
+    int num;
+    double avgGrade;
+    struct student* nextStudent;
 };
 typedef struct student Student;
 
 void Push(Student** head, double data)
 {
-	Student* newStudent = (Student*)malloc(sizeof(Student));
-	newStudent->avgGrade = data;
-	newStudent->nextStudent = *head;
-	*head = newStudent;
+    Student* newStudent = (Student*)malloc(sizeof(Student));
+    newStudent->avgGrade = data;
+
+    // 헤드가 가리키는 곳을 newStudent도 가리킨다.
+    newStudent->nextStudent = *head;
+
+    // 헤드가 가리키는 곳을 newStudent으로 바꾼다.
+    *head = newStudent;
 }
+
+void SortedInsert(Student** sorted, Student* newStudent)
+{
+    // 연결 리스트의 첫 초기화 or 리스트의 맨 처음(최솟값) 보다 작은 값일 때
+    if (*sorted == NULL || (*sorted)->avgGrade >= newStudent->avgGrade)
+    {
+        // sorted 가 가리키는 곳을 newStudent도 가리킨다.
+        newStudent->nextStudent = *sorted;
+
+        // sorted 가 가리키는 곳을 newStudent으로 바꾼다.
+        *sorted = newStudent;
+    }
+    else
+    {
+        Student* current = *sorted;
+        while (current != NULL && current->nextStudent->avgGrade <= newStudent->avgGrade)
+            current = current->nextStudent;
+
+        // 현재 멈춘자리(current)가 가리키는 곳을 newStudent 도 가리킨다.
+        newStudent->nextStudent = current->nextStudent;
+
+        // current가 가리키는 곳을 newStudent으로 바꾼다 (newStudent가 current보다 큰 것이 마지막으로 확인되었기 때문).
+        current->nextStudent = newStudent;
+    }
+}
+
 void SortStudents(Student** head)
 {
-	Student* current = *head;
-	while (current != NULL)
-	{
-		Student* temp = current;
-		while (temp->nextStudent != NULL && temp->nextStudent->avgGrade < current->avgGrade)
-			temp = temp->nextStudent;
-		
-		Student* next = current->nextStudent;
+    Student* sorted = NULL;
+    Student* current = *head;
 
-		current->nextStudent = temp->nextStudent;
-		temp->nextStudent = current;
-
-		current = next;
-	}
+    while (current != NULL)
+    {
+        Student* next = current->nextStudent;
+        SortedInsert(&sorted, current);
+        current = next;
+    }
+    *head = sorted;
 }
 
-void main()
+void PrintStudents(Student** head)
 {
-	Student* head = NULL;
+    Student* current = *head;
+    while (current != NULL)
+    {
+        printf("%lf\n", current->avgGrade);
+        current = current->nextStudent;
+    }
+}
 
-	while (1)
-	{
-		double temp;
-		double grades[3];
+int main() {
+    Student* head = NULL;
 
-		printf("점수 : ");
-		scanf("%lf", &temp);
+    while (1) {
+        double temp;
+        char name[100];
 
-		if (temp == 0)
-			break;
-		
-		Push(&head, temp);
 
-		//printf("학번 : ");
-		//scanf("%d", &student.num);
+        printf("Enter student name: ");
 
-		//printf("이름 : ");
-		//scanf("%s", &student.name);
 
-		//printf("국어, 영어, 수학 점수 : ");
-		//scanf("%lf %lf %lf", grades[0], grades[1], grades[2]);
-		//student.avgGrade = (grades[0] + grades[1] + grades[2]) / 3.0;
-	}
-	SortStudents(&head);
-	printf("[%lf]\n", head->avgGrade);
+        if (temp == 0)
+            break;
 
-	//Student* current = head;
-	//while (current != NULL)
-	//{
-	//	printf("%lf ", current->avgGrade);
-	//	current = current->nextStudent;
-	//}
+        Push(&head, temp);
+    }
+    SortStudents(&head);
+    printf("Sorted Grades:\n");
+    PrintStudents(&head);
+
+    //// Free the allocated memory
+    //Student* current = head;
+    //while (current != NULL) {
+    //    Student* next = current->nextStudent;
+    //    free(current);
+    //    current = next;
+    //}
+
+    return 0;
 }
