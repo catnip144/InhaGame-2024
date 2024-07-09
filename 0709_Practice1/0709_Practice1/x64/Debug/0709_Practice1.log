@@ -1,0 +1,5 @@
+﻿  0709_Practice1.c
+D:\WorkSpace\InhaGame-2024\0709_Practice1\0709_Practice1\0709_Practice1.c(15,6): warning C4142: 'GetFileSize': 형식이 재정의되었지만 심각하지는 않습니다.
+D:\WorkSpace\InhaGame-2024\0709_Practice1\0709_Practice1\0709_Practice1.c(15,6): warning C4029: 선언된 정식 매개 변수 목록이 정의와 다릅니다.
+D:\WorkSpace\InhaGame-2024\0709_Practice1\0709_Practice1\0709_Practice1.c(15,6): warning C4273: 'GetFileSize': dll 연결이 일치하지 않습니다.
+  0709_Practice1.vcxproj -> D:\WorkSpace\InhaGame-2024\0709_Practice1\x64\Debug\0709_Practice1.exe
