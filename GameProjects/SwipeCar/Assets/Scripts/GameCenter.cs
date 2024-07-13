@@ -8,6 +8,7 @@ public class GameCenter : MonoBehaviour
     public GameObject car, flag, distance;
     public TextMeshProUGUI distanceText;
     float flagDistance;
+    bool isGameOver = false;
 
     private void Start()
     {
@@ -17,9 +18,12 @@ public class GameCenter : MonoBehaviour
     }
     private void Update()
     {
-        flagDistance = GetFlagDistance();
-        ShowFlagDistance();
-        DetermineGameOver();
+        if (!isGameOver)
+        {
+            flagDistance = GetFlagDistance();
+            ShowFlagDistance();
+            DetermineGameOver();
+        }
     }
     private float GetFlagDistance()
     {
@@ -32,6 +36,9 @@ public class GameCenter : MonoBehaviour
     private void DetermineGameOver()
     {
         if (flagDistance < 0)
+        {
+            isGameOver = true;
             distanceText.text = "GameOver";
+        }
     }
 }
