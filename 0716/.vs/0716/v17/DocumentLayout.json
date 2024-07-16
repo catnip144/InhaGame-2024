@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\WorkSpace\\InhaGame-2024\\0716\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7D2FF53D-4E50-44AC-A6B6-30BC808A6655}|0716\\0716.vcxproj|D:\\WorkSpace\\InhaGame-2024\\0716\\0716\\0716.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{7D2FF53D-4E50-44AC-A6B6-30BC808A6655}|0716\\0716.vcxproj|solutionrelative:0716\\0716.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "0716.cpp",
+              "DocumentMoniker": "D:\\WorkSpace\\InhaGame-2024\\0716\\0716\\0716.cpp",
+              "RelativeDocumentMoniker": "0716\\0716.cpp",
+              "ToolTip": "D:\\WorkSpace\\InhaGame-2024\\0716\\0716\\0716.cpp",
+              "RelativeToolTip": "0716\\0716.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACsAAABOAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-07-16T00:20:32.358Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
