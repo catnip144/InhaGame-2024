@@ -1,0 +1,9 @@
+﻿  0717_Practice1.cpp
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(27,39): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(33,28): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(34,26): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(35,28): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(45,27): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(46,32): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+D:\WorkSpace\InhaGame-2024\0717_Practice1\0717_Practice1\0717_Practice1.cpp(47,30): warning C4305: '초기화 중': 'double'에서 'float'(으)로 잘립니다.
+  0717_Practice1.vcxproj -> D:\WorkSpace\InhaGame-2024\0717_Practice1\x64\Debug\0717_Practice1.exe
