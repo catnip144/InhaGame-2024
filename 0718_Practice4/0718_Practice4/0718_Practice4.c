@@ -13,22 +13,16 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 char alphaTable[36];
 int numTable[101];
 
-char* ConvertFromBase10()
+char* ConvertFromBase10(int n, int b)
 {
 	int count = 0;
 	char* nums = (char*)malloc(sizeof(char) * 2);
-
-	int n, b;
-
-	printf("10진수 숫자 입력: ");
-	scanf("%d", &n);
-
-	printf("변환할 진수: ");
-	scanf("%d", &b);
 
 	while (n)
 	{
@@ -42,13 +36,34 @@ char* ConvertFromBase10()
 		printf("%c", nums[i]);
 }
 
-void ConvertToBase10()
+void ConvertBase()
 {
+	int start, to;
+	char num[500];
+
+	printf("시작 진수: ");
+	scanf("%d", &start);
+
+	printf("변환할 진수: ");
+	scanf("%d", &to);
+
+	printf("숫자 입력: ");
+	scanf("%s", num);
+
+	int lastIndex = strlen(num) - 1;
+	int sum = 0;
+
+	for (int i = lastIndex; i >= 0; i--)
+		sum += start * pow(numTable[num[i]], lastIndex - i);
+	
+	
 
 }
 
 void main()
 {
+	int n, b;
+
 	for (int i = 0; i <= 9; i++)
 	{
 		alphaTable[i] = '0' + i;
@@ -59,6 +74,11 @@ void main()
 		alphaTable[i] = 'A' + i - 10;
 		numTable[alphaTable[i]] = i;
 	}
+	printf("10진수 숫자 입력: ");
+	scanf("%d", &n);
 
-	ConvertFromBase10();
+	printf("변환할 진수: ");
+	scanf("%d", &b);
+
+	ConvertFromBase10(n, b);
 }
