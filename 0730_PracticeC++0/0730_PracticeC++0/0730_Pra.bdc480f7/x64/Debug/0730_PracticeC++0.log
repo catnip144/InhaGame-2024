@@ -1,0 +1,3 @@
+﻿  _PracticeC++.cpp
+D:\WorkSpace\InhaGame-2024\0730_PracticeC++0\0730_PracticeC++0\_PracticeC++.cpp(67,1): warning C4172: 지역 변수 또는 임시: temp의 주소를 반환하고 있습니다.
+  0730_PracticeC++0.vcxproj -> D:\WorkSpace\InhaGame-2024\0730_PracticeC++0\0730_PracticeC++0\x64\Debug\0730_PracticeC++0.exe
