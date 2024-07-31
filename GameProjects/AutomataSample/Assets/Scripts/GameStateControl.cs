@@ -30,7 +30,20 @@ public class GameStateControl : MonoBehaviour
     public void SetGameState(GameState state)
     {
         currentGameState = state;
+        if (state == GameState.EXITGAME)
+        {
+            ExitGame();
+            return;
+        }
         SceneManager.LoadScene(sceneNameDict[state]);
     }
+    private void ExitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 }
-public enum GameState { INTRO, LOGIN, LOBBY, BATTLE, SHOP, UPGRADE, MYROOM }
+public enum GameState { INTRO, LOGIN, LOBBY, BATTLE, SHOP, UPGRADE, MYROOM, EXITGAME }
