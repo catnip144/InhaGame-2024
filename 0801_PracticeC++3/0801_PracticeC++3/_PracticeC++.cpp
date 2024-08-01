@@ -25,6 +25,7 @@ ex> 횟수 ? 100		A : 1,	B : 3,	C : 3,	D : 5 ...............
 #include <string>
 #include <ctime>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -80,7 +81,7 @@ int main()
 		// 동일한 확률의 아이템들 중 하나를 뽑아야 할 경우 랜덤으로 선택
 		index = candidates[rand() % candidates.size()];
 
-		int maxCount = items[index].percent / 100.0 * n;
+		int maxCount = ceil(items[index].percent / 100.0 * n);
 
 		if (items[index].count < maxCount)
 		{
