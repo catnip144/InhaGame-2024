@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\WorkSpace\\InhaGame-2024\\0801_Practice1\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DCF25C62-F21F-4E26-94FC-5782E5BC5E7F}|0801_Practice1\\0801_Practice1.vcxproj|D:\\WorkSpace\\InhaGame-2024\\0801_Practice1\\0801_Practice1\\0624_Practice1.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{DCF25C62-F21F-4E26-94FC-5782E5BC5E7F}|0801_Practice1\\0801_Practice1.vcxproj|solutionrelative:0801_Practice1\\0624_Practice1.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "0624_Practice1.c",
+              "DocumentMoniker": "D:\\WorkSpace\\InhaGame-2024\\0801_Practice1\\0801_Practice1\\0624_Practice1.c",
+              "RelativeDocumentMoniker": "0801_Practice1\\0624_Practice1.c",
+              "ToolTip": "D:\\WorkSpace\\InhaGame-2024\\0801_Practice1\\0801_Practice1\\0624_Practice1.c",
+              "RelativeToolTip": "0801_Practice1\\0624_Practice1.c",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2024-08-01T07:43:15.837Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

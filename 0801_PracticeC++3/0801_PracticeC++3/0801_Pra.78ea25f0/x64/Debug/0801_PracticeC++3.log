@@ -1,0 +1,3 @@
+﻿  _PracticeC++.cpp
+D:\WorkSpace\InhaGame-2024\0801_PracticeC++3\0801_PracticeC++3\_PracticeC++.cpp(83,16): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  0801_PracticeC++3.vcxproj -> D:\WorkSpace\InhaGame-2024\0801_PracticeC++3\0801_PracticeC++3\x64\Debug\0801_PracticeC++3.exe
