@@ -442,6 +442,7 @@ GameObject:
   - component: {fileID: 1084682383}
   - component: {fileID: 1084682382}
   - component: {fileID: 1084682381}
+  - component: {fileID: 1084682385}
   - component: {fileID: 1084682380}
   - component: {fileID: 1084682384}
   m_Layer: 0
@@ -567,6 +568,23 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
+--- !u!114 &1084682385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084682379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ffc321f4b1a1564184977a2ad310d57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerRb: {fileID: 1084682384}
+  jumpForce: 450
+  walkSpeed: 5
+  coyoteTime: 0.2
+  jumpBufferTime: 0.2
 --- !u!1001 &1085270401
 PrefabInstance:
   m_ObjectHideFlags: 0

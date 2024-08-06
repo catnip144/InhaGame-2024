@@ -26,13 +26,12 @@ public class GameDirector : MonoBehaviour
 
     public bool CheckGround(Transform target, float offset, int facingDir)
     {
-        RaycastHit hit;
         Vector3 nextPos = new Vector3(target.position.x + offset * facingDir, target.position.y, target.position.z);
         Ray rayTowardsGround = new Ray(nextPos, Vector3.down);
 
         Debug.DrawRay(nextPos, Vector3.down * 5, Color.green);
 
-        if (Physics.Raycast(rayTowardsGround, out hit, Mathf.Infinity, groundLayerMask))
+        if (Physics.Raycast(rayTowardsGround, Mathf.Infinity, groundLayerMask))
             return true;
 
         return false;
