@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector3(facingDir, 1, 1);
     }
 
-    private bool IsGrounded()
+    public bool IsGrounded()
     {
         bool isHit = Physics.Raycast(transform.position, Vector3.down, 1f);
         return isHit && (playerRb.velocity.y == 0);

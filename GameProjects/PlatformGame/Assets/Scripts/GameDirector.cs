@@ -4,9 +4,16 @@ using UnityEngine;
 
 public class GameDirector : MonoBehaviour
 {
-    int groundLayerMask;
     private static GameDirector _instance = null;
     public static GameDirector instance => _instance;
+    public int PlayerLayerMask => playerLayerMask;
+    public Vector3 PlayerPos => PlayerControl.transform.position;
+
+    public PlayerController PlayerControl;
+
+    private int playerLayerMask;
+    private int groundLayerMask;
+    
 
     void Awake()
     {
@@ -16,6 +23,7 @@ public class GameDirector : MonoBehaviour
 
     void Start()
     {
+        playerLayerMask = 1 << LayerMask.NameToLayer("Player");
         groundLayerMask = 1 << LayerMask.NameToLayer("Ground");
     }
 
