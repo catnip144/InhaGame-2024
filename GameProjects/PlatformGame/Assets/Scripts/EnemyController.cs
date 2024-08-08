@@ -9,15 +9,19 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float walkSpeed, chaseSpeed;
     [SerializeField] private float checkGroundOffset;
     [SerializeField] private float lookOutDistance;
+    [SerializeField] private float chaseStartDistance;
 
     private Rigidbody enemyRb;
     private Animator enemyAnim;
     [SerializeField] private EnemyState currentState = EnemyState.PATROL;
 
     private int facingDir = -1;
-    private float delayChaseTimer;
+
+    private float stareDelayMaxTime = 1f;
+    private float stareDelayTimer;
+
+    private float attackIntervalTime = 1f;
     private float attackTimer;
-    private float stareTimer;
 
     void Start()
     {
@@ -70,7 +74,6 @@ public class EnemyController : MonoBehaviour
         {
             facingDir *= -1;
         }
-
         LookOut(facingDir);
     }
 
@@ -83,25 +86,17 @@ public class EnemyController : MonoBehaviour
         {
             if (currentState == EnemyState.PATROL)
             {
+                stareDelayTimer = stareDelayMaxTime;
                 exclamation.gameObject.SetActive(true);
-                delayChaseTimer = 1f;
             }
-            currentState = EnemyState.CHASE;
+            currentState = EnemyState.STARE;
         }
     }
 
     private void ChasePlayer()
     {
-        delayChaseTimer -= Time.deltaTime;
-
-        if (delayChaseTimer > 0)
-            return;
-
-        exclamation.gameObject.SetActive(false);
-
         if (StopChaseCondition())
         {
-            stareTimer = 2f;
             currentState = EnemyState.STARE;
             return;
         }
@@ -117,26 +112,32 @@ public class EnemyController : MonoBehaviour
     {
         if (attackTimer < 0)
         {
-            Debug.Log("플레이어 공격!");
-            enemyAnim.SetTrigger("Attack");
-            attackTimer = 1f;
+            Debug.Log("플레이어를 공격!");
+            enemyAnim.Play("Attack", -1, 0f);
+            attackTimer = attackIntervalTime;
         }
         else
         {
-            enemyAnim.SetTrigger("Default");
             attackTimer -= Time.deltaTime;
         }
     }
 
     private void Stare()
     {
-        LookOut(facingDir);
+        stareDelayTimer -= Time.deltaTime;
+        if (stareDelayTimer > 0) return;
 
-        if (stareTimer < 0)
+        if ((transform.position - GameDirector.instance.PlayerPos).magnitude < chaseStartDistance)
         {
+            exclamation.gameObject.SetActive(false);
+            currentState = EnemyState.CHASE;
+        }
+        else if((transform.position - GameDirector.instance.PlayerPos).magnitude > chaseStartDistance * 1.5f)
+        {
+            enemyAnim.Play("Idle", -1, 0f);
+            exclamation.gameObject.SetActive(false);
             currentState = EnemyState.PATROL;
         }
-        stareTimer -= Time.deltaTime;
     }
 
     private bool StopChaseCondition()
