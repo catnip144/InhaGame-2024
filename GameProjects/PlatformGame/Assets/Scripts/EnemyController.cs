@@ -134,7 +134,7 @@ public class EnemyController : MonoBehaviour
         }
         else if((transform.position - GameDirector.instance.PlayerPos).magnitude > chaseStartDistance * 1.5f)
         {
-            enemyAnim.Play("Idle", -1, 0f);
+            enemyAnim.Play("Default", -1, 0f);
             exclamation.gameObject.SetActive(false);
             currentState = EnemyState.PATROL;
         }
