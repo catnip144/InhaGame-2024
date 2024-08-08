@@ -59,8 +59,8 @@ int main()
 	cout << "원판 개수: ";
 	cin >> totalDisks;
 
-	for (int i = 0; i < totalDisks; i++)
-		towers[0].push_back(i + 1);
+	for (int i = totalDisks; i >= 1; i--)
+		towers[0].push_back(i);
 
 	PrintTowers(towers);
 	HanoiTower(totalDisks, towers[0], towers[1], towers[2]);
