@@ -5,152 +5,88 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    public EnemyStateContext StateContext => enemyStateContext;
+    public Rigidbody EnemyRb              => enemyRb;
+    public Animator EnemyAnim             => enemyAnim;
+    public EnemyState CurrentState        => currentState;
+    public EnemyState PreviousState       => previousState;
+    public GameObject Exclamation         => exclamation;
+    public float LookOutDistance          => lookOutDistance;
+    public float CheckGroundOffset        => checkGroundOffset;
+    public float WalkSpeed                => walkSpeed;
+    public float ChaseSpeed               => chaseSpeed;
+    public float AttackTimer              => attackTimer;
+    public float AttackIntervalTime       => attackIntervalTime;
+    public float StareDelayTimer          => stareDelayTimer;
+    public float StareDelayMaxTime        => stareDelayMaxTime;
+    public float ChaseStartDistance       => chaseStartDistance;
+    public int FacingDir                  => facingDir;
+
     [SerializeField] private GameObject exclamation;
     [SerializeField] private float walkSpeed, chaseSpeed;
     [SerializeField] private float checkGroundOffset;
     [SerializeField] private float lookOutDistance;
     [SerializeField] private float chaseStartDistance;
-
-    private Rigidbody enemyRb;
-    private Animator enemyAnim;
     [SerializeField] private EnemyState currentState = EnemyState.PATROL;
 
-    private int facingDir = -1;
-
+    private EnemyStateContext enemyStateContext;
+    private EnemyState previousState;
+    private Rigidbody enemyRb;
+    private Animator enemyAnim;
     private float stareDelayMaxTime = 1f;
     private float stareDelayTimer;
-
     private float attackIntervalTime = 1f;
     private float attackTimer;
+    [SerializeField]private int facingDir = -1;
 
     void Start()
     {
         enemyRb = GetComponent<Rigidbody>();
         enemyAnim = GetComponent<Animator>();
+        enemyStateContext = new EnemyStateContext(this);
+        enemyStateContext.Transition(EnemyState.PATROL);
     }
 
     void FixedUpdate()
     {
-        switch (currentState)
-        {
-            case EnemyState.PATROL:
-                Patrol();
-                break;
-            
-            case EnemyState.CHASE:
-                ChasePlayer();
-                break;
-            
-            case EnemyState.ATTACK:
-                AttackPlayer();
-                break;
-            
-            case EnemyState.STARE:
-                Stare();
-                break;
-        }
+        enemyStateContext.CurrentState.OnStateUpdate(this);
     }
 
     void OnCollisionEnter(Collision collision)
     {
         if (currentState == EnemyState.CHASE && collision.gameObject.tag.Equals("Player"))
         {
-            currentState = EnemyState.ATTACK;
+            enemyStateContext.Transition(EnemyState.ATTACK);
         }
     }
+
     void OnCollisionExit(Collision collision)
     {
         if (currentState == EnemyState.ATTACK && collision.gameObject.tag.Equals("Player"))
         {
-            currentState = EnemyState.CHASE;
+            enemyStateContext.Transition(EnemyState.CHASE);
         }
     }
 
-    private void Patrol()
+    public void InvertFacingDir()
     {
-        if (GameDirector.instance.CheckGround(transform, checkGroundOffset, facingDir))
-            enemyRb.MovePosition(transform.position + transform.right * facingDir * Time.deltaTime * walkSpeed);
-        else
-        {
-            facingDir *= -1;
-        }
-        LookOut(facingDir);
+        facingDir *= -1;
     }
 
-    private void LookOut(int facingDir)
+    public void SetStareDelayTimer(float time)
     {
-        Ray forwardRay = new Ray(transform.position, -Vector3.left * facingDir);
-        Debug.DrawRay(transform.position, -Vector3.left * facingDir * lookOutDistance, Color.red);
-
-        if (Physics.Raycast(forwardRay, lookOutDistance, GameDirector.instance.PlayerLayerMask))
-        {
-            if (currentState == EnemyState.PATROL)
-            {
-                stareDelayTimer = stareDelayMaxTime;
-                exclamation.gameObject.SetActive(true);
-            }
-            currentState = EnemyState.STARE;
-        }
+        stareDelayTimer = time;
     }
 
-    private void ChasePlayer()
+    public void SetAttackTimer(float time)
     {
-        if (StopChaseCondition())
-        {
-            currentState = EnemyState.STARE;
-            return;
-        }
-        Vector3 prevPosition = transform.position;
-        Vector3 nextPosition = Vector3.MoveTowards(transform.position, GameDirector.instance.PlayerPos, Time.deltaTime * chaseSpeed);
-        nextPosition.y = prevPosition.y;
-        nextPosition.z = prevPosition.z;
-        
-        transform.position = nextPosition;
+        attackTimer = time;
     }
 
-    private void AttackPlayer()
+    public void SetEnemyStateType(EnemyState stateType)
     {
-        if (attackTimer < 0)
-        {
-            Debug.Log("플레이어를 공격!");
-            enemyAnim.Play("Attack", -1, 0f);
-            attackTimer = attackIntervalTime;
-        }
-        else
-        {
-            attackTimer -= Time.deltaTime;
-        }
-    }
-
-    private void Stare()
-    {
-        stareDelayTimer -= Time.deltaTime;
-        if (stareDelayTimer > 0) return;
-
-        if ((transform.position - GameDirector.instance.PlayerPos).magnitude < chaseStartDistance)
-        {
-            exclamation.gameObject.SetActive(false);
-            currentState = EnemyState.CHASE;
-        }
-        else if((transform.position - GameDirector.instance.PlayerPos).magnitude > chaseStartDistance * 1.5f)
-        {
-            enemyAnim.Play("Default", -1, 0f);
-            exclamation.gameObject.SetActive(false);
-            currentState = EnemyState.PATROL;
-        }
-    }
-
-    private bool StopChaseCondition()
-    {
-        // 서 있을 플랫폼이 없을 경우
-        if (!GameDirector.instance.CheckGround(transform, checkGroundOffset, facingDir))
-            return true;
-        
-        // 플레이어를 닿을 수 없을 경우
-        if (GameDirector.instance.PlayerControl.IsGrounded() && Mathf.Abs(GameDirector.instance.PlayerPos.y - transform.position.y) > 0.5f)
-            return true;
-
-        return false;
+        previousState = currentState;
+        currentState = stateType;
     }
 }
 
