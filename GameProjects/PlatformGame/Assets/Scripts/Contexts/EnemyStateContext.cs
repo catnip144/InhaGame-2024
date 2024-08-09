@@ -30,7 +30,7 @@ public class EnemyStateContext
         CurrentState.OnStateEnter(enemyController);
     }
 
-    private IEnemyState GetIEnemyState(EnemyState stateType)
+    public IEnemyState GetIEnemyState(EnemyState stateType)
     {
         switch (stateType)
         {
@@ -49,5 +49,13 @@ public class EnemyStateContext
             default:
                 return patrolState;
         }
+    }
+
+    public void InitEnemyStates()
+    {
+        ((EnemyPatrolState)patrolState).Init(enemyController);
+        ((EnemyStareState)stareState).Init(enemyController);
+        ((EnemyAttackState)attackState).Init(enemyController);
+        ((EnemyChaseState)chaseState).Init(enemyController);
     }
 }

@@ -13,9 +13,6 @@ public class EnemyChaseState : IEnemyState
 
     public void OnStateUpdate(EnemyController controller)
     {
-        if (!enemyControl)
-            Init(controller);
-        
         Vector3 prevPosition = enemyTransform.position;
         Vector3 nextPosition = Vector3.MoveTowards(enemyTransform.position, GameDirector.instance.PlayerPos, Time.deltaTime * enemyControl.ChaseSpeed);
 
@@ -28,7 +25,7 @@ public class EnemyChaseState : IEnemyState
             enemyControl.InvertFacingDir();
 
         if (StopChaseCondition())
-        {            
+        {
             enemyControl.StateContext.Transition(EnemyState.STARE);
             return;
         }
@@ -40,7 +37,7 @@ public class EnemyChaseState : IEnemyState
     {
     }
 
-    private void Init(EnemyController controller)
+    public void Init(EnemyController controller)
     {
         enemyControl   = controller;
         enemyTransform = controller.transform;
@@ -58,5 +55,16 @@ public class EnemyChaseState : IEnemyState
             return true;
 
         return false;
+    }
+
+    public bool StartChaseCondition()
+    {
+        if ((enemyTransform.position - GameDirector.instance.PlayerPos).magnitude >= enemyControl.ChaseStartDistance)
+            return false;
+        
+        if (GameDirector.instance.PlayerControl.IsGrounded() && Mathf.Abs(GameDirector.instance.PlayerPos.y - enemyTransform.position.y) > 0.5f)
+            return false;
+
+        return true;
     }
 }

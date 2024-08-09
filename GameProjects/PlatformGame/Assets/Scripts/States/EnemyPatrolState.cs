@@ -12,9 +12,6 @@ public class EnemyPatrolState : IEnemyState
 
     public void OnStateUpdate(EnemyController controller)
     {
-        if (!enemyControl)
-            Init(controller);
-            
         if (GameDirector.instance.CheckGround(enemyTransform, enemyControl.CheckGroundOffset, enemyControl.FacingDir))
             enemyRb.MovePosition(enemyTransform.position + enemyTransform.right * enemyControl.FacingDir * Time.deltaTime * enemyControl.WalkSpeed);
         else
@@ -26,7 +23,7 @@ public class EnemyPatrolState : IEnemyState
     {
     }
 
-    private void Init(EnemyController controller)
+    public void Init(EnemyController controller)
     {
         enemyControl   = controller;
         enemyTransform = controller.transform;

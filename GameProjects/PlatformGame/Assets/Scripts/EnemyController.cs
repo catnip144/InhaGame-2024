@@ -37,13 +37,14 @@ public class EnemyController : MonoBehaviour
     private float stareDelayTimer;
     private float attackIntervalTime = 1f;
     private float attackTimer;
-    [SerializeField]private int facingDir = -1;
+    private int facingDir = -1;
 
-    void Start()
+    void Awake()
     {
         enemyRb = GetComponent<Rigidbody>();
         enemyAnim = GetComponent<Animator>();
         enemyStateContext = new EnemyStateContext(this);
+        enemyStateContext.InitEnemyStates();
         enemyStateContext.Transition(EnemyState.PATROL);
     }
 

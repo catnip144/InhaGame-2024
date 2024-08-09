@@ -13,9 +13,6 @@ public class EnemyAttackState : IEnemyState
 
     public void OnStateUpdate(EnemyController controller)
     {
-        if (!enemyControl)
-            Init(controller);
-        
         if (enemyControl.AttackTimer < 0)
         {
             Debug.Log("플레이어를 공격!");
@@ -30,7 +27,7 @@ public class EnemyAttackState : IEnemyState
     {
     }
 
-    private void Init(EnemyController controller)
+    public void Init(EnemyController controller)
     {
         enemyControl   = controller;
         enemyAnim      = controller.EnemyAnim;
