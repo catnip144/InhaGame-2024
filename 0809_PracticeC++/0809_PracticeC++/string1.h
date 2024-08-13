@@ -7,11 +7,7 @@
 #include <iostream>
 #include <cstring>
 
-using std::ostream;
-using std::istream;
-using std::cin;
-using std::cout;
-using std::endl;
+using namespace std;
 
 class String
 {

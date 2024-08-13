@@ -27,6 +27,9 @@
     <ClCompile Include="sayings1.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="sayings2.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stringbad.h">

@@ -1,0 +1,4 @@
+﻿  _PracticeC++.cpp
+D:\WorkSpace\InhaGame-2024\0813_PracticeC++1\0813_PracticeC++1\_PracticeC++.cpp(73,12): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\WorkSpace\InhaGame-2024\0813_PracticeC++1\0813_PracticeC++1\_PracticeC++.cpp(80,15): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  0813_PracticeC++1.vcxproj -> D:\WorkSpace\InhaGame-2024\0813_PracticeC++1\x64\Debug\0813_PracticeC++1.exe
