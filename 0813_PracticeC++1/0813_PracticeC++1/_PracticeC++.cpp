@@ -11,6 +11,7 @@ int main()
 {
 	string userInput;
 	//string userInput = "((4*2+12)*(123+7))";
+	// -2*(-1-1)-3.9+6/((3+3)/6.0)
 
 	cout << "수식: ";
 	cin >> userInput;
@@ -25,13 +26,16 @@ int main()
 	opVal['*'] = opVal['/'] = 2;
 
 	vector<char> opStack;
-	vector<int> operand;
+	vector<double> operand;
 	queue <string> postfix;
 	string numTemp = "";
 
 	for (int i = 0; i < userInput.size(); i++)
 	{
-		if (isdigit(userInput[i]))
+		if (userInput[i] == '-' && userInput[i - 1] == '(')
+			numTemp += userInput[i];
+
+		else if (isdigit(userInput[i]) || userInput[i] == '.')
 			numTemp += userInput[i];
 		else
 		{
@@ -54,7 +58,7 @@ int main()
 			}
 			else if (userInput[i] != '(')
 			{
-				while (!opStack.empty() && (opVal[userInput[i]] < opVal[opStack.back()]))
+				while (!opStack.empty() && (opVal[userInput[i]] <= opVal[opStack.back()]))
 				{
 					string temp = "";
 					temp += opStack.back();
@@ -73,8 +77,8 @@ int main()
 	int qSize = postfix.size();
 	for (int i = 0; i < qSize; i++)
 	{
-		if (isdigit(postfix.front()[0]))
-			operand.push_back(stoi(postfix.front()));
+		if (isdigit(postfix.front()[0]) || (postfix.front().size() > 1 && postfix.front()[0] == '-'))
+			operand.push_back(stod(postfix.front()));
 		else
 		{
 			int arSize = operand.size();
@@ -101,7 +105,6 @@ int main()
 		postfix.pop();
 	}
 	cout << operand[0] << endl;
-
 	return 0;
 }
 
