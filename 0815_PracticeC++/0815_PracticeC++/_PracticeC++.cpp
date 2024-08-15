@@ -1,18 +1,18 @@
 ﻿#include "workermi.h"
 #include "queuetp.h"
 
-void Show()
+void Show(QueueTp<Worker*>& workers)
 {
 	cout << "\n사원 현황은 다음과 같습니다:\n";
 
-	int start = lolas.FrontIndex();
-	int end = lolas.RearIndex();
+	int start = workers.FrontIndex();
+	int end = workers.RearIndex();
 
 	while (start != end)
 	{
 		cout << endl;
-		lolas.GetItems()[start]->Show();
-		start = (start + 1) % lolas.MaxSize();
+		workers.GetItems()[start]->Show();
+		start = (start + 1) % workers.MaxSize();
 	}
 }
 
@@ -24,13 +24,13 @@ int main()
 	{
 		char choice;
 		cout << "\n직종을 입력하십시오:\n"
-			 << "w: 웨이터\ts: 가수\t\tt: 가수 겸 웨이터\tq: 종료\n";
+			 << "w: 웨이터    s: 가수    t: 가수 겸 웨이터    d: 큐에서 제거    q: 종료\n";
 
 		cin >> choice;
 
-		while (strchr("wstq", choice) == NULL)
+		while (strchr("wstdq", choice) == NULL)
 		{
-			cout << "w, s, t, q 중에서 하나를 선택하십시오: ";
+			cout << "w, s, t, d, q 중에서 하나를 선택하십시오: ";
 			cin >> choice;
 		}
 		if (choice == 'q')
@@ -49,12 +49,17 @@ int main()
 		case 't':
 			lolas.Enqueue(new SingingWaiter);
 			break;
+
+		case 'd':
+			cin.get();
+			lolas.Dequeue();
+			Show(lolas);
+			continue;
 		}
 		cin.get();
 		lolas.Rear()->Set();
 	}
-
-
+	Show(lolas);
 	cout << "프로그램을 종료합니다.\n";
 	return 0;
 }

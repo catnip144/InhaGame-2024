@@ -29,8 +29,6 @@ public:
 	int MaxSize() { return SIZE; }
 
 	T* GetItems() { return items; }
-
-	QueueTp& operator=(const QueueTp& qt);
 };
 
 template <class T>
@@ -90,7 +88,7 @@ bool QueueTp<T>::Dequeue()
 	if (IsEmpty())
 		return false;
 
-	items[front] = 0;
+	items[front] = NULL;
 	queueSize--;
 	front = (front + 1) % SIZE;
 	return true;
@@ -103,28 +101,4 @@ inline T& QueueTp<T>::Rear()
 		return items[SIZE - 1];
 	else
 		return items[rear - 1];
-}
-
-template <class T>
-QueueTp<T>& QueueTp<T>::operator=(const QueueTp<T>& qt)
-{
-	if (this == &qt)
-		return *this;
-
-	delete[] items;
-
-	queueSize = qt.queueSize;
-	front = qt.front;
-	rear = qt.rear;
-	items = new T[SIZE];
-
-	int start = front;
-	int end = rear;
-
-	while (start != end)
-	{
-		items[start] = qt.items[start];
-		start = (start + 1) % SIZE;
-	}
-	return *this;
 }
