@@ -18,31 +18,27 @@ int main()
 	for (int i = 0; i <= half; i++)
 	{
 		for (int j = half - i; j > 0; j--)
-			cout << ' ';
+			cout << "  ";
 
-		cout << '*';
-		int plusCount = max(0, i - 1);
+		cout << "* ";
+		for (int j = 0; j < i + 1 - 2; j++)
+			cout << "+ ";
 
-		for (int p = 0; p < plusCount; p++)
-			cout << '+';
-
-		if (i != 0 && i != k - 1)
-			cout << '*';
+		if (i != 0)
+			cout << "* ";
 		cout << endl;
 	}
 	for (int i = 0; i < half; i++)
 	{
-		for (int j = half - i; j > 0; j--)
-			cout << ' ';
+		for (int j = 0; j < i + 1; j++)
+			cout << "  ";
 
-		cout << '*';
-		int plusCount = max(0, i - 1);
+		cout << "* ";
+		for (int j = 0; j < half - i - 2; j++)
+			cout << "+ ";
 
-		for (int p = 0; p < plusCount; p++)
-			cout << '+';
-
-		if (i != 0 && i != k - 1)
-			cout << '*';
+		if (i != half - 1)
+			cout << "* ";
 		cout << endl;
 	}
 
