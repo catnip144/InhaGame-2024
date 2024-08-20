@@ -28,6 +28,8 @@ void ShellSort(vector<int>& nums, int n)
 			for (int i = k + distance; i < n; i += distance)
 			{
 				int temp = nums[i];
+
+				// j는 최종적으로 i번째 요소와 교환될 위치를 가리키게 된다 
 				int j;
 
 				for (j = i; (j >= distance && temp < nums[j - distance]); j -= distance)
@@ -36,14 +38,18 @@ void ShellSort(vector<int>& nums, int n)
 					cout << nums[j - distance] << " 와 " << temp << " 를 비교\n";
 					nums[j] = nums[j - distance];
 				}
+				// 교환될 위치가 자기 자신이 아닐 경우
 				if (i != j)
-				++swpCount;
-				cout << nums[j] << " 와 " << temp << " 를 교환\n";
-				nums[j] = temp;
+				{
+					++swpCount;
+					cout << nums[j] << " 와 " << temp << " 를 교환\n";
+					nums[j] = temp;
 
-				for (auto num : nums)
-					cout << num << " ";
-				cout << "\n\n";
+					cout << ">> ";
+					for (auto num : nums)
+						cout << num << " ";
+					cout << "\n\n";
+				}
 			}
 		}
 		if (distance == 1) break;
