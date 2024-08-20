@@ -30,6 +30,21 @@ int main()
 			cout << '*';
 		cout << endl;
 	}
+	for (int i = 0; i < half; i++)
+	{
+		for (int j = half - i; j > 0; j--)
+			cout << ' ';
+
+		cout << '*';
+		int plusCount = max(0, i - 1);
+
+		for (int p = 0; p < plusCount; p++)
+			cout << '+';
+
+		if (i != 0 && i != k - 1)
+			cout << '*';
+		cout << endl;
+	}
 
 	return 0;
 }
