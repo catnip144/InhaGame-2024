@@ -29,13 +29,14 @@ Q3.
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 void SplitFile()
 {
 	string fileName;
-	ifstream fin;
+	ifstream ifs;
 	int fileSize;
 	int totalFileSize;
 
@@ -44,16 +45,16 @@ void SplitFile()
 		cout << "Enter file name : ";
 		cin >> fileName;
 
-		fin.open(fileName, ios_base::in | ios_base::out | ios_base::binary);
+		ifs.open(fileName, ios_base::binary);
 
-		if (fin.is_open())
+		if (ifs.is_open())
 			break;
 		else
 			cout << "Invalid file name\n\n";
 	}
-	fin.seekg(0, ios::end);
-	totalFileSize = fin.tellg();
-	fin.seekg(0, ios::beg);
+	ifs.seekg(0, ios::end);
+	totalFileSize = ifs.tellg();
+	ifs.seekg(0, ios::beg);
 
 	cout << "Enter file size : ";
 	cin >> fileSize;
@@ -63,27 +64,67 @@ void SplitFile()
 
 	for (int i = 0; i < repeat; i++)
 	{
-		ofstream newOf;
+		ofstream ofs;
 		string newFileName = fileName + "." + to_string(i + 1);
-		newOf.open(newFileName);
+		ofs.open(newFileName, ios_base::binary);
 
+		// buffer 크기 재설정 중요.
 		string buffer;
-		buffer.resize(fileSize); // buffer 크기 설정
+		buffer.resize(fileSize);
+		ifs.read(&buffer[0], fileSize);
 
-		fin.read(&buffer[0], fileSize);
-
-		newOf << buffer;
-		newOf.close();
-
+		ofs.write(&buffer[0], ifs.gcount());
 		cout << "\t-> file " << newFileName << '\n';
 	}
 	cout << ">> Split Done.\n";
 }
 
+void CombineFiles()
+{
+	cout << "Enter file number : ";
+	int fileCount;
+	cin >> fileCount;
+
+	vector<string> fileNames(fileCount);
+	for (int i = 0; i < fileCount; i++)
+	{
+		cout << "Enter source file : ";
+		cin >> fileNames[i];
+	}
+	cout << "Enter target file : ";
+	string targetFileName;
+	cin >> targetFileName;
+
+	ofstream ofs;
+	ofs.open(targetFileName, ios::binary);
+
+	for (const string& file : fileNames)
+	{
+		ifstream ifs;
+		ifs.open(file, ios::binary);
+
+		if (!ifs.is_open())
+		{
+			cout << "Failed to open file.\n";
+			exit(1);
+		}
+		ifs.seekg(0, ios::end);
+		int totalFileSize = ifs.tellg();
+		ifs.seekg(0, ios::beg);
+
+		string buffer;
+		buffer.resize(totalFileSize);
+
+		ifs.read(&buffer[0], totalFileSize);
+		ofs.write(&buffer[0], ifs.gcount());
+	}
+	cout << ">> Combine Done.\n";
+}
+
 int main()
 {
 	SplitFile();
-	//cout << "Enter file number : ";
+	CombineFiles();
 	return 0;
 }
 

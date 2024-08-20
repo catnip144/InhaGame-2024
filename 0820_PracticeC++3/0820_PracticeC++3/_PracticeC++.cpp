@@ -3,7 +3,6 @@
 	비교횟수와 교환횟수 출력
 	1. 단순 삽입 정렬과 횟수 비교
 	2. 단순 삽입 정렬과 속도 비교
-
 */
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
@@ -15,41 +14,33 @@
 
 using namespace std;
 
-int swpCount = 0;
 int cmpCount = 0;
+int swpCount = 0;
+
+void Swap(int& num1, int& num2)
+{
+	int temp = num1;
+	num1 = num2;
+	num2 = temp;
+}
 
 void ShellSort(vector<int>& nums, int n)
 {
 	int distance = n / 3 + 1;
-	while (distance)
+	while (1)
 	{
-		for (int k = 0; k < n; k++)
+		for (int i = distance; i < n; i++)
 		{
-			for (int i = k + distance; i < n; i += distance)
+			for (int j = i; j >= distance; j -= distance)
 			{
-				int temp = nums[i];
-
-				// j는 최종적으로 i번째 요소와 교환될 위치를 가리키게 된다 
-				int j;
-
-				for (j = i; (j >= distance && temp < nums[j - distance]); j -= distance)
-				{
-					++cmpCount;
-					cout << nums[j - distance] << " 와 " << temp << " 를 비교\n";
-					nums[j] = nums[j - distance];
-				}
-				// 교환될 위치가 자기 자신이 아닐 경우
-				if (i != j)
+				++cmpCount;
+				if (nums[j - distance] > nums[j])
 				{
 					++swpCount;
-					cout << nums[j] << " 와 " << temp << " 를 교환\n";
-					nums[j] = temp;
-
-					cout << ">> ";
-					for (auto num : nums)
-						cout << num << " ";
-					cout << "\n\n";
+					Swap(nums[j - distance], nums[j]);
 				}
+				else
+					break;
 			}
 		}
 		if (distance == 1) break;
@@ -57,10 +48,31 @@ void ShellSort(vector<int>& nums, int n)
 	}
 }
 
+void InsertionSort(vector<int>& nums, int n)
+{
+	for (int i = 1; i < n; i++)
+	{
+		int temp = nums[i];
+		int j;
+		for (j = i; j >= 1; j--)
+		{
+			++cmpCount;
+			if (nums[j - 1] > temp)
+				nums[j] = nums[j - 1];
+			else
+				break;
+		}
+		++swpCount;
+		nums[j] = temp;
+	}
+}
+
 int main()
 {
 	int n;
 	vector<int> nums;
+
+	StopWatch watch;
 	srand(time(NULL));
 
 	cout << "배열의 크기: ";
@@ -68,14 +80,27 @@ int main()
 
 	for (int i = 1; i <= n; i++)
 		nums.push_back(i);
-
 	random_shuffle(nums.begin(), nums.end());
+	cout << endl;
 
-	for (auto num : nums)
-		cout << num << " ";
-	cout << endl << endl;
+	vector<int> temp = nums;
+	watch.Start();
+	ShellSort(temp, n);
+	watch.Stop();
 
-	ShellSort(nums, n);
+	cout << "쉘 정렬 비교 횟수: " << cmpCount << endl;
+	cout << "쉘 정렬 교환 횟수: " << swpCount << endl;
+	cout << "걸린 시간: " << watch.GetElapsedTime() << "ms" << endl << endl;
+
+	temp = nums;
+	cmpCount = swpCount = 0;
+	watch.Start();
+	InsertionSort(temp, n);
+	watch.Stop();
+
+	cout << "삽입 정렬 비교 횟수: " << cmpCount << endl;
+	cout << "삽입 정렬 교환 횟수: " << swpCount << endl;
+	cout << "걸린 시간: " << watch.GetElapsedTime() << "ms" << endl << endl;
 
 	return 0;
 }
