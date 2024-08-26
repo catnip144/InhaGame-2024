@@ -1,15 +1,14 @@
-﻿// 0821_wapi_1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// 0826_wp_1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "framework.h"
-#include "0821_wapi_1.h"
+#include "0826_wp_1.h"
 #include <vector>
-#include <string>
+
+using namespace std;
 
 #define MAX_LOADSTRING 100
-
-using std::vector;
-using std::string;
+#define PI 3.14159265
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -34,7 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_MY0821WAPI1, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_MY0826WP1, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // 애플리케이션 초기화를 수행합니다:
@@ -43,7 +42,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MY0821WAPI1));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MY0826WP1));
 
     MSG msg;
 
@@ -78,10 +77,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY0821WAPI1));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY0826WP1));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY0821WAPI1);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY0826WP1);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -126,32 +125,52 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
+void DrawStar(HDC hdc, POINT center, double radius)
+{
+    POINT points[10];
+    for (int i = 0; i < 5; i++)
+    {
+        POINT point;
+        //point.x = center.x + sin((72 * i) * PI / 180.0) * radius;
+        //point.y = center.y - cos((72 * i) * PI / 180.0) * radius;
+
+        point.x = center.x + cos((18 + 72 * i) * PI / 180.0) * radius;
+        point.y = center.y - sin((18 + 72 * i) * PI / 180.0) * radius;
+        points[2 * i] = point;
+    }
+    //MoveToEx(hdc, points[0].x, points[0].y, NULL);
+    //for (int i = 1; i < 5; i++) {
+    //    LineTo(hdc, points[2 * i].x, points[2 * i].y);
+    //}
+
+    for (int i = 1; i < 10; i += 2)
+    {
+        POINT point;
+        double x1 = points[i - 1].x;
+        double y1 = points[i - 1].y;
+        double x2 = points[(i + 3) % 10].x;
+        double y2 = points[(i + 3) % 10].y;
+        double x3 = points[(i + 1) % 10].x;
+        double y3 = points[(i + 1) % 10].y;
+        double x4 = points[(i + 7) % 10].x;
+        double y4 = points[(i + 7) % 10].y;
+
+        point.x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+        point.y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+        points[i] = point;
+    }
+    Polygon(hdc, points, 10);
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static TCHAR    str[1000];
-    static int      count = 0;
-    static int      textX = 10;
-    static int      textY = 202;
-    static int      chatBufferSize = 10;
-    static SIZE     caretSize;
-    static vector<TCHAR*> chatLogs;
-
     switch (message)
     {
-    case WM_CREATE:
-
-        count = 0;
-        for (int i = 0; i < chatBufferSize; i++)
-            chatLogs.push_back(nullptr);
-
-        CreateCaret(hWnd, NULL, 5, 15);
-        ShowCaret(hWnd);
-        break;
-
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
-
+            // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
             case IDM_ABOUT:
@@ -165,68 +184,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-
-    case WM_CHAR:
-        if (wParam == VK_BACK)
-        {
-            if (count > 0)
-                count--;
-            str[count] = NULL;
-        }
-        else if (wParam == VK_RETURN)
-        {
-            TCHAR* copied = new TCHAR[1000];
-            for (int i = 0; i < 1000; i++)
-            {
-                copied[i] = str[i];
-                str[i] = NULL;
-            }
-            chatLogs.erase(chatLogs.begin());
-            chatLogs.push_back(copied);
-            count = 0;
-        }
-        else
-            str[count++] = wParam;
-
-        InvalidateRgn(hWnd, NULL, TRUE);
-        break;
-
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-            Rectangle(hdc, 0, 0, 200, 200);
-            Rectangle(hdc, 0, 200, 200, 220);
-
-            SetTextColor(hdc, RGB(0, 0, 0));
-
-            int yPos = textY;
-            for (int i = chatBufferSize - 1; i >= 0; i--)
-            {
-                if (chatLogs[i] == nullptr)
-                    continue;
-
-                yPos -= 20;
-                TextOut(hdc, 2, yPos, chatLogs[i], _tcslen(chatLogs[i]));
-            }
-            SetTextColor(hdc, RGB(0, 0, 255));
-            TextOut(hdc, 2, textY, _T(">"), _tcslen(_T(">")));
-            TextOut(hdc, textX, textY, str, _tcslen(str));
-
-            GetTextExtentPoint(hdc, str, _tcslen(str), &caretSize);
-            SetCaretPos(textX + caretSize.cx, textY);
+            DrawStar(hdc, { 300, 300 }, 100);
 
             EndPaint(hWnd, &ps);
         }
         break;
-
     case WM_DESTROY:
-        HideCaret(hWnd);
-        DestroyCaret();
         PostQuitMessage(0);
         break;
-
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

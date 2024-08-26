@@ -123,6 +123,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
+// 오각형 좌표 구하기 https://hwanlee.tistory.com/82
 void DrawGrid(HDC hdc, POINT center, int width, int height, int count = 0)
 {
     int startX = center.x - width / 2;
