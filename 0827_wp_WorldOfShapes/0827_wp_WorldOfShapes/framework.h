@@ -14,7 +14,10 @@
 #include <memory.h>
 #include <tchar.h>
 
-#include "cobject.h"
-#include <cmath>
 #include <vector>
+#include <cmath>
+#include <string>
 #include <time.h>
+#include <cmath>
+#include <algorithm>
+#include "cobject.h"

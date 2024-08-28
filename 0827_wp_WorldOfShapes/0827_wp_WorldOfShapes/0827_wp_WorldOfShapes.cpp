@@ -125,11 +125,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 #define TIMER_ID 1
 #define TIMER_INTERVAL 1
 
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    HDC hdc;
+    PAINTSTRUCT ps;
+    HBRUSH hBrush = NULL, oldBrush = NULL;
+
     static RECT rectView;
-    static vector<Circle2D> circleList;
-    static vector<Rectangle2D> rectList;
+    static vector<CObject*> objectList;
+    static TCHAR modes[4][7] = { {}, { L"Mode 1" }, {L"Mode 2"}, {L"Mode 3"} };
+
+    static int modeNum = 1;
 
     switch (message)
     {
@@ -158,43 +165,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_TIMER:
-        //for (auto& circle : circleList)
-        //{
-        //    // Check Wall Collision
-        //    if (circle.x > rectView.right - circle.radius)
-        //        circle.dirX *= -1;
-
-        //    if (circle.x < rectView.left + circle.radius)
-        //        circle.dirX *= -1;
-
-        //    if (circle.y < rectView.top + circle.radius)
-        //        circle.dirY *= -1;
-
-        //    if (circle.y > rectView.bottom - circle.radius)
-        //        circle.dirY *= -1;
-
-        //    circle.x += circle.dirX * circle.moveSpeed;
-        //    circle.y += circle.dirY * circle.moveSpeed;
-        //}
-
-        for (auto& rect : rectList)
+        for (int i = 0; i < objectList.size(); i++)
         {
-            double h = rect.radius / sqrt(2);
+            CObject& obj1 = *objectList[i];
+            for (int j = 0; j < objectList.size(); j++)
+            {
+                if (j == i) continue;
+                CObject& obj2 = *objectList[j];
 
-            if (rect.x > rectView.right - h)
-                rect.dirX *= -1;
-
-            if (rect.x < rectView.left + h)
-                rect.dirX *= -1;
-
-            if (rect.y < rectView.top + h)
-                rect.dirY *= -1;
-
-            if (rect.y > rectView.bottom - h)
-                rect.dirY *= -1;
-
-            rect.x += rect.dirX * rect.moveSpeed;
-            rect.y += rect.dirY * rect.moveSpeed;
+                if (obj1.Collision(obj2))
+                {
+                    obj1.CollisionEvent(modeNum, i, j, objectList);
+                    break;
+                }
+            }
+            obj1.AdjustPosition(rectView);
+            obj1.Move();
+            obj1.Rotate();
         }
         InvalidateRgn(hWnd, NULL, TRUE);
         break;
@@ -204,48 +191,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         InvalidateRect(hWnd, NULL, TRUE);
         break;
 
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case VK_NUMPAD1: modeNum = 1; break;
+        case VK_NUMPAD2: modeNum = 2; break;
+        case VK_NUMPAD3: modeNum = 3; break;
+        default: break;
+        }
+        break;
+
     case WM_LBUTTONDOWN:
         {
         int x, y;
         x = LOWORD(lParam);
         y = HIWORD(lParam);
 
-        //Circle2D newCircle(x, y);
+        int objectType = rand() % 3;
 
-        //if (x > rectView.right - newCircle.radius)
-        //    x = rectView.right - newCircle.radius;
+        switch ((CObjectType)objectType)
+        {
+        case OBJECT_CIRCLE:
+        {
+            Circle2D* newCircle = new Circle2D(x, y, OBJECT_CIRCLE);
+            newCircle->AdjustPosition(rectView);
+            objectList.push_back(newCircle);
+        }
+            break;
 
-        //if (x < rectView.left + newCircle.radius)
-        //    x = rectView.left + newCircle.radius;
+        case OBJECT_RECT:
+        {
+            Rectangle2D* newRect = new Rectangle2D(x, y, OBJECT_RECT);
+            newRect->AdjustPosition(rectView);
+            objectList.push_back(newRect);
+        }
+            break;
 
-        //if (y < rectView.top + newCircle.radius)
-        //    y = rectView.top + newCircle.radius;
-
-        //if (y > rectView.bottom - newCircle.radius)
-        //    y = rectView.bottom - newCircle.radius;
-
-        //circleList.push_back(newCircle);
-
-
-
-
-        Rectangle2D newRect(x, y);
-        double h = newRect.radius / sqrt(2);
-
-        if (newRect.x > rectView.right - h)
-            newRect.x = rectView.right - h;
-
-        if (newRect.x < rectView.left + h)
-            newRect.x = rectView.left + h;
-
-        if (newRect.y < rectView.top + h)
-            newRect.y = rectView.top + h;
-
-        if (newRect.y > rectView.bottom - h)
-            newRect.y = rectView.bottom - h;
-
-        rectList.push_back(newRect);
-
+        case OBJECT_STAR:
+        {
+            Star2D* newStar = new Star2D(x, y, OBJECT_STAR);
+            newStar->AdjustPosition(rectView);
+            objectList.push_back(newStar);
+        }
+            break;
+        }
         InvalidateRect(hWnd, NULL, TRUE);
         }
         break;
@@ -258,13 +247,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-            //for (const auto& circle : circleList)
-            //{
-            //    circle.Draw(hdc);
-            //}
-            for (auto& rect : rectList)
-                rect.Draw(hdc);
+            TextOut(hdc, 10, 10, modes[modeNum], _tcslen(modes[modeNum]));
 
+            int objectCount = objectList.size();
+            for (int i = objectCount - 1; i >= 0; i--)
+            {
+                if (objectList[i]->HasCollided())
+                {
+                    objectList[i]->SetHasCollided(false);
+                    hBrush = CreateSolidBrush(RGB(62, 180, 137));
+                    oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+                }
+                objectList[i]->Draw(hdc);
+
+                SelectObject(hdc, oldBrush);
+                DeleteObject(hBrush);
+            }
             EndPaint(hWnd, &ps);
         }
         break;
