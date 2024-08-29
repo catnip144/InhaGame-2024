@@ -30,15 +30,7 @@ CObject::CObject(double posX, double posY, CObjectType objectType)
 pair<double, double> CObject::GetDirectionFromAngle(double angle)
 {
 	double rad = (angle * PI / 180.0);
-	double dx = cos(rad);
-	double dy = sin(rad);
-
-	double length = Distance(0, 0, dx, dy);
-
-	pair<double, double> direction;
-	direction.first = (double)dx / length;
-	direction.second = (double)dy / length;
-	return direction;
+	return { cos(rad), sin(rad) };
 }
 
 double CObject::Distance(double x1, double y1, double x2, double y2)
@@ -69,7 +61,7 @@ void CObject::SetHasCollided(bool state)
 	hasCollided = state;
 }
 
-void CObject::CollisionEvent(int modeNum, int i, int j, vector<CObject*>& objectList)
+void CObject::CollisionEvent(int modeNum, int i, int j, vector<CObject*>& objectList, RECT& rectView)
 {
 	CObject& obj1 = *objectList[i];
 	CObject& obj2 = *objectList[j];
@@ -127,9 +119,7 @@ void CObject::CollisionEvent(int modeNum, int i, int j, vector<CObject*>& object
 				objectList.back()->theta = obj2.theta;
 				objectList.back()->dirX = direction.first;
 				objectList.back()->dirY = direction.second;
-
-				if (objectList.back()->radius < MIN_OBJECT_SIZE)
-					objectList.pop_back();
+				objectList.back()->AdjustPosition(rectView);
 			}
 			objectList.erase(objectList.begin() + j);
 			activateNormalCollision = true;
@@ -141,16 +131,15 @@ void CObject::CollisionEvent(int modeNum, int i, int j, vector<CObject*>& object
 	}
 	if (activateNormalCollision)
 	{
-		obj1.MoveBackwards();
-		obj2.MoveBackwards();
-		swap(obj1.dirX, obj2.dirX);
-		swap(obj1.dirY, obj2.dirY);
+		double direction = atan2(y - obj2.y, x - obj2.x);
+		dirX = cos(direction);
+		dirY = sin(direction);
 	}
 }
 
 void CObject::Draw(HDC hdc) {}
 
-void CObject::AdjustPosition(RECT rectView)
+void CObject::AdjustPosition(RECT& rectView)
 {
 	if (x > rectView.right - radius)
 	{
@@ -195,7 +184,6 @@ void Rectangle2D::Draw(HDC hdc)
 	for (int i = 0; i < 4; i++)
 	{
 		double rad = ((theta + (90 * i)) * PI / 180.0);
-
 		points[i].x = x + radius * cos(rad);
 		points[i].y = y - radius * sin(rad);
 	}

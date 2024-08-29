@@ -128,15 +128,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    HDC hdc;
-    PAINTSTRUCT ps;
-    HBRUSH hBrush = NULL, oldBrush = NULL;
-
-    static RECT rectView;
     static vector<CObject*> objectList;
-    static TCHAR modes[4][7] = { {}, { L"Mode 1" }, {L"Mode 2"}, {L"Mode 3"} };
-
-    static int modeNum = 1;
+    static RECT             rectView;
+    static PAINTSTRUCT      ps;
+    static HDC              hdc;
+    static LONG             maxObjectSize;
+    static HBRUSH           hBrush          = NULL;
+    static HBRUSH           oldBrush        = NULL;
+    static TCHAR            countText[15];
+    static TCHAR            modes[4][7]     = { {}, { L"Mode 1" }, {L"Mode 2"}, {L"Mode 3"} };
+    static int              modeNum         = 1;
 
     switch (message)
     {
@@ -162,20 +163,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         srand(time(NULL));
         GetClientRect(hWnd, &rectView);
         SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
+        maxObjectSize = rectView.bottom / 2;
         break;
 
     case WM_TIMER:
-        for (int i = 0; i < objectList.size(); i++)
+        for (int i = objectList.size() - 1; i >= 0; i--)
         {
             CObject& obj1 = *objectList[i];
+
+            if (obj1.GetRadius() < MIN_OBJECT_SIZE || obj1.GetRadius() > maxObjectSize)
+            {
+                objectList.erase(objectList.begin() + i);
+                continue;
+            }
             for (int j = 0; j < objectList.size(); j++)
             {
-                if (j == i) continue;
+                if (i == j) continue;
                 CObject& obj2 = *objectList[j];
 
                 if (obj1.Collision(obj2))
                 {
-                    obj1.CollisionEvent(modeNum, i, j, objectList);
+                    obj1.CollisionEvent(modeNum, i, j, objectList, rectView);
                     break;
                 }
             }
@@ -206,7 +214,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         int x, y;
         x = LOWORD(lParam);
         y = HIWORD(lParam);
-
         int objectType = rand() % 3;
 
         switch ((CObjectType)objectType)
@@ -214,7 +221,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case OBJECT_CIRCLE:
         {
             Circle2D* newCircle = new Circle2D(x, y, OBJECT_CIRCLE);
-            newCircle->AdjustPosition(rectView);
             objectList.push_back(newCircle);
         }
             break;
@@ -222,7 +228,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case OBJECT_RECT:
         {
             Rectangle2D* newRect = new Rectangle2D(x, y, OBJECT_RECT);
-            newRect->AdjustPosition(rectView);
             objectList.push_back(newRect);
         }
             break;
@@ -230,11 +235,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case OBJECT_STAR:
         {
             Star2D* newStar = new Star2D(x, y, OBJECT_STAR);
-            newStar->AdjustPosition(rectView);
             objectList.push_back(newStar);
         }
             break;
         }
+        objectList.back()->AdjustPosition(rectView);
         InvalidateRect(hWnd, NULL, TRUE);
         }
         break;
@@ -247,8 +252,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-            TextOut(hdc, 10, 10, modes[modeNum], _tcslen(modes[modeNum]));
-
             int objectCount = objectList.size();
             for (int i = objectCount - 1; i >= 0; i--)
             {
@@ -260,9 +263,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 objectList[i]->Draw(hdc);
 
-                SelectObject(hdc, oldBrush);
-                DeleteObject(hBrush);
+                if (oldBrush) SelectObject(hdc, oldBrush);
+                if (hBrush) DeleteObject(hBrush);
             }
+            wsprintfW(countText, L"ObjectCount : %d", objectList.size());
+            TextOut(hdc, 10, 10, modes[modeNum], _tcslen(modes[modeNum]));
+            TextOut(hdc, 10, 30, countText, _tcslen(countText));
+
             EndPaint(hWnd, &ps);
         }
         break;

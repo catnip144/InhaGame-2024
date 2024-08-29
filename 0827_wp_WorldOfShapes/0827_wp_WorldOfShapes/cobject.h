@@ -39,12 +39,14 @@ protected:
 public:
 	CObject(double posX, double posY, CObjectType objectType);
 
-	void AdjustPosition(RECT rectView);
+	void AdjustPosition(RECT& rectView);
 	void Move();
 	void MoveBackwards();
 	void Rotate();
 	void SetHasCollided(bool state);
-	void CollisionEvent(int modeNum, int i, int j, std::vector<CObject*>& objectList);
+	void CollisionEvent(int modeNum, int i, int j, vector<CObject*>& objectList, RECT& rectView);
+
+	double GetRadius() { return radius; }
 	pair<double, double> GetDirectionFromAngle(double angle);
 
 	bool Collision(const CObject& cObject);
