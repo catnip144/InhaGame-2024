@@ -132,8 +132,19 @@ void CObject::CollisionEvent(int modeNum, int i, int j, vector<CObject*>& object
 	if (activateNormalCollision)
 	{
 		double direction = atan2(y - obj2.y, x - obj2.x);
-		dirX = cos(direction);
-		dirY = sin(direction);
+		dirX += cos(direction);
+		dirY += sin(direction);
+
+		double length = Distance(0, 0, dirX, dirY);
+		dirX /= length;
+		dirY /= length;
+
+		obj2.dirX -= cos(direction);
+		obj2.dirY -= sin(direction);
+
+		length = Distance(0, 0, obj2.dirX, obj2.dirY);
+		obj2.dirX /= length;
+		obj2.dirY /= length;
 	}
 }
 
