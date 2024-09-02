@@ -27,40 +27,26 @@ void CountingSort(vector<int>& nums)
 	}
 }
 
-void QuickSort(vector<int>& nums, int start, int end)
+void CountingSort2(vector<int>& nums)
 {
-	if (end <= start)
-		return;
+	int maxNum = *max_element(nums.begin(), nums.end());
+	vector<int> count(maxNum + 1);
 
-	int pivot = start;
-	int pl = start + 1;
-	int pr = end;
+	for (const int& num : nums)
+		++count[num];
 
-	// 엇갈리기 전까지 반복
-	while (pl <= pr)
+	for (int i = 1; i <= maxNum; i++)
+		count[i] += count[i - 1];
+
+	vector<int> sorted(nums.size());
+	for (int i = nums.size() - 1; i >= 0; i--)
 	{
-		while (pl < end && nums[pl] <= nums[pivot])
-			++pl;
-
-		while (pr > start && nums[pr] >= nums[pivot])
-			--pr;
-
-		// 같은 위치 혹은 엇갈렸을 때
-		if (pl >= pr)
-			break;
-
-		int temp = nums[pl];
-		nums[pl] = nums[pr];
-		nums[pr] = temp;
+		int countSum = count[nums[i]]--;
+		sorted[countSum - 1] = nums[i];
 	}
-	int temp = nums[pivot];
-	nums[pivot] = nums[pr];
-	nums[pr] = temp;
-
-	QuickSort(nums, start, pr - 1);
-	QuickSort(nums, pr + 1, end);
+	for (int i = 0; i < nums.size(); i++)
+		nums[i] = sorted[i];
 }
-
 
 int main()
 {
@@ -70,16 +56,12 @@ int main()
 
 	vector<int> nums(n);
 	for (int i = 0; i < n; i++)
-		nums[i] = i + 1;
+		cin >> nums[i];
 
-	srand(time(NULL));
-	random_shuffle(nums.begin(), nums.end());
+	//srand(time(NULL));
+	//random_shuffle(nums.begin(), nums.end());
 
-	for (int num : nums)
-		cout << num << " ";
-	cout << endl;
-
-	CountingSort(nums);
+	CountingSort2(nums);
 
 	for (int num : nums)
 		cout << num << " ";
