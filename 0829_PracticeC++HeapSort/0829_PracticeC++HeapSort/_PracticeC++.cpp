@@ -129,7 +129,7 @@ int main()
 	cout << "비교 횟수: " << cmpCount << endl;
 	cout << "교환 횟수: " << swpCount << endl;
 	cout << "시간: " << watch.GetElapsedTime() << " ms" << endl << endl;
-
+	
 	temp = nums;
 	cmpCount = swpCount = 0;
 	watch.Start();
