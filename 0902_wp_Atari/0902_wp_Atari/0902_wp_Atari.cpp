@@ -122,13 +122,58 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-#define BLOCK_ROW
-#define BLOCK_COL
 
-void DrawBlocks(HDC& hdc, int width, int height)
+#define TIMER_ID 1
+#define TIMER_INTERVAL 1
+
+void CreateBlocks(vector<Block*>& blocks, int offsetX, int offsetY, int blockWidth, int blockHeight)
 {
-    //for (int i = 0; i < BLOC)
-    //Rectangle(hdc, )
+    if (blocks.size())
+        blocks.clear();
+
+    int posX = offsetX;
+    int posY = offsetY / 2;
+
+    for (int i = 0; i < BLOCK_ROW; i++)
+    {
+        for (int j = 0; j < BLOCK_COL; j++)
+        {
+            Block* newBlock = new Block({
+                posX + j * blockWidth,
+                posY + i * blockHeight,
+                posX + j * blockWidth + blockWidth,
+                posY + i * blockHeight + blockHeight
+            });
+            blocks.push_back(newBlock);
+        }
+    }
+}
+
+void DrawBlocks(HDC& hdc, vector<Block*>& blocks)
+{
+    int blockCount = blocks.size();
+    for (int i = 0; i < blockCount; i++)
+        blocks[i]->Draw(hdc);
+}
+
+void DrawBalls(HDC& hdc, vector<Ball*> balls)
+{
+    int ballCount = balls.size();
+
+    for (int i = 0; i < ballCount; i++)
+        balls[i]->Draw(hdc);
+}
+
+void SetBlockSize(RECT& rectView, int& offsetX, int& offsetY, int& blockWidth, int& blockHeight)
+{
+    int screenWidth = rectView.right - rectView.left;
+    int screenHeight = rectView.bottom - rectView.top;
+
+    offsetX = screenWidth / OFFSET_X;
+    offsetY = screenHeight / OFFSET_Y;
+
+    blockWidth = (screenWidth - (offsetX * 2)) / BLOCK_COL;
+    blockHeight = (screenHeight - (offsetY * 6)) / BLOCK_ROW;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -136,15 +181,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static RECT             rectView;
     static PAINTSTRUCT      ps;
     static HDC              hdc;
+    static int              offsetX, offsetY, blockWidth, blockHeight;
+    static vector<Block*>   blocks;
+    static vector<Ball*>    balls;
 
     switch (message)
     {
     case WM_CREATE:
         GetClientRect(hWnd, &rectView);
+        SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
+        SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
+        CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
         break;
 
     case WM_SIZE:
         GetClientRect(hWnd, &rectView);
+        SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
+        CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
+        InvalidateRect(hWnd, NULL, TRUE);
+        break;
+
+    case WM_TIMER:
+        for (Ball* ball : balls)
+        {
+            ball->CheckWall(rectView);
+            ball->Move();
+        }
         InvalidateRect(hWnd, NULL, TRUE);
         break;
 
@@ -165,17 +227,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+    case WM_LBUTTONDOWN:
+    {
+        int x, y;
+        x = LOWORD(lParam);
+        y = HIWORD(lParam);
+
+        Ball* newBall = new Ball(x, y);
+        balls.push_back(newBall);
+        InvalidateRect(hWnd, NULL, TRUE);
+    }
+    break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-
-
+            DrawBlocks(hdc, blocks);
+            DrawBalls(hdc, balls);
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
+        KillTimer(hWnd, TIMER_ID);
         PostQuitMessage(0);
         break;
     default:

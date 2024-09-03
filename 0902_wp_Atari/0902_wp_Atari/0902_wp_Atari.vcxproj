@@ -129,12 +129,14 @@
   <ItemGroup>
     <ClInclude Include="0902_wp_Atari.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="objects.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="0902_wp_Atari.cpp" />
     <ClCompile Include="assignment.cpp" />
+    <ClCompile Include="objects.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="0902_wp_Atari.rc" />

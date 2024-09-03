@@ -8,6 +8,21 @@
 
 #define MAX_LOADSTRING 100
 
+using namespace std;
+
+//////////////////////////////////////////////////////
+
+#pragma comment(lib, "msimg32.lib")
+
+void CreateBitmap();
+void DrawBitmap(HWND hWnd, HDC hdc);
+void DeleteBitmap();
+void UpdateFrame(HWND hWnd);
+
+VOID CALLBACK AniProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+
+//////////////////////////////////////////////////////
+
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -137,6 +152,153 @@ bool InCircle(int x, int y, int mx, int my)
     return (LengthPts(x, y, mx, my) < BSIZE);
 }
 
+/// ///////////////////////////////////////////////////////////
+
+#define TIMER_ANI 3
+
+// : background
+HBITMAP hBackImage;
+BITMAP bitBack;
+
+// : sigong
+HBITMAP hTransparentImage;
+BITMAP bitTransparent;
+
+// : ani
+HBITMAP hAniImage; // 포인터
+BITMAP bitAni; // 구조체
+const int SPRITE_SIZE_X = 57;
+const int SPRITE_SIZE_Y = 52;
+const int SPRITE_COUNT = 16;
+const int SPRITE_DIR = 2;
+
+int Run_Frame_Max = 0;
+int Run_Frame_Min = 0;
+int curFrame = Run_Frame_Min;
+
+/// ///////////////////////////////////////////////////////////
+
+void CreateBitmap()
+{
+    // >> : background image
+    hBackImage = (HBITMAP)LoadImage(NULL, TEXT("images/donut.bmp"),
+        IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+    if (hBackImage == NULL)
+    {
+        DWORD dwError = GetLastError();
+        MessageBox(NULL, _T("donut 이미지 로드 에러"), _T("에러"), MB_OK);
+    }
+    else
+        GetObject(hBackImage, sizeof(BITMAP), &bitBack);
+    // << :
+
+    // >> : sigong
+    hTransparentImage = (HBITMAP)LoadImage(NULL, TEXT("images/sigong.bmp"),
+        IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+    if (hTransparentImage == NULL)
+    {
+        DWORD dwError = GetLastError();
+        MessageBox(NULL, _T("sigong 이미지 로드 에러"), _T("에러"), MB_OK);
+    }
+    else
+        GetObject(hTransparentImage, sizeof(BITMAP), &bitTransparent);
+    // << :
+
+    // >> : Ani
+    hAniImage = (HBITMAP)LoadImage(NULL, TEXT("images/zero_run.bmp"),
+        IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+    if (hAniImage == NULL)
+    {
+        DWORD dwError = GetLastError();
+        MessageBox(NULL, _T("ani 이미지 로드 에러"), _T("에러"), MB_OK);
+    }
+    else
+        GetObject(hAniImage, sizeof(BITMAP), &bitAni);
+
+    Run_Frame_Max = bitAni.bmWidth / SPRITE_SIZE_X - 1;
+    Run_Frame_Min = 2;
+    curFrame = Run_Frame_Min;
+    // << :
+}
+
+void DrawBitmap(HWND hWnd, HDC hdc)
+{
+    HDC hMemDC;
+    HBITMAP hOldBitmap;
+    int bx, by;
+
+    // >> : Donut
+    {
+        hMemDC = CreateCompatibleDC(hdc); // hdc와 호환되는 장치를 생성하라
+        hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBackImage);
+        bx = bitBack.bmWidth;
+        by = bitBack.bmHeight;
+
+        //BitBlt(hdc, 100, 100, bx - 100, by - 100, hMemDC, 100, 100, SRCCOPY);
+        BitBlt(hdc, 0, 0, bx, by, hMemDC, 0, 0, SRCCOPY);
+        StretchBlt(hdc, bx, 0, bx / 4, by / 4, hMemDC, 0, 0, bx, by, SRCCOPY);
+
+        SelectObject(hMemDC, hOldBitmap);
+        DeleteDC(hMemDC);
+    }
+    // << :
+    
+    // >> : sigong
+    {
+        hMemDC = CreateCompatibleDC(hdc);
+        hOldBitmap = (HBITMAP)SelectObject(hMemDC, hTransparentImage);
+        bx = SPRITE_SIZE_X;
+        by = SPRITE_SIZE_Y;
+
+        TransparentBlt(hdc, 200, 200, bx, by, hMemDC, 0, 0, bx, by, RGB(255, 0, 255)); // 이 색깔을 제외하고 전송
+
+        SelectObject(hMemDC, hOldBitmap);
+        DeleteDC(hMemDC);
+    }
+    // << :
+
+    // >> : ani
+    {
+        hMemDC = CreateCompatibleDC(hdc);
+        hOldBitmap = (HBITMAP)SelectObject(hMemDC, hAniImage);
+        bx = bitAni.bmWidth / SPRITE_COUNT;
+        by = bitAni.bmHeight / SPRITE_DIR;
+
+        int xStart = curFrame * bx;
+        int yStart = 0;
+
+        TransparentBlt(hdc, 400, 400, bx, by, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255)); // 이 색깔을 제외하고 전송
+
+        SelectObject(hMemDC, hOldBitmap);
+        DeleteDC(hMemDC);
+    }
+    // << :
+}
+
+void DeleteBitmap()
+{
+    DeleteObject(hBackImage);
+    DeleteObject(hTransparentImage);
+    DeleteObject(hAniImage);
+}
+
+void UpdateFrame(HWND hWnd)
+{
+    curFrame++;
+    if (curFrame > Run_Frame_Max)
+        curFrame = Run_Frame_Min;
+}
+
+VOID CALLBACK AniProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+    UpdateFrame(hWnd);
+    InvalidateRect(hWnd, NULL, false);
+}
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HDC hdc;
@@ -150,6 +312,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
+    case WM_CREATE:
+        hMenu = GetMenu(hWnd);
+        hSubMenu = GetSubMenu(hMenu, 0);
+
+        Select = false;
+        Copy = false;
+        x = y = 50;
+
+        SetTimer(hWnd, TIMER_ANI, 33, AniProc);
+        CreateBitmap();
+        break;
+
+    case WM_TIMER:
+        switch (wParam)
+        {
+        //case TIMER_ANI:
+        //    UpdateFrame(hWnd);
+        }
+        break;
+
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -181,35 +363,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (InCircle(x, y, mx, my))
             Select = true;
 
-        InvalidateRgn(hWnd, NULL, true);
+        InvalidateRgn(hWnd, NULL, false);
         break;
 
-    case WM_CREATE:
-        hMenu = GetMenu(hWnd);
-        hSubMenu = GetSubMenu(hMenu, 0);
-
-        Select = false;
-        Copy = false;
-        x = y = 50;
-        break;
 
     case WM_PAINT:
         {
-            EnableMenuItem(hSubMenu, ID_EDITCOPY,  Select ? MF_ENABLED : MF_GRAYED);
-            EnableMenuItem(hSubMenu, ID_EDITPASTE, Copy   ? MF_ENABLED : MF_GRAYED);
-
             hdc = BeginPaint(hWnd, &ps);
 
-            if (Select)
-                Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+            //EnableMenuItem(hSubMenu, ID_EDITCOPY,  Select ? MF_ENABLED : MF_GRAYED);
+            //EnableMenuItem(hSubMenu, ID_EDITPASTE, Copy   ? MF_ENABLED : MF_GRAYED);
 
-            Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+            //if (Select)
+            //    Rectangle(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+
+            //Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
+
+            DrawBitmap(hWnd, hdc);
             EndPaint(hWnd, &ps);
         }
         break;
 
     case WM_DESTROY:
+        KillTimer(hWnd, TIMER_ANI);
         PostQuitMessage(0);
+        DeleteBitmap();
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

@@ -17,5 +17,8 @@
 #include "resource.h"
 #include "commdlg.h"
 #include <vector>
+#include <cmath>
+
+#include "objects.h"
 
 using namespace std;
