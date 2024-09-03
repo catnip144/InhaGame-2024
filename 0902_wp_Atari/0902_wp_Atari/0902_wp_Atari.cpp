@@ -149,11 +149,19 @@ void CreateBlocks(vector<Block*>& blocks, int offsetX, int offsetY, int blockWid
     }
 }
 
-void DrawBlocks(HDC& hdc, vector<Block*>& blocks)
+void DrawBlocks(HDC& hdc, HBRUSH& hBrush, vector<Block*>& blocks)
 {
+    hBrush = CreateSolidBrush(RGB(62, 180, 137));
+    SelectObject(hdc, hBrush);
+
     int blockCount = blocks.size();
+
     for (int i = 0; i < blockCount; i++)
-        blocks[i]->Draw(hdc);
+    {
+        blocks[i]->Draw(hdc, hBrush);
+    }
+    hBrush = CreateSolidBrush(RGB(255, 255, 255));
+    SelectObject(hdc, hBrush);
 }
 
 void DrawBalls(HDC& hdc, vector<Ball*> balls)
@@ -176,44 +184,62 @@ void SetBlockSize(RECT& rectView, int& offsetX, int& offsetY, int& blockWidth, i
     blockHeight = (screenHeight - (offsetY * 6)) / BLOCK_ROW;
 }
 
+/* 
+# backMemDC
+    화면에 보내기 직전의 완성된 메모리 DC
+    오브젝트 선택 -> backMemDC로 복사 -> 다른 오브젝트 선택 -> 복사 ...
+    backMemDC는 초기 1픽셀의 공간을 가지고 있다.
+
+# backBitmap
+    backMemDC의 크기 설정
+    backMemDC에 도화지를 펼쳐준다.
+*/
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static RECT             rectView;
     static PAINTSTRUCT      ps;
-    static HDC              hdc;
-    static int              offsetX, offsetY, blockWidth, blockHeight;
+    static HBRUSH           hBrush, oldBrush;
+    static HDC              hdc, backMemDC;
     static vector<Block*>   blocks;
     static vector<Ball*>    balls;
+    static int              offsetX, offsetY, blockWidth, blockHeight;
+    static HBITMAP          backBitmap = NULL, hOldBitmap = NULL;
 
     switch (message)
     {
     case WM_CREATE:
         GetClientRect(hWnd, &rectView);
-        SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
         SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
         CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
+        SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
         break;
 
     case WM_SIZE:
         GetClientRect(hWnd, &rectView);
         SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
         CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
-        InvalidateRect(hWnd, NULL, TRUE);
+        InvalidateRect(hWnd, NULL, false);
         break;
 
     case WM_TIMER:
         for (Ball* ball : balls)
         {
+            for (Block* block : blocks)
+            {
+                if (ball->Collision(block->GetPos()))
+                    block->TakeDamage();
+            }
             ball->CheckWall(rectView);
             ball->Move();
         }
-        InvalidateRect(hWnd, NULL, TRUE);
+        InvalidateRect(hWnd, NULL, false);
         break;
 
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
-            // 메뉴 선택을 구문 분석합니다:
+
             switch (wmId)
             {
             case IDM_ABOUT:
@@ -236,16 +262,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         Ball* newBall = new Ball(x, y);
         balls.push_back(newBall);
-        InvalidateRect(hWnd, NULL, TRUE);
     }
     break;
 
     case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            DrawBlocks(hdc, blocks);
-            DrawBalls(hdc, balls);
+            hdc = BeginPaint(hWnd, &ps);
+
+            // 화면DC 기반 메모리 DC 생성
+            backMemDC = CreateCompatibleDC(hdc);
+
+            // 도화지 준비 (비트맵 생성), 비트맵 선택
+            backBitmap = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
+            hOldBitmap = (HBITMAP)SelectObject(backMemDC, backBitmap);
+
+            // 메모리 DC에 그리기
+            FillRect(backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
+
+            DrawBlocks(backMemDC, hBrush, blocks);
+            DrawBalls(backMemDC, balls);
+
+            // 화면에 복사
+            BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, backMemDC, 0, 0, SRCCOPY);
+
+            // 기존 비트맵 선택
+            SelectObject(backMemDC, hOldBitmap);
+
+            DeleteObject(backBitmap);
+            DeleteObject(hBrush);
+            DeleteDC(backMemDC);
 
             EndPaint(hWnd, &ps);
         }

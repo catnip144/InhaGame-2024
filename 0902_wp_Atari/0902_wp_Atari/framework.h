@@ -16,6 +16,8 @@
 
 #include "resource.h"
 #include "commdlg.h"
+#include <windows.h>
+#include <TCHAR.h>
 #include <vector>
 #include <cmath>
 
