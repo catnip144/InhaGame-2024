@@ -7,6 +7,23 @@ Block::Block(RECT position)
 
 void Block::Draw(HDC& hdc, HBRUSH& hBrush)
 {
+	switch (hp)
+	{
+	case 1:
+		hBrush = CreateSolidBrush(RGB(195, 75, 75));
+		break;
+	case 2:
+		hBrush = CreateSolidBrush(RGB(234, 160, 57));
+		break;
+	case 3:
+		hBrush = CreateSolidBrush(RGB(62, 180, 137));
+		break;
+	default:
+		hBrush = CreateSolidBrush(RGB(255, 255, 255));
+		break;
+	}
+	SelectObject(hdc, hBrush);
+
 	if (hasTakenDamage)
 	{
 		hasTakenDamage = false;
@@ -15,18 +32,20 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
 		SelectObject(hdc, hBrush);
 
 		Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
-
-		hBrush = CreateSolidBrush(RGB(62, 180, 137));
-		SelectObject(hdc, hBrush);
+		DeleteObject(hBrush);
 		return;
 	}
 	Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
+	DeleteObject(hBrush);
 }
 
-void Block::TakeDamage()
+void Block::TakeDamage(vector<Block*>& blocks, int index)
 {
 	hp -= 1;
 	hasTakenDamage = true;
+
+	if (hp == 0)
+		blocks.erase(blocks.begin() + index);
 }
 
 Ball::Ball(int posX, int posY)
@@ -65,8 +84,7 @@ void Ball::CheckWall(RECT& rectView)
 	}
 	else if (y > rectView.bottom - radius)
 	{
-		y = rectView.bottom - radius;
-		dirY = -dirY;
+		isDead = true;
 	}
 }
 
@@ -110,4 +128,52 @@ bool Ball::Collision(RECT& rect)
 bool Ball::Contains(int posX, int posY)
 {
 	return pow((x - posX), 2) + pow((y - posY), 2) <= pow(radius, 2);
+}
+
+void Paddle::Init(RECT& rectView)
+{
+	int posX = (rectView.right - rectView.left) / 2;
+	int posY = (rectView.bottom - rectView.top) * PADDLE_START_Y / 10;
+
+	width = PADDLE_WIDTH;
+	height = PADDLE_HEIGHT;
+
+	pos = {
+		posX - width / 2,
+		posY - height / 2,
+		posX + width / 2,
+		posY + height / 2
+	};
+}
+
+void Paddle::Draw(HDC& hdc, HBRUSH& hBrush)
+{
+	hBrush = CreateSolidBrush(RGB(170, 200, 200));
+	SelectObject(hdc, hBrush);
+	Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
+	DeleteObject(hBrush);
+}
+
+void Paddle::Move(WPARAM& wParam, RECT& rectView)
+{
+	int moveAmount = PADDLE_SPEED;
+
+	switch (wParam)
+	{
+	case VK_LEFT:
+		if (pos.left - PADDLE_SPEED <= rectView.left)
+			moveAmount = (pos.left - rectView.left);
+		moveAmount = -moveAmount;
+		break;
+
+	case VK_RIGHT:
+		if (pos.right + PADDLE_SPEED >= rectView.right)
+			moveAmount = rectView.right - pos.right;
+		break;
+
+	default:
+		return;
+	}
+	pos.left += moveAmount;
+	pos.right += moveAmount;
 }

@@ -151,9 +151,6 @@ void CreateBlocks(vector<Block*>& blocks, int offsetX, int offsetY, int blockWid
 
 void DrawBlocks(HDC& hdc, HBRUSH& hBrush, vector<Block*>& blocks)
 {
-    hBrush = CreateSolidBrush(RGB(62, 180, 137));
-    SelectObject(hdc, hBrush);
-
     int blockCount = blocks.size();
 
     for (int i = 0; i < blockCount; i++)
@@ -184,6 +181,14 @@ void SetBlockSize(RECT& rectView, int& offsetX, int& offsetY, int& blockWidth, i
     blockHeight = (screenHeight - (offsetY * 6)) / BLOCK_ROW;
 }
 
+void ShootBall(RECT& paddlePos, vector<Ball*>& balls)
+{
+    int posX = paddlePos.left + (paddlePos.right - paddlePos.left) / 2;
+    int posY = paddlePos.top - BALL_SIZE;
+    Ball* newBall = new Ball(posX, posY);
+    balls.push_back(newBall);
+}
+
 /* 
 # backMemDC
     화면에 보내기 직전의 완성된 메모리 DC
@@ -205,6 +210,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static vector<Ball*>    balls;
     static int              offsetX, offsetY, blockWidth, blockHeight;
     static HBITMAP          backBitmap = NULL, hOldBitmap = NULL;
+    static Paddle           paddle;
 
     switch (message)
     {
@@ -213,6 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
         CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
         SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
+        paddle.Init(rectView);
         break;
 
     case WM_SIZE:
@@ -223,14 +230,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_TIMER:
-        for (Ball* ball : balls)
+        for (int i = balls.size() - 1; i >= 0; i--)
         {
-            for (Block* block : blocks)
+            Ball* ball = balls[i];
+            for (int i = blocks.size() - 1; i >= 0; i--)
             {
+                Block* block = blocks[i];
+
                 if (ball->Collision(block->GetPos()))
-                    block->TakeDamage();
+                    block->TakeDamage(blocks, i);
             }
+            ball->Collision(paddle.GetPos());
             ball->CheckWall(rectView);
+
+            if (ball->IsDead())
+            {
+                balls.erase(balls.begin() + i);
+                continue;
+            }
             ball->Move();
         }
         InvalidateRect(hWnd, NULL, false);
@@ -254,16 +271,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
 
-    case WM_LBUTTONDOWN:
-    {
-        int x, y;
-        x = LOWORD(lParam);
-        y = HIWORD(lParam);
+    case WM_KEYDOWN:
+        paddle.Move(wParam, rectView);
 
-        Ball* newBall = new Ball(x, y);
-        balls.push_back(newBall);
-    }
-    break;
+        if (wParam == VK_SPACE && balls.empty())
+            ShootBall(paddle.GetPos(), balls);
+        break;
 
     case WM_PAINT:
         {
@@ -281,6 +294,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             DrawBlocks(backMemDC, hBrush, blocks);
             DrawBalls(backMemDC, balls);
+            paddle.Draw(backMemDC, hBrush);
 
             // 화면에 복사
             BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, backMemDC, 0, 0, SRCCOPY);

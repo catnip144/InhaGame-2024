@@ -14,12 +14,18 @@ using namespace std;
 
 #pragma comment(lib, "msimg32.lib")
 
+HINSTANCE g_hWnd = NULL;
+
 void CreateBitmap();
 void DrawBitmap(HWND hWnd, HDC hdc);
 void DeleteBitmap();
 void UpdateFrame(HWND hWnd);
 
+void DrawBitMapDoubleBuffering(HWND hWnd, HDC hdc);
+void Update();
+
 VOID CALLBACK AniProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
 //////////////////////////////////////////////////////
 
@@ -59,13 +65,32 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    // 기본 메시지 루프입니다:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    // DIRECT X에서는 이 루프를 사용하지 않고 따로 루틴을 짠다
+    // 기본 메시지 루프입니다: 
+    //while (GetMessage(&msg, nullptr, 0, 0))
+    //{
+    //    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+    //    {
+    //        TranslateMessage(&msg);
+    //        DispatchMessage(&msg);
+    //    }
+    //}
+
+    while (true)
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            if (msg.message == WM_QUIT)
+                break;
+            else
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+        else
+        {
+            Update();
         }
     }
 
@@ -121,6 +146,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
+   g_hWnd = hInst;
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -155,6 +181,7 @@ bool InCircle(int x, int y, int mx, int my)
 /// ///////////////////////////////////////////////////////////
 
 #define TIMER_ANI 3
+#define TIMER_KEY 4
 
 // : background
 HBITMAP hBackImage;
@@ -175,6 +202,13 @@ const int SPRITE_DIR = 2;
 int Run_Frame_Max = 0;
 int Run_Frame_Min = 0;
 int curFrame = Run_Frame_Min;
+
+POINT ptAni = { 400, 400 };
+
+HBITMAP hDoubleBufferImage;
+RECT rectView;
+
+TCHAR sKeyState[128]; // 키가 뭐가 눌렸는지 확인 용도
 
 /// ///////////////////////////////////////////////////////////
 
@@ -245,7 +279,7 @@ void DrawBitmap(HWND hWnd, HDC hdc)
         DeleteDC(hMemDC);
     }
     // << :
-    
+
     // >> : sigong
     {
         hMemDC = CreateCompatibleDC(hdc);
@@ -270,12 +304,31 @@ void DrawBitmap(HWND hWnd, HDC hdc)
         int xStart = curFrame * bx;
         int yStart = 0;
 
-        TransparentBlt(hdc, 400, 400, bx, by, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255)); // 이 색깔을 제외하고 전송
+        TransparentBlt(hdc, ptAni.x, ptAni.y, bx, by, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255)); // 이 색깔을 제외하고 전송
 
         SelectObject(hMemDC, hOldBitmap);
         DeleteDC(hMemDC);
     }
     // << :
+}
+
+void DrawBitMapDoubleBuffering(HWND hWnd, HDC hdc)
+{
+    HDC hDoubleBufferDC;
+    HBITMAP hOldDoubleBufferBitmap;
+    int dx, dy;
+
+    hDoubleBufferDC = CreateCompatibleDC(hdc);
+    if (hDoubleBufferImage == NULL)
+        hDoubleBufferImage = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
+
+    hOldDoubleBufferBitmap = (HBITMAP)SelectObject(hDoubleBufferDC, hDoubleBufferImage);
+
+    DrawBitmap(hWnd, hDoubleBufferDC);
+
+    BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, hDoubleBufferDC, 0, 0, SRCCOPY);
+    SelectObject(hDoubleBufferDC, hOldDoubleBufferBitmap);
+    DeleteDC(hDoubleBufferDC);
 }
 
 void DeleteBitmap()
@@ -298,6 +351,68 @@ VOID CALLBACK AniProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
     InvalidateRect(hWnd, NULL, false);
 }
 
+VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+    if (GetKeyState('W') & 0x8000)
+    {
+        wsprintf(sKeyState, TEXT("%s"), _T("W-key pressed"));
+    }
+    else if (GetKeyState('A') & 0x8000)
+    {
+        wsprintf(sKeyState, TEXT("%s"), _T("A-key pressed"));
+    }
+    else if (GetKeyState('S') & 0x8000)
+    {
+        wsprintf(sKeyState, TEXT("%s"), _T("S-key pressed"));
+    }
+    else if (GetKeyState('D') & 0x8000)
+    {
+        wsprintf(sKeyState, TEXT("%s"), _T("D-key pressed"));
+    }
+    else
+    {
+        wsprintf(sKeyState, TEXT(""));
+    }
+    return VOID();
+}
+
+void Update()
+{
+    DWORD newTime = GetTickCount(); // 딜레이
+    static DWORD oldTime = newTime;
+    static DWORD accumulate = 0;
+    int count = 1;
+
+    if (newTime - oldTime < 100)
+        return;
+
+    // 시간보간
+    accumulate += (newTime - oldTime);
+    oldTime = newTime;
+
+    if (accumulate >= 100)
+    {
+        count = accumulate / 100;
+        accumulate %= 100;
+    }
+    if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+    {
+        ptAni.x -= 10 * count;
+    }
+    else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+    {
+        ptAni.x += 10 * count;
+    }
+    else if (GetAsyncKeyState(VK_UP) & 0x8000)
+    {
+        ptAni.y -= 10 * count;
+    }
+    else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+    {
+        ptAni.y += 10 * count;
+    }
+}
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -313,6 +428,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_CREATE:
+        GetClientRect(hWnd, &rectView);
+
         hMenu = GetMenu(hWnd);
         hSubMenu = GetSubMenu(hMenu, 0);
 
@@ -321,16 +438,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         x = y = 50;
 
         SetTimer(hWnd, TIMER_ANI, 33, AniProc);
+        //SetTimer(hWnd, TIMER_KEY, 1, KeyStateProc);
         CreateBitmap();
         break;
 
-    case WM_TIMER:
-        switch (wParam)
-        {
-        //case TIMER_ANI:
-        //    UpdateFrame(hWnd);
-        }
-        break;
+    //case WM_TIMER:
+    //    switch (wParam)
+    //    {
+    //    //case TIMER_ANI:
+    //    //    UpdateFrame(hWnd);
+    //    }
+    //    break;
 
     case WM_COMMAND:
         {
@@ -366,7 +484,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         InvalidateRgn(hWnd, NULL, false);
         break;
 
-
     case WM_PAINT:
         {
             hdc = BeginPaint(hWnd, &ps);
@@ -379,7 +496,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             //Ellipse(hdc, x - BSIZE, y - BSIZE, x + BSIZE, y + BSIZE);
 
-            DrawBitmap(hWnd, hdc);
+            DrawBitMapDoubleBuffering(hWnd, hdc);
+
+            TextOut(hdc, 10, 10, sKeyState, _tcslen(sKeyState));
+
             EndPaint(hWnd, &ps);
         }
         break;
