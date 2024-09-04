@@ -127,8 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="0902_wp_Atari.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="game_control.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClCompile Include="0902_wp_Atari.cpp" />
     <ClCompile Include="assignment.cpp" />
+    <ClCompile Include="game_control.cpp" />
     <ClCompile Include="objects.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="0902_wp_Atari.ico" />
+    <Image Include="images\Background.bmp" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -2,7 +2,6 @@
 //
 
 #include "framework.h"
-#include "0902_wp_Atari.h"
 
 #define MAX_LOADSTRING 100
 
@@ -122,9 +121,53 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
+void CreateBitmap(HBITMAP& hBgImage, BITMAP& bitBg)
+{
+    hBgImage = (HBITMAP)LoadImage(NULL, TEXT(BG_IMAGE_PATH),
+        IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 
-#define TIMER_ID 1
-#define TIMER_INTERVAL 1
+    if (hBgImage == NULL)
+    {
+        DWORD dwError = GetLastError();
+        MessageBox(NULL, _T("배경 이미지 로드 에러"), _T("에러"), MB_OK);
+    }
+    else
+        GetObject(hBgImage, sizeof(BITMAP), &bitBg);
+}
+
+void DrawBitmap(HWND& hWnd, HDC& hdc, HBITMAP& hBgImage, BITMAP& bitBg, int screenWidth, int screenHeight)
+{
+    HDC hMemDC;
+    HBITMAP hOldBitmap;
+    int bx, by;
+
+    hMemDC = CreateCompatibleDC(hdc);
+    hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBgImage);
+    bx = bitBg.bmWidth;
+    by = bitBg.bmHeight;
+
+    BitBlt(hdc, 0, 0, bx, by, hMemDC, 0, 0, SRCCOPY);
+    StretchBlt(hdc, 0, 0, screenWidth, screenHeight, hMemDC, 0, 0, bx, by, SRCCOPY);
+
+    SelectObject(hMemDC, hOldBitmap);
+    DeleteDC(hMemDC);
+}
+
+void SetScreenSize(RECT& rectView, int& screenWidth, int& screenHeight)
+{
+    screenWidth = rectView.right - rectView.left;
+    screenHeight = rectView.bottom - rectView.top;
+}
+
+void DrawScore(HWND& hWnd, HDC& hdc, int& screenWidth)
+{
+    SetTextColor(hdc, RGB(0, 0, 0));
+    SetBkMode(hdc, TRANSPARENT);
+
+    TCHAR str[100];
+    swprintf(str, 100, L"Score: %d", gameScore);
+    TextOut(hdc, screenWidth / 2, 10, str, lstrlen(str));
+}
 
 void CreateBlocks(vector<Block*>& blocks, int offsetX, int offsetY, int blockWidth, int blockHeight)
 {
@@ -132,7 +175,7 @@ void CreateBlocks(vector<Block*>& blocks, int offsetX, int offsetY, int blockWid
         blocks.clear();
 
     int posX = offsetX;
-    int posY = offsetY / 2;
+    int posY = offsetY;
 
     for (int i = 0; i < BLOCK_ROW; i++)
     {
@@ -161,22 +204,18 @@ void DrawBlocks(HDC& hdc, HBRUSH& hBrush, vector<Block*>& blocks)
     SelectObject(hdc, hBrush);
 }
 
-void DrawBalls(HDC& hdc, vector<Ball*> balls)
+void DrawBalls(HDC& hdc, HBRUSH& hBrush, vector<Ball*> balls)
 {
     int ballCount = balls.size();
 
     for (int i = 0; i < ballCount; i++)
-        balls[i]->Draw(hdc);
+        balls[i]->Draw(hdc, hBrush);
 }
 
-void SetBlockSize(RECT& rectView, int& offsetX, int& offsetY, int& blockWidth, int& blockHeight)
+void SetBlockSize(int screenWidth, int screenHeight, int& offsetX, int& offsetY, int& blockWidth, int& blockHeight)
 {
-    int screenWidth = rectView.right - rectView.left;
-    int screenHeight = rectView.bottom - rectView.top;
-
     offsetX = screenWidth / OFFSET_X;
     offsetY = screenHeight / OFFSET_Y;
-
     blockWidth = (screenWidth - (offsetX * 2)) / BLOCK_COL;
     blockHeight = (screenHeight - (offsetY * 6)) / BLOCK_ROW;
 }
@@ -202,30 +241,39 @@ void ShootBall(RECT& paddlePos, vector<Ball*>& balls)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static HDC              hdc, backMemDC;
     static RECT             rectView;
     static PAINTSTRUCT      ps;
     static HBRUSH           hBrush, oldBrush;
-    static HDC              hdc, backMemDC;
     static vector<Block*>   blocks;
     static vector<Ball*>    balls;
-    static int              offsetX, offsetY, blockWidth, blockHeight;
+    static int              offsetX, offsetY, blockWidth, blockHeight, screenWidth, screenHeight;
     static HBITMAP          backBitmap = NULL, hOldBitmap = NULL;
+    static HBITMAP          hBgImage;
+    static BITMAP           bitBg;
     static Paddle           paddle;
 
     switch (message)
     {
     case WM_CREATE:
         GetClientRect(hWnd, &rectView);
-        SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
+        SetScreenSize(rectView, screenWidth, screenHeight);
+
+        SetBlockSize(screenWidth, screenHeight, offsetX, offsetY, blockWidth, blockHeight);
         CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
+        CreateBitmap(hBgImage, bitBg);
+
         SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
         paddle.Init(rectView);
         break;
 
     case WM_SIZE:
         GetClientRect(hWnd, &rectView);
-        SetBlockSize(rectView, offsetX, offsetY, blockWidth, blockHeight);
+        SetScreenSize(rectView, screenWidth, screenHeight);
+
+        SetBlockSize(screenWidth, screenHeight, offsetX, offsetY, blockWidth, blockHeight);
         CreateBlocks(blocks, offsetX, offsetY, blockWidth, blockHeight);
+
         InvalidateRect(hWnd, NULL, false);
         break;
 
@@ -240,7 +288,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (ball->Collision(block->GetPos()))
                     block->TakeDamage(blocks, i);
             }
-            ball->Collision(paddle.GetPos());
+            bool hasCollided = ball->Collision(paddle.GetPos());
+            if (hasCollided && paddle.IsSticky())
+                paddle.CollectBalls(ball);
+
             ball->CheckWall(rectView);
 
             if (ball->IsDead())
@@ -273,9 +324,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN:
         paddle.Move(wParam, rectView);
+        paddle.AdjustPosition(rectView);
+        paddle.MoveStuckBalls();
 
-        if (wParam == VK_SPACE && balls.empty())
-            ShootBall(paddle.GetPos(), balls);
+        if (wParam == VK_SPACE && !isGameOver)
+        {
+            if (balls.empty())
+                ShootBall(paddle.GetPos(), balls);
+
+            else if (paddle.IsSticky())
+            {
+                paddle.SetIsSticky(false);
+                paddle.ReleaseStuckBalls();
+            }
+        }
+        else if (wParam == VK_F1)
+            paddle.Stretch();
+
+        else if (wParam == VK_F2)
+            paddle.SetIsSticky(true);
         break;
 
     case WM_PAINT:
@@ -292,8 +359,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메모리 DC에 그리기
             FillRect(backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
 
+            DrawBitmap(hWnd, backMemDC, hBgImage, bitBg, screenWidth, screenHeight);
+            DrawScore(hWnd, backMemDC, screenWidth);
             DrawBlocks(backMemDC, hBrush, blocks);
-            DrawBalls(backMemDC, balls);
+            DrawBalls(backMemDC, hBrush, balls);
             paddle.Draw(backMemDC, hBrush);
 
             // 화면에 복사
@@ -309,8 +378,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
+
     case WM_DESTROY:
         KillTimer(hWnd, TIMER_ID);
+        DeleteObject(backBitmap);
+        DeleteObject(hOldBitmap);
+        DeleteObject(hBgImage);
         PostQuitMessage(0);
         break;
     default:

@@ -22,5 +22,6 @@
 #include <cmath>
 
 #include "objects.h"
+#include "game_control.h"
 
 using namespace std;

@@ -24,10 +24,10 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="0902_wp_Atari.h">
+    <ClInclude Include="objects.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="objects.h">
+    <ClInclude Include="game_control.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,6 +41,9 @@
     <ClCompile Include="objects.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="game_control.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="0902_wp_Atari.rc">
@@ -52,6 +55,9 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="0902_wp_Atari.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="images\Background.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

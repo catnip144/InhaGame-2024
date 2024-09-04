@@ -1,4 +1,5 @@
-#include "objects.h"
+#pragma once
+#include "framework.h"
 
 Block::Block(RECT position)
 {
@@ -45,18 +46,23 @@ void Block::TakeDamage(vector<Block*>& blocks, int index)
 	hasTakenDamage = true;
 
 	if (hp == 0)
+	{
+		EarnScore(rewardScore);
 		blocks.erase(blocks.begin() + index);
+	}
 }
 
 Ball::Ball(int posX, int posY)
 {
-	x = posX;
-	y = posY;
+	SetPosition(posX, posY);
 }
 
-void Ball::Draw(HDC& hdc)
+void Ball::Draw(HDC& hdc, HBRUSH& hBrush)
 {
+	hBrush = CreateSolidBrush(RGB(183, 253, 255));
+	SelectObject(hdc, hBrush);
 	Ellipse(hdc, x - radius, y - radius, x + radius, y + radius);
+	DeleteObject(hBrush);
 }
 
 void Ball::Move()
@@ -86,6 +92,23 @@ void Ball::CheckWall(RECT& rectView)
 	{
 		isDead = true;
 	}
+}
+
+void Ball::SetMoveSpeed(int speed)
+{
+	moveSpeed = speed;
+}
+
+void Ball::SetDirection(double dx, double dy)
+{
+	dirX = dx;
+	dirY = dy;
+}
+
+void Ball::SetPosition(double posX, double posY)
+{
+	x = posX;
+	y = posY;
 }
 
 bool Ball::Collision(RECT& rect)
@@ -135,9 +158,6 @@ void Paddle::Init(RECT& rectView)
 	int posX = (rectView.right - rectView.left) / 2;
 	int posY = (rectView.bottom - rectView.top) * PADDLE_START_Y / 10;
 
-	width = PADDLE_WIDTH;
-	height = PADDLE_HEIGHT;
-
 	pos = {
 		posX - width / 2,
 		posY - height / 2,
@@ -156,19 +176,16 @@ void Paddle::Draw(HDC& hdc, HBRUSH& hBrush)
 
 void Paddle::Move(WPARAM& wParam, RECT& rectView)
 {
-	int moveAmount = PADDLE_SPEED;
+	int moveAmount;
 
 	switch (wParam)
 	{
 	case VK_LEFT:
-		if (pos.left - PADDLE_SPEED <= rectView.left)
-			moveAmount = (pos.left - rectView.left);
-		moveAmount = -moveAmount;
+		moveAmount = -PADDLE_SPEED;
 		break;
 
 	case VK_RIGHT:
-		if (pos.right + PADDLE_SPEED >= rectView.right)
-			moveAmount = rectView.right - pos.right;
+		moveAmount = PADDLE_SPEED;
 		break;
 
 	default:
@@ -176,4 +193,52 @@ void Paddle::Move(WPARAM& wParam, RECT& rectView)
 	}
 	pos.left += moveAmount;
 	pos.right += moveAmount;
+}
+
+void Paddle::AdjustPosition(RECT& rectView)
+{
+	if (pos.left < rectView.left)
+	{
+		pos.left = rectView.left;
+		pos.right = pos.left + width;
+	}
+	else if (pos.right > rectView.right)
+	{
+		pos.right = rectView.right;
+		pos.left = pos.right - width;
+	}
+}
+
+void Paddle::Stretch()
+{
+	width += PADDLE_STRETCH * 2;
+	pos.left -= PADDLE_STRETCH;
+	pos.right += PADDLE_STRETCH;
+}
+
+void Paddle::SetIsSticky(bool state)
+{
+	isSticky = state;
+}
+
+void Paddle::CollectBalls(Ball* ball)
+{
+	ball->SetMoveSpeed(0);
+	//ball->SetDirection(cos((90 * PI / 180.0)), -sin((90 * PI / 180.0)));
+	stuckBalls.push_back(ball);
+}
+
+void Paddle::MoveStuckBalls()
+{
+	//for (Ball* ball : stuckBalls)
+	//	ball->SetPosition(ball->GetX(), ball->GetY());
+}
+
+void Paddle::ReleaseStuckBalls()
+{
+	for (int i = stuckBalls.size() - 1; i >= 0; i--)
+	{
+		stuckBalls[i]->SetMoveSpeed(BALL_SPEED);
+		stuckBalls.pop_back();
+	}
 }
