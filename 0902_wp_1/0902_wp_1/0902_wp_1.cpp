@@ -14,7 +14,8 @@ using namespace std;
 
 #pragma comment(lib, "msimg32.lib")
 
-HINSTANCE g_hWnd = NULL;
+HWND g_hWnd = NULL;
+HINSTANCE g_hInst;
 
 void CreateBitmap();
 void DrawBitmap(HWND hWnd, HDC hdc);
@@ -26,6 +27,8 @@ void Update();
 
 VOID CALLBACK AniProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+
+BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 //////////////////////////////////////////////////////
 
@@ -146,7 +149,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
-   g_hWnd = hInst;
+   g_hWnd = hWnd;
+   g_hInst = hInst;
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -186,6 +190,10 @@ bool InCircle(int x, int y, int mx, int my)
 // : background
 HBITMAP hBackImage;
 BITMAP bitBack;
+
+// : front image
+HBITMAP hFrontImage;
+BITMAP bitFront;
 
 // : sigong
 HBITMAP hTransparentImage;
@@ -256,6 +264,19 @@ void CreateBitmap()
     Run_Frame_Min = 2;
     curFrame = Run_Frame_Min;
     // << :
+
+    // >> : front
+    hFrontImage = (HBITMAP)LoadImage(NULL, TEXT("images/cloud.bmp"),
+        IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+    if (hFrontImage == NULL)
+    {
+        DWORD dwError = GetLastError();
+        MessageBox(NULL, _T("donut 이미지 로드 에러"), _T("에러"), MB_OK);
+    }
+    else
+        GetObject(hFrontImage, sizeof(BITMAP), &bitFront);
+    // << :
 }
 
 void DrawBitmap(HWND hWnd, HDC hdc)
@@ -310,6 +331,31 @@ void DrawBitmap(HWND hWnd, HDC hdc)
         DeleteDC(hMemDC);
     }
     // << :
+
+    // >> : front
+    {
+        HDC hMemDC2;
+        HBITMAP hOldBitmap2;
+
+        hMemDC2 = CreateCompatibleDC(hdc);
+        hOldBitmap2 = (HBITMAP)SelectObject(hMemDC2, hFrontImage);
+
+        int bx = bitFront.bmWidth;
+        int by = bitFront.bmHeight;
+
+        HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 255));
+        HBRUSH oldBrush = (HBRUSH)SelectObject(hMemDC2, hBrush);
+        Ellipse(hMemDC2, bx / 4, by / 4, bx / 2, by / 2);
+
+        SelectObject(hMemDC2, oldBrush);
+        DeleteObject(hBrush);
+
+        TransparentBlt(hdc, 300, 300, bx, by, hMemDC2, 0, 0, bx, by, RGB(255, 0, 255));
+
+        SelectObject(hMemDC2, hOldBitmap2);
+        DeleteDC(hMemDC2);
+    }
+    // << :
 }
 
 void DrawBitMapDoubleBuffering(HWND hWnd, HDC hdc)
@@ -327,6 +373,7 @@ void DrawBitMapDoubleBuffering(HWND hWnd, HDC hdc)
     DrawBitmap(hWnd, hDoubleBufferDC);
 
     BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, hDoubleBufferDC, 0, 0, SRCCOPY);
+
     SelectObject(hDoubleBufferDC, hOldDoubleBufferBitmap);
     DeleteDC(hDoubleBufferDC);
 }
@@ -374,6 +421,61 @@ VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
         wsprintf(sKeyState, TEXT(""));
     }
     return VOID();
+}
+
+BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_INITDIALOG:
+        {
+            HWND btn = (HWND)GetDlgItem(hDlg, IDC_Btn_Pause);
+            EnableWindow(btn, FALSE);
+        }
+        return 1;
+        break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDC_Btn_Start:
+            {
+                HWND btn = (HWND)GetDlgItem(hDlg, IDC_Btn_Start);
+                EnableWindow(btn, FALSE);
+
+                btn = (HWND)GetDlgItem(hDlg, IDC_Btn_Pause);
+                EnableWindow(btn, TRUE);
+
+                SetDlgItemText(hDlg, IDC_Btn_Info, _T("게임 시작"));
+            }
+            break;
+
+        case IDC_Btn_Pause:
+            {
+                HWND btn = (HWND)GetDlgItem(hDlg, IDC_Btn_Start);
+                EnableWindow(btn, TRUE);
+
+                btn = (HWND)GetDlgItem(hDlg, IDC_Btn_Pause);
+                EnableWindow(btn, FALSE);
+
+                SetDlgItemText(hDlg, IDC_Btn_Info, _T("게임 정지"));
+            }
+            break;
+
+        case IDC_Btn_Close:
+            EndDialog(hDlg, 0);
+            break;
+
+        case IDOK:
+            EndDialog(hDlg, 0);
+            break;
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            break;
+        }
+        break;
+    }
+    return 0;
 }
 
 void Update()
@@ -482,6 +584,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             Select = true;
 
         InvalidateRgn(hWnd, NULL, false);
+        break;
+
+    case WM_RBUTTONDOWN:
+        DialogBox(g_hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, Dialog1_Proc);
         break;
 
     case WM_PAINT:

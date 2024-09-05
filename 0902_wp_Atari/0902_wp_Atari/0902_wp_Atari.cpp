@@ -204,12 +204,20 @@ void DrawBlocks(HDC& hdc, HBRUSH& hBrush, vector<Block*>& blocks)
     SelectObject(hdc, hBrush);
 }
 
-void DrawBalls(HDC& hdc, HBRUSH& hBrush, vector<Ball*> balls)
+void DrawBalls(HDC& hdc, HBRUSH& hBrush, vector<Ball*>& balls)
 {
     int ballCount = balls.size();
 
     for (int i = 0; i < ballCount; i++)
         balls[i]->Draw(hdc, hBrush);
+}
+
+void DrawItems(HDC& hdc, HBRUSH& hBrush, vector<Item*>& items)
+{
+    int itemCount = items.size();
+
+    for (int i = 0; i < itemCount; i++)
+        items[i]->Draw(hdc);
 }
 
 void SetBlockSize(int screenWidth, int screenHeight, int& offsetX, int& offsetY, int& blockWidth, int& blockHeight)
@@ -247,6 +255,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static HBRUSH           hBrush, oldBrush;
     static vector<Block*>   blocks;
     static vector<Ball*>    balls;
+    static vector<Item*>    items;
     static int              offsetX, offsetY, blockWidth, blockHeight, screenWidth, screenHeight;
     static HBITMAP          backBitmap = NULL, hOldBitmap = NULL;
     static HBITMAP          hBgImage;
@@ -256,6 +265,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_CREATE:
+        srand(time(NULL));
         GetClientRect(hWnd, &rectView);
         SetScreenSize(rectView, screenWidth, screenHeight);
 
@@ -286,14 +296,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 Block* block = blocks[i];
 
                 if (ball->Collision(block->GetPos()))
-                    block->TakeDamage(blocks, i);
+                    block->TakeDamage(blocks, items, i);
             }
             bool hasCollided = ball->Collision(paddle.GetPos());
-            if (hasCollided && paddle.IsSticky())
+
+            if (hasCollided && !ball->IsStuck() && paddle.IsSticky())
                 paddle.CollectBalls(ball);
-
+            
             ball->CheckWall(rectView);
-
             if (ball->IsDead())
             {
                 balls.erase(balls.begin() + i);
@@ -324,8 +334,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_KEYDOWN:
         paddle.Move(wParam, rectView);
-        paddle.AdjustPosition(rectView);
-        paddle.MoveStuckBalls();
 
         if (wParam == VK_SPACE && !isGameOver)
         {
@@ -343,6 +351,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         else if (wParam == VK_F2)
             paddle.SetIsSticky(true);
+
+        else if (wParam == VK_F3)
+            ShootBall(paddle.GetPos(), balls);
+
         break;
 
     case WM_PAINT:
@@ -363,6 +375,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DrawScore(hWnd, backMemDC, screenWidth);
             DrawBlocks(backMemDC, hBrush, blocks);
             DrawBalls(backMemDC, hBrush, balls);
+            DrawItems(backMemDC, hBrush, items);
             paddle.Draw(backMemDC, hBrush);
 
             // 화면에 복사

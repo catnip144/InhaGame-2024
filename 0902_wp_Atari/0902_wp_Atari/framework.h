@@ -20,6 +20,7 @@
 #include <TCHAR.h>
 #include <vector>
 #include <cmath>
+#include <time.h>
 
 #include "objects.h"
 #include "game_control.h"

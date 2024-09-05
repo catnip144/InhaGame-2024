@@ -39,8 +39,7 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
 	Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
 	DeleteObject(hBrush);
 }
-
-void Block::TakeDamage(vector<Block*>& blocks, int index)
+void Block::TakeDamage(std::vector<Block*>& blocks, std::vector<Item*>& items, int index)
 {
 	hp -= 1;
 	hasTakenDamage = true;
@@ -49,7 +48,23 @@ void Block::TakeDamage(vector<Block*>& blocks, int index)
 	{
 		EarnScore(rewardScore);
 		blocks.erase(blocks.begin() + index);
+		DropItem(items);
 	}
+}
+void Block::DropItem(vector<Item*>& items)
+{
+	int posX = (pos.right - pos.left) / 2;
+	int posY = (pos.bottom - pos.top) / 2;
+	int chance = rand() % 100 + 1;
+
+	if (chance <= 20)
+		items.push_back(new MultiplierItem(posX, posY));
+
+	else if (chance <= 40)
+		items.push_back(new StickyItem(posX, posY));
+
+	else if (chance <= 60)
+		items.push_back(new StretchItem(posX, posY));
 }
 
 Ball::Ball(int posX, int posY)
@@ -59,9 +74,16 @@ Ball::Ball(int posX, int posY)
 
 void Ball::Draw(HDC& hdc, HBRUSH& hBrush)
 {
+	HPEN ballPen = CreatePen(PS_SOLID, 3, RGB(92, 150, 255));
+	HPEN oldPen = (HPEN)SelectObject(hdc, ballPen);
+
 	hBrush = CreateSolidBrush(RGB(183, 253, 255));
 	SelectObject(hdc, hBrush);
+
 	Ellipse(hdc, x - radius, y - radius, x + radius, y + radius);
+
+	SelectObject(hdc, oldPen);
+	DeleteObject(ballPen);
 	DeleteObject(hBrush);
 }
 
@@ -109,6 +131,11 @@ void Ball::SetPosition(double posX, double posY)
 {
 	x = posX;
 	y = posY;
+}
+
+void Ball::SetIsStuck(bool state)
+{
+	isStuck = state;
 }
 
 bool Ball::Collision(RECT& rect)
@@ -174,9 +201,10 @@ void Paddle::Draw(HDC& hdc, HBRUSH& hBrush)
 	DeleteObject(hBrush);
 }
 
-void Paddle::Move(WPARAM& wParam, RECT& rectView)
+void Paddle::Move(WPARAM& wParam, RECT rectView)
 {
 	int moveAmount;
+	RECT prevPos = pos;
 
 	switch (wParam)
 	{
@@ -193,6 +221,9 @@ void Paddle::Move(WPARAM& wParam, RECT& rectView)
 	}
 	pos.left += moveAmount;
 	pos.right += moveAmount;
+
+	AdjustPosition(rectView);
+	MoveStuckBalls(pos.left - prevPos.left);
 }
 
 void Paddle::AdjustPosition(RECT& rectView)
@@ -223,15 +254,15 @@ void Paddle::SetIsSticky(bool state)
 
 void Paddle::CollectBalls(Ball* ball)
 {
+	ball->SetIsStuck(true);
 	ball->SetMoveSpeed(0);
-	//ball->SetDirection(cos((90 * PI / 180.0)), -sin((90 * PI / 180.0)));
 	stuckBalls.push_back(ball);
 }
 
-void Paddle::MoveStuckBalls()
+void Paddle::MoveStuckBalls(int moveAmount)
 {
-	//for (Ball* ball : stuckBalls)
-	//	ball->SetPosition(ball->GetX(), ball->GetY());
+	for (Ball* ball : stuckBalls)
+		ball->SetPosition(ball->GetX() + moveAmount, ball->GetY());
 }
 
 void Paddle::ReleaseStuckBalls()
@@ -239,6 +270,56 @@ void Paddle::ReleaseStuckBalls()
 	for (int i = stuckBalls.size() - 1; i >= 0; i--)
 	{
 		stuckBalls[i]->SetMoveSpeed(BALL_SPEED);
+		stuckBalls[i]->SetIsStuck(false);
 		stuckBalls.pop_back();
 	}
+}
+
+Item::Item(int x, int y)
+{
+	pos.x = x;
+	pos.y = y;
+}
+
+void Item::Draw(HDC& hdc)
+{
+}
+
+MultiplierItem::MultiplierItem(int x, int y) : Item(x, y)
+{
+	type = ITEM_MULTIPLY;
+}
+
+void MultiplierItem::Draw(HDC& hdc)
+{
+	HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+	SelectObject(hdc, hBrush);
+	Ellipse(hdc, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3);
+	DeleteObject(hBrush);
+}
+
+StickyItem::StickyItem(int x, int y) : Item(x, y)
+{
+	type = ITEM_STICKY;
+}
+
+void StickyItem::Draw(HDC& hdc)
+{
+	HBRUSH hBrush = CreateSolidBrush(RGB(0, 255, 0));
+	SelectObject(hdc, hBrush);
+	Ellipse(hdc, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3);
+	DeleteObject(hBrush);
+}
+
+StretchItem::StretchItem(int x, int y) : Item(x, y)
+{
+	type = ITEM_STRETCH;
+}
+
+void StretchItem::Draw(HDC& hdc)
+{
+	HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255));
+	SelectObject(hdc, hBrush);
+	Ellipse(hdc, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3);
+	DeleteObject(hBrush);
 }

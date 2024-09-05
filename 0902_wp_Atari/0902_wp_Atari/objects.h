@@ -19,6 +19,54 @@
 #define PADDLE_SPEED 40
 #define PADDLE_STRETCH 15
 
+#define ITEM_MAX_TYPE 4
+
+enum ItemType
+{
+	ITEM_NONE,
+	ITEM_MULTIPLY,
+	ITEM_STICKY,
+	ITEM_STRETCH
+};
+
+class Item
+{
+protected:
+	ItemType type = ITEM_NONE;
+	POINT pos;
+
+public:
+	Item(int x, int y);
+	//void CheckCollision();
+	//void Destroy();
+	virtual void Draw(HDC& hdc);
+	//virtual void ItemEffect();
+};
+
+class MultiplierItem : public Item
+{
+public:
+	MultiplierItem(int x, int y);
+	void Draw(HDC& hdc) override;
+	//void ItemEffect() override;
+};
+
+class StickyItem : public Item
+{
+public:
+	StickyItem(int x, int y);
+	void Draw(HDC& hdc) override;
+	//void ItemEffect() override;
+};
+
+class StretchItem : public Item
+{
+public:
+	StretchItem(int x, int y);
+	void Draw(HDC& hdc) override;
+	//void ItemEffect() override;
+};
+
 class Block
 {
 private:
@@ -27,10 +75,12 @@ private:
 	int rewardScore = 100;
 	bool hasTakenDamage = false;
 
+	void DropItem(std::vector<Item*>& items);
+
 public:
 	Block(RECT position);
 	void Draw(HDC& hdc, HBRUSH& hBrush);
-	void TakeDamage(std::vector<Block*>& blocks, int index);
+	void TakeDamage(std::vector<Block*>& blocks, std::vector<Item*>& items, int index);
 	RECT& GetPos() { return pos; }
 };
 
@@ -43,6 +93,7 @@ private:
 	double dirX = DIR_X;
 	double dirY = DIR_Y;
 	bool isDead = false;
+	bool isStuck = false;
 
 	bool Contains(int posX, int posY);
 
@@ -54,10 +105,12 @@ public:
 	void SetMoveSpeed(int speed);
 	void SetDirection(double dx, double dy);
 	void SetPosition(double posX, double posY);
+	void SetIsStuck(bool state);
 	int GetX() { return x; }
 	int GetY() { return y; }
 	bool Collision(RECT& rect);
 	bool IsDead() { return isDead; }
+	bool IsStuck() { return isStuck; }
 };
 
 class Paddle
@@ -72,56 +125,13 @@ private:
 public:
 	void Init(RECT& rectView);
 	void Draw(HDC& hdc, HBRUSH& hBrush);
-	void Move(WPARAM& wParam, RECT& rectView);
+	void Move(WPARAM& wParam, RECT rectView);
 	void AdjustPosition(RECT& rectView);
 	void Stretch();
 	void SetIsSticky(bool state);
 	void CollectBalls(Ball* ball);
-	void MoveStuckBalls();
+	void MoveStuckBalls(int moveAmount);
 	void ReleaseStuckBalls();
 	bool IsSticky() { return isSticky; }
 	RECT& GetPos() { return pos; }
-};
-
-enum ItemType
-{
-	ITEM_MULTIPLY,
-	ITEM_STICKY,
-	ITEM_STRETCH
-};
-
-class Item
-{
-protected:
-	ItemType type;
-
-public:
-	void CheckCollision();
-	void Destroy();
-	virtual void Draw();
-	virtual void ItemEffect();
-};
-
-class MultiplierItem : public Item
-{
-public:
-	MultiplierItem() { type = ITEM_MULTIPLY; }
-	void Draw() override;
-	void ItemEffect() override;
-};
-
-class StickyItem : public Item
-{
-public:
-	StickyItem() { type = ITEM_STICKY; }
-	void Draw() override;
-	void ItemEffect() override;
-};
-
-class StretchItem : public Item
-{
-public:
-	StretchItem() { type = ITEM_STRETCH; }
-	void Draw() override;
-	void ItemEffect() override;
 };
