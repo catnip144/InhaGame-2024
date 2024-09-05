@@ -215,10 +215,8 @@ int BoyerMoore(string& text, string& pattern, vector<int>& table)
 			if (text[i + j - (ptrnSize - 1)] != pattern[j])
 			{
 				PrintProgress(text, pattern, i - (ptrnSize - 1 - j), i - ptrnSize + 1, false);
-				i += table[text[j]];
+				i += table[text[i + j - (ptrnSize - 1)]];
 				j = ptrnSize - 1;
-				//if (table[text[j]] != 3)
-				//	continue;
 				isMatch = false;
 				break;
 			}
