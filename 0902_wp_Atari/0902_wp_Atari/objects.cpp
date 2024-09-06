@@ -1,9 +1,14 @@
 #pragma once
-#include "framework.h"
+#include "objects.h"
 
 Block::Block(RECT position)
 {
 	pos = position;
+}
+
+void Block::SetHp(int amount)
+{
+	hp = amount;
 }
 
 void Block::Draw(HDC& hdc, HBRUSH& hBrush)
@@ -20,10 +25,9 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
 		hBrush = CreateSolidBrush(RGB(62, 180, 137));
 		break;
 	default:
-		hBrush = CreateSolidBrush(RGB(255, 255, 255));
 		break;
 	}
-	SelectObject(hdc, hBrush);
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 
 	if (hasTakenDamage)
 	{
@@ -33,10 +37,12 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
 		SelectObject(hdc, hBrush);
 
 		Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
+		SelectObject(hdc, oldBrush);
 		DeleteObject(hBrush);
 		return;
 	}
 	Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
+	SelectObject(hdc, oldBrush);
 	DeleteObject(hBrush);
 }
 void Block::TakeDamage(std::vector<Block*>& blocks, std::vector<Item*>& items, int index)
@@ -47,23 +53,24 @@ void Block::TakeDamage(std::vector<Block*>& blocks, std::vector<Item*>& items, i
 	if (hp == 0)
 	{
 		EarnScore(rewardScore);
-		blocks.erase(blocks.begin() + index);
 		DropItem(items);
+
+		blocks.erase(blocks.begin() + index);
 	}
 }
 void Block::DropItem(vector<Item*>& items)
 {
-	int posX = (pos.right - pos.left) / 2;
-	int posY = (pos.bottom - pos.top) / 2;
+	int posX = pos.left + (pos.right - pos.left) / 2;
+	int posY = pos.top + (pos.bottom - pos.top) / 2;
 	int chance = rand() % 100 + 1;
 
-	if (chance <= 20)
+	if (chance <= 30)
 		items.push_back(new MultiplierItem(posX, posY));
 
-	else if (chance <= 40)
+	else if (chance <= 50)
 		items.push_back(new StickyItem(posX, posY));
 
-	else if (chance <= 60)
+	else if (chance <= 80)
 		items.push_back(new StretchItem(posX, posY));
 }
 
@@ -182,6 +189,10 @@ bool Ball::Contains(int posX, int posY)
 
 void Paddle::Init(RECT& rectView)
 {
+	isSticky = false;
+	width = PADDLE_WIDTH;
+	height = PADDLE_HEIGHT;
+
 	int posX = (rectView.right - rectView.left) / 2;
 	int posY = (rectView.bottom - rectView.top) * PADDLE_START_Y / 10;
 
@@ -195,7 +206,10 @@ void Paddle::Init(RECT& rectView)
 
 void Paddle::Draw(HDC& hdc, HBRUSH& hBrush)
 {
-	hBrush = CreateSolidBrush(RGB(170, 200, 200));
+	if (isSticky)
+		hBrush = CreateSolidBrush(RGB(219, 252, 3));
+	else
+		hBrush = CreateSolidBrush(RGB(170, 200, 200));
 	SelectObject(hdc, hBrush);
 	Rectangle(hdc, pos.left, pos.top, pos.right, pos.bottom);
 	DeleteObject(hBrush);
@@ -275,51 +289,90 @@ void Paddle::ReleaseStuckBalls()
 	}
 }
 
-Item::Item(int x, int y)
+Item::Item(int x, int y, ItemType itemType)
 {
-	pos.x = x;
-	pos.y = y;
+	int bx = 0, by = 0;
+	type = itemType;
+
+	switch (itemType)
+	{
+	case ITEM_MULTIPLY:
+		bx = bitMultiplierItem.bmWidth;
+		by = bitMultiplierItem.bmHeight;
+		break;
+
+	case ITEM_STICKY:
+		bx = bitStickyItem.bmWidth;
+		by = bitStickyItem.bmHeight;
+		break;
+
+	case ITEM_STRETCH:
+		bx = bitStretchItem.bmWidth;
+		by = bitStretchItem.bmHeight;
+		break;
+
+	default:
+		return;
+	}
+	int itemWidth  = bx / ITEM_SPRITE_COL * ITEM_IMAGE_SIZE;
+	int itemHeight = by * ITEM_IMAGE_SIZE;
+
+	pos.left   = x - (itemWidth / 2);
+	pos.top    = y - (itemHeight / 2);
+	pos.right  = x + (itemWidth / 2);
+	pos.bottom = y + (itemHeight / 2);
 }
 
-void Item::Draw(HDC& hdc)
+void Item::UpdateFrame()
 {
+	curFrame = (curFrame + 1) % ITEM_SPRITE_COL;
 }
 
-MultiplierItem::MultiplierItem(int x, int y) : Item(x, y)
+bool Item::Move(RECT& rectView)
 {
-	type = ITEM_MULTIPLY;
+	pos.top += ITEM_FALL_SPEED;
+	pos.bottom += ITEM_FALL_SPEED;
+
+	if (pos.top > rectView.bottom)
+		return false;
+	return true;
 }
 
-void MultiplierItem::Draw(HDC& hdc)
+bool Item::Collision(RECT& paddle)
 {
-	HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
-	SelectObject(hdc, hBrush);
-	Ellipse(hdc, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3);
-	DeleteObject(hBrush);
+	if (pos.right < paddle.left)
+		return false;
+
+	if (pos.left > paddle.right)
+		return false;
+
+	if (pos.top > paddle.bottom)
+		return false;
+
+	if (pos.bottom < paddle.top)
+		return false;
+	return true;
 }
 
-StickyItem::StickyItem(int x, int y) : Item(x, y)
+void Item::ItemEffect(vector<Ball*>& balls, Paddle& paddle) {}
+
+MultiplierItem::MultiplierItem(int x, int y) : Item(x, y, ITEM_MULTIPLY) {}
+
+void MultiplierItem::ItemEffect(vector<Ball*>& balls, Paddle& paddle)
 {
-	type = ITEM_STICKY;
+	ShootBall(paddle.GetPos(), balls);
 }
 
-void StickyItem::Draw(HDC& hdc)
+StickyItem::StickyItem(int x, int y) : Item(x, y, ITEM_STICKY) {}
+
+void StickyItem::ItemEffect(vector<Ball*>& balls, Paddle& paddle)
 {
-	HBRUSH hBrush = CreateSolidBrush(RGB(0, 255, 0));
-	SelectObject(hdc, hBrush);
-	Ellipse(hdc, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3);
-	DeleteObject(hBrush);
+	paddle.SetIsSticky(true);
 }
 
-StretchItem::StretchItem(int x, int y) : Item(x, y)
-{
-	type = ITEM_STRETCH;
-}
+StretchItem::StretchItem(int x, int y) : Item(x, y, ITEM_STRETCH) {}
 
-void StretchItem::Draw(HDC& hdc)
+void StretchItem::ItemEffect(vector<Ball*>& balls, Paddle& paddle)
 {
-	HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255));
-	SelectObject(hdc, hBrush);
-	Ellipse(hdc, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3);
-	DeleteObject(hBrush);
+	paddle.Stretch();
 }

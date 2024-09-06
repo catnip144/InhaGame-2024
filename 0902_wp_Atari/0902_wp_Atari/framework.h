@@ -4,7 +4,10 @@
 
 #pragma once
 
+using namespace std;
+
 #include "targetver.h"
+#define _CRT_SECURE_NO_WARNINGS 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일
 #include <windows.h>
@@ -21,8 +24,18 @@
 #include <vector>
 #include <cmath>
 #include <time.h>
+#include <tchar.h>
+#include <algorithm>
 
-#include "objects.h"
-#include "game_control.h"
+extern HBITMAP	hBgImage;
+extern BITMAP	bitBg;
 
-using namespace std;
+extern HBITMAP	hMultiplierItemImage;
+extern BITMAP	bitMultiplierItem;
+
+extern HBITMAP	hStickyItemImage;
+extern BITMAP	bitStickyItem;
+
+extern HBITMAP	hStretchItemImage;
+extern BITMAP	bitStretchItem;
+

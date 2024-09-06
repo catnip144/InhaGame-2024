@@ -1,88 +1,6 @@
 #pragma once
 #include "framework.h"
-
-#define BLOCK_ROW 3
-#define BLOCK_COL 10
-#define OFFSET_X 10
-#define OFFSET_Y 8
-
-#define BALL_SIZE 10
-#define BALL_SPEED 10
-#define PI 3.141592
-
-#define DIR_X cos((45 * PI / 180.0));
-#define DIR_Y -sin((45 * PI / 180.0));
-
-#define PADDLE_START_Y 9
-#define PADDLE_WIDTH 90
-#define PADDLE_HEIGHT 10
-#define PADDLE_SPEED 40
-#define PADDLE_STRETCH 15
-
-#define ITEM_MAX_TYPE 4
-
-enum ItemType
-{
-	ITEM_NONE,
-	ITEM_MULTIPLY,
-	ITEM_STICKY,
-	ITEM_STRETCH
-};
-
-class Item
-{
-protected:
-	ItemType type = ITEM_NONE;
-	POINT pos;
-
-public:
-	Item(int x, int y);
-	//void CheckCollision();
-	//void Destroy();
-	virtual void Draw(HDC& hdc);
-	//virtual void ItemEffect();
-};
-
-class MultiplierItem : public Item
-{
-public:
-	MultiplierItem(int x, int y);
-	void Draw(HDC& hdc) override;
-	//void ItemEffect() override;
-};
-
-class StickyItem : public Item
-{
-public:
-	StickyItem(int x, int y);
-	void Draw(HDC& hdc) override;
-	//void ItemEffect() override;
-};
-
-class StretchItem : public Item
-{
-public:
-	StretchItem(int x, int y);
-	void Draw(HDC& hdc) override;
-	//void ItemEffect() override;
-};
-
-class Block
-{
-private:
-	RECT pos;
-	int hp = 3;
-	int rewardScore = 100;
-	bool hasTakenDamage = false;
-
-	void DropItem(std::vector<Item*>& items);
-
-public:
-	Block(RECT position);
-	void Draw(HDC& hdc, HBRUSH& hBrush);
-	void TakeDamage(std::vector<Block*>& blocks, std::vector<Item*>& items, int index);
-	RECT& GetPos() { return pos; }
-};
+#include "game_control.h"
 
 class Ball
 {
@@ -94,11 +12,11 @@ private:
 	double dirY = DIR_Y;
 	bool isDead = false;
 	bool isStuck = false;
-
 	bool Contains(int posX, int posY);
 
 public:
 	Ball(int posX, int posY);
+
 	void Draw(HDC& hdc, HBRUSH& hBrush);
 	void Move();
 	void CheckWall(RECT& rectView);
@@ -117,10 +35,10 @@ class Paddle
 {
 private:
 	RECT pos;
-	int width = PADDLE_WIDTH;
-	int height = PADDLE_HEIGHT;
+	int width;
+	int height;
 	bool isSticky = false;
-	std::vector<Ball*> stuckBalls;
+	vector<Ball*> stuckBalls;
 
 public:
 	void Init(RECT& rectView);
@@ -135,3 +53,72 @@ public:
 	bool IsSticky() { return isSticky; }
 	RECT& GetPos() { return pos; }
 };
+
+enum ItemType
+{
+	ITEM_MULTIPLY,
+	ITEM_STICKY,
+	ITEM_STRETCH
+};
+
+class Item
+{
+protected:
+	ItemType type;
+	RECT pos;
+	int curFrame = 0;
+
+public:
+	Item(int x, int y, ItemType itemType);
+
+	RECT GetPos() { return pos; }
+	ItemType GetType() { return type; }
+	int GetCurrentFrame() { return curFrame; }
+	void UpdateFrame();
+	bool Move(RECT& rectView);
+	bool Collision(RECT& paddle);
+	virtual void ItemEffect(vector<Ball*>& balls, Paddle& paddle);
+};
+
+class MultiplierItem : public Item
+{
+public:
+	MultiplierItem(int x, int y);
+	virtual void ItemEffect(vector<Ball*>& balls, Paddle& paddle) override;
+};
+
+class StickyItem : public Item
+{
+public:
+	StickyItem(int x, int y);
+	virtual void ItemEffect(vector<Ball*>& balls, Paddle& paddle) override;
+};
+
+class StretchItem : public Item
+{
+public:
+	StretchItem(int x, int y);
+	virtual void ItemEffect(vector<Ball*>& balls, Paddle& paddle) override;
+};
+
+class Block
+{
+private:
+	RECT pos;
+	int hp = MAX_BLOCK_HP;
+	int rewardScore = 100;
+	bool hasTakenDamage = false;
+
+	void DropItem(vector<Item*>& items);
+
+public:
+	Block(RECT position);
+
+	void SetHp(int amount);
+	void Draw(HDC& hdc, HBRUSH& hBrush);
+	void TakeDamage(vector<Block*>& blocks, vector<Item*>& items, int index);
+	RECT& GetPos() { return pos; }
+};
+
+
+void ShootBall(RECT& paddlePos, vector<Ball*>& balls);
