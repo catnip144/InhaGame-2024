@@ -19,6 +19,19 @@
 #define IDC_Btn_Pause                   1001
 #define IDC_Btn_Close                   1002
 #define IDC_Btn_Info                    1003
+#define IDC_EDIT_Source                 1004
+#define IDC_EDIT_Dest                   1005
+#define IDC_Btn_Copy                    1006
+#define IDC_Btn_Clear                   1007
+#define IDC_Btn_Exit                    1008
+#define IDC_CHECK_READING               1009
+#define IDC_CHECK_MUSIC                 1010
+#define IDC_CHECK_GAME                  1011
+#define IDC_RADIO_FEMALE                1012
+#define IDC_RADIO_MALE                  1013
+#define IDC_Btn_Output                  1014
+#define IDC_EDIT1                       1015
+#define IDC_EDIT_Output                 1015
 #define ID_EDITCOPY                     32776
 #define ID_EDITPASTE                    32777
 #define IDC_STATIC                      -1
@@ -30,7 +43,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
