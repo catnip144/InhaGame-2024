@@ -30,8 +30,12 @@
 #define IDC_RADIO_FEMALE                1012
 #define IDC_RADIO_MALE                  1013
 #define IDC_Btn_Output                  1014
-#define IDC_EDIT1                       1015
 #define IDC_EDIT_Output                 1015
+#define IDC_COMBO_LIST                  1016
+#define IDC_EDIT_NAME                   1017
+#define IDC_Btn_Insert                  1018
+#define IDC_Btn_Delete                  1019
+#define IDC_LIST_NAME                   1021
 #define ID_EDITCOPY                     32776
 #define ID_EDITPASTE                    32777
 #define IDC_STATIC                      -1
@@ -43,7 +47,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

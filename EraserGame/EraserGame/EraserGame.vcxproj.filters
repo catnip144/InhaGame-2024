@@ -30,7 +30,7 @@
     <ClInclude Include="game_control.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="map_control.h">
+    <ClInclude Include="graphic_control.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,7 +44,7 @@
     <ClCompile Include="game_control.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="map_control.cpp">
+    <ClCompile Include="graphic_control.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

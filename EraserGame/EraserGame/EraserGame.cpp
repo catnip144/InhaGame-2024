@@ -104,6 +104,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
+   g_hWnd = hWnd;
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -126,12 +127,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_CREATE:
+        SetWindowPos(hWnd, NULL, 150, 50, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
         GetClientRect(hWnd, &rectView);
-        SetScreenSize(rectView, screenWidth, screenHeight);
+        SetScreenSize(rectView);
+        CreateVisitedGrid();
+
+        CreateBitmap();
+        player.Init();
 
         SetTimer(hWnd, TIMER_ID, TIMER_ID_INTERVAL, NULL);
         SetTimer(hWnd, TIMER_ANI, TIMER_ANI_INTERVAL, NULL);
-
         break;
 
     case WM_TIMER:
@@ -158,32 +163,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+            g_hdc = BeginPaint(hWnd, &ps);
 
             // 화면DC 기반 메모리 DC 생성
-            backMemDC = CreateCompatibleDC(hdc);
+            g_backMemDC = CreateCompatibleDC(g_hdc);
 
             // 도화지 준비 (비트맵 생성), 비트맵 선택
-            backBitmap = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
-            hOldBitmap = (HBITMAP)SelectObject(backMemDC, backBitmap);
+            g_backBitmap = CreateCompatibleBitmap(g_hdc, rectView.right, rectView.bottom);
+            g_hOldBitmap = (HBITMAP)SelectObject(g_backMemDC, g_backBitmap);
 
             // 메모리 DC에 그리기
-            FillRect(backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
+            FillRect(g_backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
+
+            DrawBG(g_backMemDC);
+            DrawMasks(g_backMemDC);
+            DrawFrontImage(g_backMemDC);
+            DrawMap(g_backMemDC);
+            player.DrawLine(g_backMemDC);
+            player.Draw(g_backMemDC);
 
             // 화면에 복사
-            BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, backMemDC, 0, 0, SRCCOPY);
+            BitBlt(g_hdc, 0, 0, rectView.right, rectView.bottom, g_backMemDC, 0, 0, SRCCOPY);
 
             // 기존 비트맵 선택
-            SelectObject(backMemDC, hOldBitmap);
+            SelectObject(g_backMemDC, g_hOldBitmap);
 
-            DeleteObject(backBitmap);
+            DeleteObject(g_backBitmap);
             DeleteObject(hBrush);
-            DeleteDC(backMemDC);
+            DeleteDC(g_backMemDC);
 
             EndPaint(hWnd, &ps);
         }
         break;
+
+    case WM_KEYDOWN:
+        player.Move(wParam);
+        break;
+
     case WM_DESTROY:
+        DeleteObject(g_backBitmap);
+        DeleteObject(g_hOldBitmap);
+        DeleteObject(hBgImage);
+
+        KillTimer(hWnd, TIMER_ID);
+        KillTimer(hWnd, TIMER_ANI);
+
         PostQuitMessage(0);
         break;
     default:

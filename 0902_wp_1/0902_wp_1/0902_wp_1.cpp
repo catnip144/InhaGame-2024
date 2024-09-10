@@ -576,6 +576,14 @@ BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     TCHAR sex[][30] = { _T("여성"), _T("남성") };
     TCHAR output[200];
 
+    // >> : combo
+    static HWND hCombo;
+    static int selection;
+    static HWND hList;
+
+    TCHAR name[20];
+    // << : 
+
     switch (uMsg)
     {
     case WM_INITDIALOG:
@@ -585,6 +593,9 @@ BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             // 여성 버튼에 먼저 체크가 되어 있도록 하겠다
             CheckRadioButton(hDlg, IDC_RADIO_FEMALE, IDC_RADIO_MALE, IDC_RADIO_FEMALE);
+
+            hCombo = GetDlgItem(hDlg, IDC_COMBO_LIST);
+            hList = GetDlgItem(hDlg, IDC_LIST_NAME);
         }
         return 1;
         break;
@@ -675,6 +686,34 @@ BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             );
             SetDlgItemText(hDlg, IDC_EDIT_Output, output);
             break;
+        /////////////////////////////////////////////////////////////// combo box & list box
+
+        case IDC_Btn_Insert:
+            GetDlgItemText(hDlg, IDC_EDIT_NAME, name, 20);
+            if (_tcscmp(name, _T("")))
+            {
+                SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)name);
+                SetDlgItemText(hDlg, IDC_EDIT_NAME, _T(""));
+
+                SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)name);
+            }
+            break;
+
+        case IDC_Btn_Delete:
+            SendMessage(hCombo, CB_DELETESTRING, selection, 0);
+            SendMessage(hList, LB_DELETESTRING, selection, 0);
+            break;
+
+        case IDC_COMBO_LIST:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+                selection = SendMessage(hCombo, CB_GETCURSEL, 0, 0);
+            break;
+
+        case IDC_LIST_NAME:
+            if (HIWORD(wParam) == LBN_SELCHANGE)
+                selection = SendMessage(hList, LB_GETCURSEL, 0, 0);
+            break;
+
         ///////////////////////////////////////////////////////////////
         }
         break;
