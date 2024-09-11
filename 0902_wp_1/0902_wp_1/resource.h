@@ -15,6 +15,7 @@
 #define IDB_BITMAP1                     129
 #define IDB_BITMAP2                     131
 #define IDD_DIALOG1                     133
+#define IDD_MotherlessDialog            134
 #define IDC_Btn_Start                   1000
 #define IDC_Btn_Pause                   1001
 #define IDC_Btn_Close                   1002
@@ -36,6 +37,9 @@
 #define IDC_Btn_Insert                  1018
 #define IDC_Btn_Delete                  1019
 #define IDC_LIST_NAME                   1021
+#define IDC_LIST_CTRL                   1022
+#define IDC_BUTTON1                     1023
+#define IDC_Btn_ListItemInsert          1023
 #define ID_EDITCOPY                     32776
 #define ID_EDITPASTE                    32777
 #define IDC_STATIC                      -1
@@ -45,9 +49,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        134
+#define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

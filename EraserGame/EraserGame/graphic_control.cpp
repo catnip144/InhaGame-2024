@@ -88,16 +88,6 @@ void DrawCoverImage(HDC& hdc)
 
 }
 
-void MaskPolygon::Init(vector<POINT>& path, int start, int end)
-{
-    count = end - start + 2;
-    points = new POINT[count];
-
-    for (int i = start; i <= end; i++)
-        points[i - start] = path[i];
-    points[end + 1] = path[start];
-}
-
 void MaskPolygon::Draw(HDC& hdc)
 {
     hPen = (HPEN)GetStockObject(NULL_PEN);

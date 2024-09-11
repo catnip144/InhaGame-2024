@@ -88,10 +88,7 @@ void Player::Move(WPARAM& wParam)
 	}
 	else
 	{
-		MaskPolygon* newMask = new MaskPolygon();
-		newMask->Init(player.GetPath(), visited[pos.y][pos.x].second, pathIndex - 1);
-		masks.push_back(newMask);
-		visited[pos.y][pos.x] = { true, pathIndex++ };
+		
 	}
 }
 

@@ -4,7 +4,8 @@
 #include "framework.h"
 #include "0902_wp_1.h"
 #include "resource.h"
-#include "commdlg.h"
+#include <commdlg.h>
+#include <CommCtrl.h>
 #include <stdio.h>
 
 #define MAX_LOADSTRING 100
@@ -43,6 +44,17 @@ VOID CALLBACK AniProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
 BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK Dialog2_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+
+////////////////////////////////////////////////////// 모달리스 대화상자
+
+HWND g_hDlg = nullptr;
+void MakeColumn(HWND hDlg);
+void InsertData(HWND hDlg);
+
+///////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////
 
@@ -569,6 +581,79 @@ VOID CALLBACK KeyStateProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
     return VOID();
 }
 
+
+BOOL CALLBACK Dialog2_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_INITDIALOG:
+        // 이렇게 가져오는 것도 가능
+        //HWND hTxt = GetDlgItem(hDlg, IDC_STATIC);
+        //SetDlgItemText(hTxt, IDC_STATIC, _T("모달리스 대화상자"));
+        
+        //SetDlgItemText(hDlg, IDC_STATIC, _T("모달리스 대화상자"));
+
+        SetDlgItemText(hDlg, IDC_STATIC, _T("리스트 컨트롤 테스트"));
+        MakeColumn(hDlg);
+        break;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            DestroyWindow(hDlg);
+            g_hDlg = nullptr;
+            return 0;
+        }
+        switch (LOWORD(wParam))
+        {
+        case IDC_Btn_ListItemInsert:
+            InsertData(hDlg);
+            break;
+        }
+
+        break;
+    }
+    return 0;
+}
+
+void MakeColumn(HWND hDlg)
+{
+    LPCTSTR name[2] = { _T("이름"), _T("전화번호") };
+    LVCOLUMN lvCol = { 0, };
+    HWND hList;
+    int i;
+    hList = GetDlgItem(hDlg, IDC_LIST_CTRL);
+    lvCol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+    lvCol.fmt = LVCFMT_LEFT;
+
+    for (int i = 0; i < 2; i++)
+    {
+        lvCol.cx = 90;
+        lvCol.iSubItem = i;
+        lvCol.pszText = (LPWSTR)name[i];
+        SendMessage(hList, LVM_INSERTCOLUMN, (WPARAM)i, (LPARAM)&lvCol);
+    }
+}
+
+void InsertData(HWND hDlg)
+{
+    LVITEM item;
+    LPCTSTR name[20] = { _T("홍길동"), _T("카리나") };
+    LPCTSTR phone[20] = { _T("000-0000-0000"), _T("010-9384-3189")};
+    HWND hList = GetDlgItem(hDlg, IDC_LIST_CTRL);
+
+    for (int i = 0; i < 2; i++)
+    {
+        item.mask = LVIF_TEXT;
+        item.iItem = i;
+        item.iSubItem = 0;
+        item.pszText = (LPWSTR)name[i];
+        ListView_InsertItem(hList, &item);
+        ListView_SetItemText(hList, i, 1, (LPWSTR)phone[i]);
+    }
+}
+
+
 BOOL CALLBACK Dialog1_Proc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static int Check[3], Radio;
@@ -830,7 +915,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_RBUTTONDOWN:
-        DialogBox(g_hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, Dialog1_Proc);
+        //DialogBox(g_hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, Dialog1_Proc);
+        if (!IsWindow(g_hDlg))
+        {
+            g_hDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_MotherlessDialog), hWnd, Dialog2_Proc);
+            ShowWindow(g_hDlg, SW_SHOW);
+        }
         break;
 
     case WM_PAINT:
