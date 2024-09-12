@@ -144,9 +144,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
             {
             case TIMER_ID:
-                if (player.IsDrawing())
-                    player.Move(GetUserInput());
-                else
+                player.Move(GetUserInput());
+
+                if (!player.IsDrawing())
                     player.Rollback();
                 break;
 

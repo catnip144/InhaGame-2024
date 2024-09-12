@@ -22,18 +22,17 @@ private:
 	POINT pos;
 	int speed;
 	int radius;
-	int pathIndex = 0;
 	vector<POINT> path;
 	void AdjustPosition();
 
 public:
-	int GetRadius() { return radius; }
 	void Init();
 	void Draw(HDC& hdc);
 	void DrawLine(HDC& hdc);
 	bool IsDrawing();
 	void Move(int inputType);
 	void Rollback();
+	int GetRadius() { return radius; }
 	vector<POINT>& GetPath() { return path; }
 };
 
@@ -42,9 +41,11 @@ extern HDC g_hdc, g_backMemDC;
 
 extern Player player;
 extern POINT playerStartPos;
+extern POINT entryPos;
 
-extern vector<vector<pair<bool, int>>> visited;
+extern vector<vector<bool>> visited;
 extern vector<MaskPolygon*> masks;
+
 
 void DrawMap(HDC& hdc);
 void DrawMasks(HDC& hdc);

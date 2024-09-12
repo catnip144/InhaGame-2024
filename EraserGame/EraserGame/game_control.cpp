@@ -5,17 +5,30 @@ HDC		g_hdc, g_backMemDC;
 
 Player	player;
 POINT	playerStartPos;
+POINT	entryPos;
 
-vector<vector<pair<bool, int>>> visited;
+vector<vector<bool>> visited;
 vector<MaskPolygon*> masks;
 
 void CreateVisitedGrid()
 {
-	visited = vector<vector<pair<bool, int>>>
-		(screenHeight, vector<pair<bool, int>>(screenWidth, {false, 0}));
+	visited = vector<vector<bool>>
+		(screenHeight, vector<bool>(screenWidth, false));
 
-	visited[playerStartPos.y][playerStartPos.x] = { true, 1 };
-	//for (int i = playerStartPos.x; )
+	int playerRadius = player.GetRadius();
+	int rightX = screenWidth - playerRadius;
+
+	for (int i = playerStartPos.x; i <= rightX; i++)
+	{
+		visited[playerRadius][i] = true;
+		visited[playerStartPos.y][i] = true;
+	}
+	for (int i = playerRadius + 1; i <= playerStartPos.y - 1; i++)
+	{
+		visited[i][playerRadius] = true;
+		visited[i][rightX] = true;
+	}
+	visited[playerStartPos.y][playerStartPos.x] = true;
 }
 
 void DrawMasks(HDC& hdc)
@@ -41,8 +54,6 @@ void Player::Init()
 
 	playerStartPos = { radius, screenHeight - radius };
 	pos = playerStartPos;
-	path.push_back(pos);
-	pathIndex++;
 }
 
 void Player::Draw(HDC& hdc)
@@ -65,11 +76,10 @@ void Player::DrawLine(HDC& hdc)
 	hPen = CreatePen(PS_SOLID, 2, RGB(92, 150, 255));
 	oldPen = (HPEN)SelectObject(hdc, hPen);
 
-	MoveToEx(hdc, playerStartPos.x, playerStartPos.y, NULL);
-
-	for (POINT point : path)
+	for (int i = 0; i < path.size(); i++)
 	{
-		LineTo(hdc, point.x, point.y);
+		if (i == 0) MoveToEx(hdc, path[0].x, path[0].y, NULL);
+		LineTo(hdc, path[i].x, path[i].y);
 	}
 	SelectObject(hdc, oldPen);
 	DeleteObject(hPen);
@@ -87,10 +97,10 @@ void Player::Move(int inputType)
 
 	switch (inputType)
 	{
-	case 'A':	moveX = -speed; break;
-	case 'D':	moveX = speed;  break;
 	case 'W':	moveY = -speed; break;
+	case 'A':	moveX = -speed; break;
 	case 'S':	moveY = speed;  break;
+	case 'D':	moveX = speed;  break;
 	default:	return;
 	}
 	pos.x += moveX;
@@ -98,18 +108,23 @@ void Player::Move(int inputType)
 
 	AdjustPosition();
 
-	if (!visited[pos.y][pos.x].first)
+	if (IsDrawing() && !visited[pos.y][pos.x])
 	{
-		visited[pos.y][pos.x] = { true, pathIndex++ };
+		if (path.empty())
+			entryPos = prevPos;
+
+		visited[pos.y][pos.x] = true;
 		path.push_back(pos);
 	}
-	else
+	else if (!IsDrawing() && !visited[pos.y][pos.x])
 	{
+		pos = prevPos;
+		
 		// if new area is connected to borders
 			// expand area
 
 		/// if not
-		pos = prevPos;
+		//pos = prevPos;
 	}
 	//else if (IsDrawing)
 	//{
@@ -122,11 +137,11 @@ void Player::Move(int inputType)
 
 void Player::Rollback()
 {
-	if (path.size() >= 2)
+	if (path.size() >= 1)
 	{
-		visited[path.back().y][path.back().x].first = false;
+		visited[path.back().y][path.back().x] = false;
 		path.pop_back();
-		pos = path.back();
+		pos = path.empty() ? entryPos : path.back();
 	}
 }
 
@@ -160,3 +175,4 @@ void DrawMap(HDC& hdc)
 	SelectObject(hdc, oldBrush);
 	DeleteObject(hBrush);
 }
+ 
