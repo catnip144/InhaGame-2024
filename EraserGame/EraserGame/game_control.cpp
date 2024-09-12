@@ -13,12 +13,25 @@ void CreateVisitedGrid()
 {
 	visited = vector<vector<pair<bool, int>>>
 		(screenHeight, vector<pair<bool, int>>(screenWidth, {false, 0}));
+
+	visited[playerStartPos.y][playerStartPos.x] = { true, 1 };
+	//for (int i = playerStartPos.x; )
 }
 
 void DrawMasks(HDC& hdc)
 {
-	//for (MaskPolygon* mask : masks)
-	//	mask->Draw(hdc);
+	for (MaskPolygon* mask : masks)
+		mask->Draw(hdc);
+}
+
+int GetUserInput()
+{
+	if (GetAsyncKeyState('W') & 0x8000) return 'W';
+	if (GetAsyncKeyState('A') & 0x8000) return 'A';
+	if (GetAsyncKeyState('S') & 0x8000) return 'S';
+	if (GetAsyncKeyState('D') & 0x8000) return 'D';
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000) return VK_CONTROL;
+	return '\0';
 }
 
 void Player::Init()
@@ -29,8 +42,7 @@ void Player::Init()
 	playerStartPos = { radius, screenHeight - radius };
 	pos = playerStartPos;
 	path.push_back(pos);
-
-	visited[pos.y][pos.x] = { true, pathIndex++ };
+	pathIndex++;
 }
 
 void Player::Draw(HDC& hdc)
@@ -55,26 +67,31 @@ void Player::DrawLine(HDC& hdc)
 
 	MoveToEx(hdc, playerStartPos.x, playerStartPos.y, NULL);
 
-	for (POINT& point : path)
+	for (POINT point : path)
 	{
 		LineTo(hdc, point.x, point.y);
-		MoveToEx(hdc, point.x, point.y, NULL);
 	}
 	SelectObject(hdc, oldPen);
 	DeleteObject(hPen);
 }
 
-void Player::Move(WPARAM& wParam)
+bool Player::IsDrawing()
 {
+	return (GetAsyncKeyState(VK_CONTROL) & 0x8000);
+}
+
+void Player::Move(int inputType)
+{
+	POINT prevPos = pos;
 	int moveX = 0, moveY = 0;
 
-	switch (wParam)
+	switch (inputType)
 	{
 	case 'A':	moveX = -speed; break;
 	case 'D':	moveX = speed;  break;
 	case 'W':	moveY = -speed; break;
 	case 'S':	moveY = speed;  break;
-	default:		return;
+	default:	return;
 	}
 	pos.x += moveX;
 	pos.y += moveY;
@@ -88,7 +105,28 @@ void Player::Move(WPARAM& wParam)
 	}
 	else
 	{
-		
+		// if new area is connected to borders
+			// expand area
+
+		/// if not
+		pos = prevPos;
+	}
+	//else if (IsDrawing)
+	//{
+	//	MaskPolygon* newMask = new MaskPolygon();
+	//	newMask->Init(path, visited[pos.y][pos.x].second, pathIndex);
+	//	masks.push_back(newMask);
+	//	IsDrawing = false;
+	//}
+}
+
+void Player::Rollback()
+{
+	if (path.size() >= 2)
+	{
+		visited[path.back().y][path.back().x].first = false;
+		path.pop_back();
+		pos = path.back();
 	}
 }
 

@@ -1,90 +1,66 @@
+// classroom.cpp
 #include "classroom.h"
 
 RollBook::RollBook()
 {
-	students = vector<Student*>(MAX_STUDENTS);
+	nodes = new Node<Student>[MAX_STUDENTS];
 }
 
-void RollBook::RegisterStudent()
+bool RollBook::RegisterStudent(string name, int num)
 {
-	Student* newStudent = new Student();
-
-	cout << "학생 이름: ";
-	cin >> newStudent->name;
-
-	cout << "학생 번호: ";
-	cin >> newStudent->num;
+	Student* newStudent = new Student(name, num);
 
 	if (cursor == -1)
 	{
-		students[0] = newStudent;
+		nodes[0].data = newStudent;
 		cursor = 0;
 		head = 0;
-		return;
+		return true;
 	}
-	bool isRegistered = true;
-
 	for (int i = 0; i < MAX_STUDENTS; i++)
 	{
 		if (cursor == i)
 			continue;
 
-		if (students[i]->next == -1)
+		if (nodes[i].next == -1)
 		{
-			students[cursor]->next = i;
-			students[i] = newStudent;
+			nodes[cursor].next = i;
+			nodes[i].data = newStudent;
 			cursor = i;
-
-			isRegistered = true;
-			break;
+			return true;
 		}
 	}
-	if (isRegistered)
-		cout << "학생이 등록되었습니다." << endl;
-	else
-	{
-		cout << "등록에 실패했습니다. 등록 가능한 최대 학생 수는 " << MAX_STUDENTS << "입니다." << endl;
-		delete newStudent;
-	}
+	delete newStudent;
+	return false;
 }
 
-void RollBook::DeleteStudent()
+bool RollBook::DeleteStudent(int targetNum)
 {
-	int targetNum;
-	cout << "삭제하려는 학생의 번호: ";
-	cin >> targetNum;
-
 	int curIdx = head;
 	int prevIdx = -1;
-	bool deletionSuccess = false;
 
 	while (curIdx != -1)
 	{
-		if (students[curIdx]->num == targetNum)
+		Student* currentStudent = nodes[curIdx].data;
+
+		if (currentStudent->num == targetNum)
 		{
 			if (prevIdx != -1)
-				students[prevIdx]->next = students[curIdx]->next;
+				nodes[prevIdx].next = nodes[curIdx].next;
 
 			if (curIdx == head)
-				head = students[curIdx]->next;
+				head = nodes[curIdx].next;
 
 			if (curIdx == cursor)
 				cursor = prevIdx;
 
-			students[curIdx]->next = -1;
-
-			deletionSuccess = true;
-			break;
+			nodes[curIdx].next = -1;
+			return true;
 		}
 		prevIdx = curIdx;
-		curIdx = students[curIdx]->next;
+		curIdx = nodes[curIdx].next;
 	}
-	if (deletionSuccess)
-		cout << "삭제 완료했습니다." << endl;
-	else if (head == -1)
-		cout << "등록된 학생이 없습니다." << endl;
-	else
-		cout << "해당 번호의 학생이 존재하지 않습니다." << endl;
+	return false;
 }
 
 void RollBook::PrintStudentRoll()
@@ -95,32 +71,32 @@ void RollBook::PrintStudentRoll()
 	int curIdx = head;
 	while (curIdx != -1)
 	{
-		cout << "이름: " << students[curIdx]->name << "\t번호: " << students[curIdx]->num << endl;
-		curIdx = students[curIdx]->next;
+		Student* currentStudent = nodes[curIdx].data;
+
+		cout << "이름: " << currentStudent->name << "\t번호: " << currentStudent->num << endl;
+		curIdx = nodes[curIdx].next;
 	}
 }
 
-Student* RollBook::SearchStudent()
+Student* RollBook::SearchStudent(int targetNum)
 {
-	int targetNum;
-	cout << "검색하려는 학생의 번호: ";
-	cin >> targetNum;
-
 	int curIdx = head;
 	while (curIdx != -1)
 	{
-		if (students[curIdx]->num == targetNum)
+		Student* currentStudent = nodes[curIdx].data;
+		if (currentStudent->num == targetNum)
 		{
-			cout << "이름: " << students[curIdx]->name << "\t번호: " << students[curIdx]->num << endl;
-			return students[curIdx];
+			cout << "이름: " << currentStudent->name << "\t번호: " << currentStudent->num << endl;
+			return currentStudent;
 		}
-		curIdx = students[curIdx]->next;
+		curIdx = nodes[curIdx].next;
 	}
 	cout << "해당 번호의 학생이 존재하지 않습니다." << endl;
-	return nullptr;
+	return NULL;
 }
 
-Student::Student()
+Student::Student(string name, int num)
 {
-
+	this->name = name;
+	this->num = num;
 }

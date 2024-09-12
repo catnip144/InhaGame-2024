@@ -10,7 +10,7 @@ using namespace std;
 #define TIMER_ID 1
 #define TIMER_ANI 2
 
-#define TIMER_ID_INTERVAL 1
+#define TIMER_ID_INTERVAL 45
 #define TIMER_ANI_INTERVAL 140
 
 #define PLAYER_SIZE 10
@@ -31,7 +31,9 @@ public:
 	void Init();
 	void Draw(HDC& hdc);
 	void DrawLine(HDC& hdc);
-	void Move(WPARAM& wParam);
+	bool IsDrawing();
+	void Move(int inputType);
+	void Rollback();
 	vector<POINT>& GetPath() { return path; }
 };
 
@@ -47,3 +49,4 @@ extern vector<MaskPolygon*> masks;
 void DrawMap(HDC& hdc);
 void DrawMasks(HDC& hdc);
 void CreateVisitedGrid();
+int GetUserInput();

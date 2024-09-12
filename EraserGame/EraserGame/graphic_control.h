@@ -36,5 +36,6 @@ private:
 	int count = 0;
 
 public:
+	void Init(vector<POINT>& path, int start, int end);
 	void Draw(HDC& hdc);
 };

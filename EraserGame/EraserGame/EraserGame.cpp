@@ -20,8 +20,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
-{
+                     _In_ int       nCmdShow){
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -122,6 +121,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -130,17 +130,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         SetWindowPos(hWnd, NULL, 150, 50, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
         GetClientRect(hWnd, &rectView);
         SetScreenSize(rectView);
-        CreateVisitedGrid();
-
         CreateBitmap();
+
         player.Init();
+        CreateVisitedGrid();
 
         SetTimer(hWnd, TIMER_ID, TIMER_ID_INTERVAL, NULL);
         SetTimer(hWnd, TIMER_ANI, TIMER_ANI_INTERVAL, NULL);
         break;
 
     case WM_TIMER:
+        {
+        switch (wParam)
+            {
+            case TIMER_ID:
+                if (player.IsDrawing())
+                    player.Move(GetUserInput());
+                else
+                    player.Rollback();
+                break;
+
+            case TIMER_ANI:
+                break;
+            }
         InvalidateRect(hWnd, NULL, false);
+        }
         break;
 
     case WM_COMMAND:
@@ -194,10 +208,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             EndPaint(hWnd, &ps);
         }
-        break;
-
-    case WM_KEYDOWN:
-        player.Move(wParam);
         break;
 
     case WM_DESTROY:
