@@ -88,13 +88,12 @@ void DrawCoverImage(HDC& hdc)
 
 }
 
-void MaskPolygon::Init(vector<POINT>& path, int start, int end)
+void MaskPolygon::Init(vector<POINT>& path)
 {
-    count = end - start;
-    points = new POINT[end - start];
+    points = new POINT[path.size()];
 
-    for (int i = start; i < end; i++)
-        points[i - start] = path[i];
+    for (int i = 0; i < path.size(); i++)
+        points[i] = path[i];
 }
 
 void MaskPolygon::Draw(HDC& hdc)

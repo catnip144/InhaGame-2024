@@ -8,12 +8,15 @@ POINT	playerStartPos;
 POINT	entryPos;
 
 vector<vector<bool>> visited;
+vector<vector<bool>> newRegion;
 vector<MaskPolygon*> masks;
 
 void CreateVisitedGrid()
 {
 	visited = vector<vector<bool>>
 		(screenHeight, vector<bool>(screenWidth, false));
+
+	newRegion = visited;
 
 	int playerRadius = player.GetRadius();
 	int rightX = screenWidth - playerRadius;
@@ -108,40 +111,56 @@ void Player::Move(int inputType)
 
 	AdjustPosition();
 
-	if (IsDrawing() && !visited[pos.y][pos.x])
+	if (IsDrawing() && newRegion[pos.y][pos.x])
+	{
+		pos = prevPos;
+	}
+	else if (IsDrawing() && !visited[pos.y][pos.x])
 	{
 		if (path.empty())
+		{
 			entryPos = prevPos;
-
-		visited[pos.y][pos.x] = true;
+			path.push_back(prevPos);
+		}
+		newRegion[pos.y][pos.x] = true;
 		path.push_back(pos);
+	}
+	else if (IsDrawing() && visited[pos.y][pos.x] && !path.empty())
+	{
+		path.push_back(pos);
+		MaskPolygon* newMask = new MaskPolygon();
+		newMask->Init(path);
+		masks.push_back(newMask);
+
+		path.clear();
+		for (int i = 0; i < visited.size(); i++)
+		{
+			for (int j = 0; j < visited[0].size(); j++)
+			{
+				if (newRegion[i][j])
+					visited[i][j] = newRegion[i][j];
+			}
+		}
+		newRegion = vector<vector<bool>>(screenHeight, vector<bool>(screenWidth, false));
 	}
 	else if (!IsDrawing() && !visited[pos.y][pos.x])
 	{
 		pos = prevPos;
-		
-		// if new area is connected to borders
-			// expand area
-
-		/// if not
-		//pos = prevPos;
 	}
-	//else if (IsDrawing)
-	//{
-	//	MaskPolygon* newMask = new MaskPolygon();
-	//	newMask->Init(path, visited[pos.y][pos.x].second, pathIndex);
-	//	masks.push_back(newMask);
-	//	IsDrawing = false;
-	//}
 }
 
 void Player::Rollback()
 {
-	if (path.size() >= 1)
+	if (path.size() > 1)
 	{
-		visited[path.back().y][path.back().x] = false;
+		newRegion[path.back().y][path.back().x] = false;
 		path.pop_back();
-		pos = path.empty() ? entryPos : path.back();
+		pos = path.back();
+	}
+	else if (path.size() == 1)
+	{
+		pos = path.back();
+		path.pop_back();
 	}
 }
 
