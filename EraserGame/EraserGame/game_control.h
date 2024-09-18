@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cmath>
+#include <queue>
 #include "framework.h"
 #include "graphic_control.h"
 
@@ -46,8 +47,9 @@ extern POINT entryPos;
 extern vector<vector<bool>> visited;
 extern vector<MaskPolygon*> masks;
 
-
 void DrawMap(HDC& hdc);
 void DrawMasks(HDC& hdc);
 void CreateVisitedGrid();
+void CreateMask(vector<POINT>& path);
+void FillOccupiedArea(vector<POINT>& path);
 int GetUserInput();

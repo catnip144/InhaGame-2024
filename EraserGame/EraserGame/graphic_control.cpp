@@ -90,9 +90,10 @@ void DrawCoverImage(HDC& hdc)
 
 void MaskPolygon::Init(vector<POINT>& path)
 {
-    points = new POINT[path.size()];
+    count = path.size();
+    points = new POINT[count];
 
-    for (int i = 0; i < path.size(); i++)
+    for (int i = 0; i < count; i++)
         points[i] = path[i];
 }
 

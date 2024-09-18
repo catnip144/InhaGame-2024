@@ -128,20 +128,9 @@ void Player::Move(int inputType)
 	else if (IsDrawing() && visited[pos.y][pos.x] && !path.empty())
 	{
 		path.push_back(pos);
-		MaskPolygon* newMask = new MaskPolygon();
-		newMask->Init(path);
-		masks.push_back(newMask);
-
+		CreateMask(path);
+		FillOccupiedArea(path);
 		path.clear();
-		for (int i = 0; i < visited.size(); i++)
-		{
-			for (int j = 0; j < visited[0].size(); j++)
-			{
-				if (newRegion[i][j])
-					visited[i][j] = newRegion[i][j];
-			}
-		}
-		newRegion = vector<vector<bool>>(screenHeight, vector<bool>(screenWidth, false));
 	}
 	else if (!IsDrawing() && !visited[pos.y][pos.x])
 	{
@@ -194,4 +183,19 @@ void DrawMap(HDC& hdc)
 	SelectObject(hdc, oldBrush);
 	DeleteObject(hBrush);
 }
- 
+
+void CreateMask(vector<POINT>& path)
+{
+	MaskPolygon* newMask = new MaskPolygon();
+	newMask->Init(path);
+	masks.push_back(newMask);
+}
+
+void FillOccupiedArea(vector<POINT>& path)
+{
+	for (const auto& position : path)
+	{
+		visited[position.y][position.x] = true;
+		newRegion[position.y][position.x] = false;
+	}
+}
