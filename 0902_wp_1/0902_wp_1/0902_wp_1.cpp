@@ -236,8 +236,6 @@ bool InCircle(int x, int y, int mx, int my)
 #define TIMER_ANI 3
 #define TIMER_KEY 4
 
-#define IDC_CHILD2_BTN 100
-
 // : background
 HBITMAP hBackImage;
 BITMAP bitBack;
@@ -708,9 +706,16 @@ LRESULT CALLBACK ChildWndProc1(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT CALLBACK ChildWndProc2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    static POINT ptMouse;
-    HWND hBtn;
-    static bool bToggle = false;
+    static POINT    ptMouse;
+    static HWND     hBtn, hEdit;
+    static bool     bToggle = false;
+    HDC             hdc;
+    HANDLE          hFile;
+    TCHAR           InBuff[1000];
+    TCHAR           OutBuff[100] = L"API 프로그래밍을 못해도 사랑합니다.";
+    TCHAR           str[100];
+    DWORD           size;
+    RECT            rect;
 
     switch (uMsg)
     {
@@ -719,6 +724,25 @@ LRESULT CALLBACK ChildWndProc2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
             200, 100, 100, 30, hWnd, (HMENU)IDC_CHILD2_BTN, hInst, NULL
         );
+        break;
+
+    case WM_LBUTTONDOWN:
+        /*
+        hFile = CreateFile(
+            L"test2.txt",
+            GENERIC_READ | GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            NULL, OPEN_EXISTING, 0, 0
+        );
+        memset(InBuff, 0, sizeof(InBuff));
+        ReadFile(hFile, InBuff, 999 * sizeof(TCHAR), &size, NULL);
+        hdc = GetDC(hWnd);
+        GetClientRect(hWnd, &rt);
+        DrawText(hdc, InBuff, (int)_tcslen(InBuff), &rt, DT_TOP | DT_LEFT);
+        ReleaseDC(hWnd, hdc);
+        WriteFile(hFile, OutBuff, (DWORD)_tcslen(OutBuff) * sizeof(TCHAR), &size, NULL);
+        CloseHandle(hFile);
+        */
         break;
 
     case WM_COMMAND:
@@ -957,7 +981,6 @@ void Update()
     }
 }
 
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HDC hdc;
@@ -966,6 +989,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static bool Copy;
     static int mx, my;
     static int x, y;
+    static HWND hEdit;
+    RECT rect;
 
     static HMENU hMenu, hSubMenu;
 
