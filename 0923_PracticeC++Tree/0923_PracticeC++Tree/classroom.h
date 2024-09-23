@@ -18,16 +18,15 @@ template<typename T>
 class Node
 {
 public:
-	T* data;
-	Node<T>* left;
-	Node<T>* right;
+	T* data = nullptr;
+	Node<T>* left = nullptr;
+	Node<T>* right = nullptr;
 };
 
 class StudentTree
 {
 private:
 	Node<Student>* root = nullptr;
-	Node<Student>* GetLargestChild(Node<Student>* currentNode);
 
 public:
 	Node<Student>* GetRoot() { return root; }
