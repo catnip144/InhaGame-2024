@@ -1,43 +1,32 @@
 #include "game_control.h"
 
-HWND	g_hWnd = NULL;
-HDC		g_hdc, g_backMemDC;
+vector<vector<bool>> occupied;
+vector<POINT> remainingArea;
 
-Player	player;
-POINT	playerStartPos;
-POINT	entryPos;
-
-vector<vector<bool>> visited;
-vector<vector<bool>> newRegion;
-vector<MaskPolygon*> masks;
-
-void CreateVisitedGrid()
+void CreateOccupiedGrid()
 {
-	visited = vector<vector<bool>>
+	occupied = vector<vector<bool>>
 		(screenHeight, vector<bool>(screenWidth, false));
-
-	newRegion = visited;
 
 	int playerRadius = player.GetRadius();
 	int rightX = screenWidth - playerRadius;
 
 	for (int i = playerStartPos.x; i <= rightX; i++)
 	{
-		visited[playerRadius][i] = true;
-		visited[playerStartPos.y][i] = true;
+		occupied[playerRadius][i] = true;
+		occupied[playerStartPos.y][i] = true;
 	}
 	for (int i = playerRadius + 1; i <= playerStartPos.y - 1; i++)
 	{
-		visited[i][playerRadius] = true;
-		visited[i][rightX] = true;
+		occupied[i][playerRadius] = true;
+		occupied[i][rightX] = true;
 	}
-	visited[playerStartPos.y][playerStartPos.x] = true;
-}
+	occupied[playerStartPos.y][playerStartPos.x] = true;
 
-void DrawMasks(HDC& hdc)
-{
-	for (MaskPolygon* mask : masks)
-		mask->Draw(hdc);
+	remainingArea.push_back({ playerRadius, playerRadius });
+	remainingArea.push_back({ playerRadius, rectView.bottom - playerRadius });
+	remainingArea.push_back({ rectView.right - playerRadius, rectView.bottom - playerRadius });
+	remainingArea.push_back({ rectView.right - playerRadius, playerRadius });
 }
 
 int GetUserInput()
@@ -50,152 +39,22 @@ int GetUserInput()
 	return '\0';
 }
 
-void Player::Init()
+bool IsInsideRmnArea(POINT& inputPos)
 {
-	radius = PLAYER_SIZE;
-	speed = PLAYER_SPEED;
-
-	playerStartPos = { radius, screenHeight - radius };
-	pos = playerStartPos;
-}
-
-void Player::Draw(HDC& hdc)
-{
-	hPen = CreatePen(PS_SOLID, 3, RGB(92, 150, 255));
-	oldPen = (HPEN)SelectObject(hdc, hPen);
-
-	hBrush = CreateSolidBrush(RGB(183, 253, 255));
-	SelectObject(hdc, hBrush);
-
-	Ellipse(hdc, pos.x - radius, pos.y - radius, pos.x + radius, pos.y + radius);
-
-	SelectObject(hdc, oldPen);
-	DeleteObject(hPen);
-	DeleteObject(hBrush);
-}
-
-void Player::DrawLine(HDC& hdc)
-{
-	hPen = CreatePen(PS_SOLID, 2, RGB(92, 150, 255));
-	oldPen = (HPEN)SelectObject(hdc, hPen);
-
-	for (int i = 0; i < path.size(); i++)
+	for (int i = 1; i < remainingArea.size(); i++)
 	{
-		if (i == 0) MoveToEx(hdc, path[0].x, path[0].y, NULL);
-		LineTo(hdc, path[i].x, path[i].y);
+		int x1 = remainingArea[i - 1].x;
+		int y1 = remainingArea[i - 1].y;
+		int x2 = remainingArea[i].x;
+		int y2 = remainingArea[i].y;
+
+		if (x1 > x2) swap(x1, x2);
+
+		//if (inputPos.x >= x1 && inputPos.x <= x2) || (inputPos.y >= y1 && inputPos.y <= y2)
 	}
-	SelectObject(hdc, oldPen);
-	DeleteObject(hPen);
-}
-
-bool Player::IsDrawing()
-{
-	return (GetAsyncKeyState(VK_CONTROL) & 0x8000);
-}
-
-void Player::Move(int inputType)
-{
-	POINT prevPos = pos;
-	int moveX = 0, moveY = 0;
-
-	switch (inputType)
-	{
-	case 'W':	moveY = -speed; break;
-	case 'A':	moveX = -speed; break;
-	case 'S':	moveY = speed;  break;
-	case 'D':	moveX = speed;  break;
-	default:	return;
-	}
-	pos.x += moveX;
-	pos.y += moveY;
-
-	AdjustPosition();
-
-	if (IsDrawing() && newRegion[pos.y][pos.x])
-	{
-		pos = prevPos;
-	}
-	else if (IsDrawing() && !visited[pos.y][pos.x])
-	{
-		if (path.empty())
-		{
-			entryPos = prevPos;
-			path.push_back(prevPos);
-		}
-		newRegion[pos.y][pos.x] = true;
-		path.push_back(pos);
-	}
-	else if (IsDrawing() && visited[pos.y][pos.x] && !path.empty())
-	{
-		path.push_back(pos);
-		CreateMask(path);
-		FillOccupiedArea(path);
-		path.clear();
-	}
-	else if (!IsDrawing() && !visited[pos.y][pos.x])
-	{
-		pos = prevPos;
-	}
-}
-
-void Player::Rollback()
-{
-	if (path.size() > 1)
-	{
-		newRegion[path.back().y][path.back().x] = false;
-		path.pop_back();
-		pos = path.back();
-	}
-	else if (path.size() == 1)
-	{
-		pos = path.back();
-		path.pop_back();
-	}
-}
-
-void Player::AdjustPosition()
-{
-	if (pos.x < rectView.left + radius)
-		pos.x = rectView.left + radius;
-
-	else if (pos.x > rectView.right - radius)
-		pos.x = rectView.right - radius;
-
-	if (pos.y < rectView.top + radius)
-		pos.y = rectView.top + radius;
-
-	else if (pos.y > rectView.bottom - radius)
-		pos.y = rectView.bottom - radius;
-}
-
-void DrawMap(HDC& hdc)
-{
-	hBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
-	oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-
-	Rectangle(
-		hdc,
-		player.GetRadius(),
-		player.GetRadius(),
-		rectView.right - player.GetRadius(),
-		rectView.bottom - player.GetRadius()
-	);
-	SelectObject(hdc, oldBrush);
-	DeleteObject(hBrush);
-}
-
-void CreateMask(vector<POINT>& path)
-{
-	MaskPolygon* newMask = new MaskPolygon();
-	newMask->Init(path);
-	masks.push_back(newMask);
 }
 
 void FillOccupiedArea(vector<POINT>& path)
 {
-	for (const auto& position : path)
-	{
-		visited[position.y][position.x] = true;
-		newRegion[position.y][position.x] = false;
-	}
+	
 }

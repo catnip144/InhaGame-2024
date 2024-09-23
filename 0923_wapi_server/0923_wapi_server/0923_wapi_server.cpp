@@ -70,8 +70,8 @@ void Server_Code()
     clientAddrSize = sizeof(clientAddr);
     i = 0;
 
-    //for (int i = 0; i < SOMAXCONN; i++)
-    while (true)
+    //while (true)
+    for (int i = 0; i < SOMAXCONN; i++)
     {
         // 클라이언트 address를 받아오기를 기다림
         clientSocket = accept(serverSocket, (SOCKADDR*)&clientAddr, &clientAddrSize);
@@ -83,12 +83,30 @@ void Server_Code()
             printf("Connected client %d\n", i + 1);
 
         memset(msg, 0, sizeof(msg));
-        while ((strLength = recv(clientSocket, msg, Buf_Size, 0)) != 0)
+        while ((strLength = recv(clientSocket, msg, Buf_Size, 0)) > 0)
         {
             printf("%d client : %s", i + 1, msg);
             send(clientSocket, msg, strLength, 0);
             memset(msg, 0, sizeof(msg));
         }
+
+        if (strLength == 0)
+        {
+            Log("Client disconnected - normal");
+        }
+        else if (strLength == SOCKET_ERROR)
+        {
+            int err = WSAGetLastError();
+            if (err == WSAECONNRESET)
+            {
+                Log("Client disconnected - unexpected");
+            }
+            else
+            {
+                printf("recv() error : %d\n", err);
+            }
+        }
+        Log("Client connection closed");
         closesocket(clientSocket);
     }
     closesocket(serverSocket);

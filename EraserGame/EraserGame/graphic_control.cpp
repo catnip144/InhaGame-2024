@@ -1,5 +1,8 @@
 #include "game_control.h"
 
+HWND	g_hWnd = NULL;
+HDC		g_hdc, g_backMemDC;
+
 RECT    rectView;
 int		screenWidth, screenHeight;
 
@@ -83,27 +86,37 @@ void DrawFrontImage(HDC& hdc)
     DeleteDC(hMemDC);
 }
 
-void DrawCoverImage(HDC& hdc)
+void DrawMap(HDC& hdc)
 {
+    hBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+    oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 
+    Rectangle(
+        hdc,
+        player.GetRadius(),
+        player.GetRadius(),
+        rectView.right - player.GetRadius(),
+        rectView.bottom - player.GetRadius()
+    );
+    SelectObject(hdc, oldBrush);
+    DeleteObject(hBrush);
 }
 
-void MaskPolygon::Init(vector<POINT>& path)
+/*
+void Test(HDC& hdc)
 {
-    count = path.size();
-    points = new POINT[count];
+    int count = remainingArea.size();
 
-    for (int i = 0; i < count; i++)
-        points[i] = path[i];
-}
-
-void MaskPolygon::Draw(HDC& hdc)
-{
     hPen = (HPEN)GetStockObject(NULL_PEN);
     oldPen = (HPEN)SelectObject(hdc, hPen);
-    
+
     hBrush = CreateSolidBrush(RGB(92, 150, 255));
     oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+
+    POINT* points = new POINT[count];
+
+    for (int i = 0; i < count; i++)
+        points[i] = remainingArea[i];
 
     Polygon(hdc, points, count);
 
@@ -113,3 +126,4 @@ void MaskPolygon::Draw(HDC& hdc)
     DeleteObject(hBrush);
     DeleteObject(hPen);
 }
+*/

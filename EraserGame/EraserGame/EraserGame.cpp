@@ -133,7 +133,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         CreateBitmap();
 
         player.Init();
-        CreateVisitedGrid();
+        CreateOccupiedGrid();
 
         SetTimer(hWnd, TIMER_ID, TIMER_ID_INTERVAL, NULL);
         SetTimer(hWnd, TIMER_ANI, TIMER_ANI_INTERVAL, NULL);
@@ -146,7 +146,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case TIMER_ID:
                 player.Move(GetUserInput());
 
-                if (!player.IsDrawing())
+                if (!player.IsPressing())
                     player.Rollback();
                 break;
 
@@ -190,7 +190,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             FillRect(g_backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
 
             DrawBG(g_backMemDC);
-            DrawMasks(g_backMemDC);
             DrawFrontImage(g_backMemDC);
             DrawMap(g_backMemDC);
             player.DrawLine(g_backMemDC);

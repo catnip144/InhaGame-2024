@@ -12,8 +12,8 @@ void Error(const char* msg);
 void Log(const char* msg);
 
 //char strServerIP[] = "172.30.1.12"; // 선생님 ip
-char strServerIP[] = "172.30.1.35"; // 덕상님 ip
-//char strServerIP[] = "172.30.1.23";
+//char strServerIP[] = "172.30.1.35"; // 덕상님 ip
+char strServerIP[] = "172.30.1.23";
 
 char strClientIP[] = "127.0.0.1";
 char strPort[] = "12345"; // 8080
@@ -57,7 +57,7 @@ void Client_Code()
     if (connect(serverSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
         Error("connect() error");
     else
-        puts("Connected...");
+        puts("Connection Success!");
 
     while (1)
     {
