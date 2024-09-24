@@ -194,6 +194,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DrawFrontImage(g_backMemDC);
             DrawMap(g_backMemDC);
             player.DrawLine(g_backMemDC);
+            DrawUncoveredPolygon(g_backMemDC);
             player.Draw(g_backMemDC);
 
             // 화면에 복사

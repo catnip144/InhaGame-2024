@@ -1,21 +1,23 @@
 #include "game_control.h"
 
-HWND	g_hWnd = NULL;
-HDC		g_hdc, g_backMemDC;
+HWND	        g_hWnd = NULL;
+HDC		        g_hdc, g_backMemDC;
 
-RECT    rectView;
-int		screenWidth, screenHeight;
+RECT            rectView;
+int		        screenWidth, screenHeight;
 
-HBRUSH  hBrush, oldBrush;
-HPEN    hPen, oldPen;
+HBRUSH          hBrush, oldBrush;
+HPEN            hPen, oldPen;
 
-HBITMAP g_backBitmap, g_hOldBitmap;
+HBITMAP         g_backBitmap, g_hOldBitmap;
 
-HBITMAP	hBgImage;
-BITMAP	bitBg;
+HBITMAP	        hBgImage;
+BITMAP	        bitBg;
 
-HBITMAP hFrontImage;
-BITMAP bitFront;
+HBITMAP         hFrontImage;
+BITMAP          bitFront;
+
+vector<POINT>   uncoveredPolygon;
 
 void SetScreenSize(RECT& rectView)
 {
@@ -102,8 +104,7 @@ void DrawMap(HDC& hdc)
     DeleteObject(hBrush);
 }
 
-/*
-void Test(HDC& hdc)
+void DrawUncoveredPolygon(HDC& hdc)
 {
     int count = remainingArea.size();
 
@@ -113,12 +114,7 @@ void Test(HDC& hdc)
     hBrush = CreateSolidBrush(RGB(92, 150, 255));
     oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 
-    POINT* points = new POINT[count];
-
-    for (int i = 0; i < count; i++)
-        points[i] = remainingArea[i];
-
-    Polygon(hdc, points, count);
+    Polygon(hdc, uncoveredPolygon.data(), uncoveredPolygon.size());
 
     SelectObject(hdc, hBrush);
     SelectObject(hdc, oldPen);
@@ -126,4 +122,3 @@ void Test(HDC& hdc)
     DeleteObject(hBrush);
     DeleteObject(hPen);
 }
-*/

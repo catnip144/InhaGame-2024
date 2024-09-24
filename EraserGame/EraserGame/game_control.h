@@ -20,37 +20,39 @@ extern vector<vector<bool>> occupied;
 extern vector<POINT> remainingArea;
 extern vector<vector<bool>> visited;
 
+int GetUserInput();
 void CreateOccupiedGrid();
 void CreateVisitedGrid();
-void FillOccupiedArea(vector<POINT>& path);
-int GetUserInput();
-bool IsInsideRmnArea(POINT& inputPos);
+void FillOccupiedArea(vector<POINT>& path, pair<int, int> contextIndex);
+pair<int, int> IsInsideRmnArea(POINT& inputPos);
 
 ///////////////////////////  graphic_control.cpp   ///////////////////////////
 
-extern HWND		g_hWnd;
-extern HDC		g_hdc, g_backMemDC;
+extern HWND				g_hWnd;
+extern HDC				g_hdc, g_backMemDC;
 
-extern RECT		rectView;
-extern int		screenWidth, screenHeight;
+extern RECT				rectView;
+extern int				screenWidth, screenHeight;
 
-extern HBRUSH   hBrush, oldBrush;
-extern HPEN     hPen, oldPen;
+extern HBRUSH			hBrush, oldBrush;
+extern HPEN				hPen, oldPen;
 
-extern HBITMAP  g_backBitmap, g_hOldBitmap;
+extern HBITMAP			g_backBitmap, g_hOldBitmap;
 
-extern HBITMAP	hBgImage;
-extern BITMAP	bitBg;
+extern HBITMAP			hBgImage;
+extern BITMAP			bitBg;
 
-extern HBITMAP	hFrontImage;
-extern BITMAP	bitFront;
+extern HBITMAP			hFrontImage;
+extern BITMAP			bitFront;
+
+extern vector<POINT>	uncoveredPolygon;
 
 ///////////////////////////  graphic_control.cpp   ///////////////////////////
 
 ///////////////////////////  player.cpp   ////////////////////////////////////
 
-extern Player	player;
-extern POINT	playerStartPos;
-extern POINT	entryPos;
+extern Player			player;
+extern POINT			playerStartPos;
+extern POINT			entryPos;
 
 ///////////////////////////  player.cpp   ////////////////////////////////////

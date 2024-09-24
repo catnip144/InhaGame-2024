@@ -46,37 +46,51 @@ int GetUserInput()
 	return '\0';
 }
 
-bool IsInsideRmnArea(POINT& inputPos)
+pair<int, int> IsInsideRmnArea(POINT& inputPos)
 {
 	for (int i = 0; i < remainingArea.size(); i++)
 	{
-		int x1 = i == 0 ? remainingArea.back().x : remainingArea[i - 1].x;
-		int y1 = i == 0 ? remainingArea.back().y : remainingArea[i - 1].y;
+		int j = i == 0 ? remainingArea.size() - 1 : i - 1;
+		int x1 = remainingArea[j].x;
+		int y1 = remainingArea[j].y;
 		int x2 = remainingArea[i].x;
 		int y2 = remainingArea[i].y;
 
 		if (((min(x1, x2) <= inputPos.x && inputPos.x <= max(x1, x2)) && (inputPos.y == y1)) ||
 			((min(y1, y2) <= inputPos.y && inputPos.y <= max(y1, y2)) && (inputPos.x == x1))) {
-			return true;
+			return { min(i, j), max(i, j) };
 		}
 	}
-	return false;
+	return { -1, -1 };
 }
 
-void FillOccupiedArea(vector<POINT>& path)
+void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 {
-	POINT start = path[0];
-	POINT end = path.back();
+	pair<int, int> startContextIdx = IsInsideRmnArea(path[0]);
 	vector<POINT> dividingLine;
-	
+
+	dividingLine.push_back(path[0]);
 	for (int i = 2; i < path.size(); i++)
 	{
 		if ((path[i].y != path[i - 2].y) && (path[i].x != path[i - 2].x))
 			dividingLine.push_back(path[i - 1]);
 	}
-	POINT* area1, area2;
+	dividingLine.push_back(path.back());
 
-	//for (int i = start;)
+	vector<POINT> area1 = dividingLine;
+	vector<POINT> area2 = dividingLine;
+
+	for (int i = endContextIdx.first; i != startContextIdx.first; i--)
+	{
+		if (i == -1) i = remainingArea.size() - 1;
+		area1.push_back(remainingArea[i]);
+	}
+	for (int i = endContextIdx.second; i != startContextIdx.second; i++)
+	{
+		if (i == remainingArea.size()) i = 0;
+		area1.push_back(remainingArea[i]);
+	}
+	uncoveredPolygon = area1;
 
 	for (int i = 0; i < path.size(); i++)
 	{

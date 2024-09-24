@@ -64,10 +64,12 @@ void Player::Move(int inputType)
 	pos.y += moveY;
 
 	AdjustPosition();
+	pair<int, int> contextIndex = IsInsideRmnArea(pos);
+	bool isInsideRmnArea = contextIndex.first != -1;
 
 	if (IsPressing())
 	{
-		if (!IsInsideRmnArea(pos))
+		if (!isInsideRmnArea)
 		{
 			if (path.empty())
 			{
@@ -82,14 +84,14 @@ void Player::Move(int inputType)
 			path.push_back(pos);
 			visited[pos.y][pos.x] = true;
 		}
-		else if (!path.empty() && IsInsideRmnArea(pos))
+		else if (!path.empty() && isInsideRmnArea)
 		{
 			path.push_back(pos);
-			FillOccupiedArea(path);
+			FillOccupiedArea(path, contextIndex);
 			path.clear();
 		}
 	}
-	else if (!IsInsideRmnArea(pos))
+	else if (!isInsideRmnArea)
 	{
 		pos = prevPos;
 	}

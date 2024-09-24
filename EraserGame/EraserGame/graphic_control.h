@@ -14,3 +14,4 @@ void CreateBitmap();
 void DrawBG(HDC& hdc);
 void DrawFrontImage(HDC& hdc);
 void DrawMap(HDC& hdc);
+void DrawUncoveredPolygon(HDC& hdc);
