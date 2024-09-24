@@ -29,9 +29,9 @@ private:
 	Node<Student>* root = nullptr;
 
 public:
-	Node<Student>* GetRoot() { return root; }
+	Node<Student>*& GetRoot() { return root; }
 	bool RegisterStudent(string name, int num);
-	bool DeleteStudent(int num);
+	bool DeleteStudent(Node<Student>*& curRoot, int num);
 	void PrintStudents(Node<Student>* currentNode);
 	Student* SearchStudent(int targetNum);
 };

@@ -41,7 +41,7 @@ int main()
 			cout << "삭제하려는 학생의 번호: ";
 			cin >> targetNum;
 
-			if (tree.DeleteStudent(targetNum))
+			if (tree.DeleteStudent(tree.GetRoot(), targetNum))
 				cout << "삭제 완료했습니다." << endl;
 			else if (tree.GetRoot() == nullptr)
 				cout << "등록된 학생이 없습니다." << endl;

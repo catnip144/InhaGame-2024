@@ -44,79 +44,55 @@ bool StudentTree::RegisterStudent(string name, int num)
 	return false;
 }
 
-bool StudentTree::DeleteStudent(int targetNum)
+bool StudentTree::DeleteStudent(Node<Student>*& curRoot, int num)
 {
-	Node<Student>* current = root;
-	Node<Student>* parent = nullptr;
-
-	while (current)
-	{
-		if (targetNum == current->data->num) break;
-		parent = current;
-
-		if (targetNum < current->data->num)
-			current = current->left;
-		else
-			current = current->right;
-	}
-	if (current == nullptr)
+	if (curRoot == nullptr)
 		return false;
 
-	int childCount = (current->left != nullptr) + (current->right != nullptr);
-
-	switch (childCount)
+	if (curRoot->data->num < num)
+		return DeleteStudent(curRoot->right, num);
+	else if (curRoot->data->num > num)
+		return DeleteStudent(curRoot->left, num);
+	else
 	{
-	case 0:
-	{
-		if (current == root)
-			root = nullptr;
-		else if (parent->left == current)
-			parent->left = nullptr;
-		else
-			parent->right = nullptr;
-
-		delete current->data;
-		delete current;
-	}
-		break;
-	case 1:
-	{
-		bool isRoot = current == root;
-		Node<Student>* cached = current;
-		Node<Student>*& temp = current;
-
-		if (temp->left)
-			temp = temp->left;
-		else
-			temp = temp->right;
-
-		delete cached;
-		if (isRoot) root = temp;
-	}
-		break;
-	case 2:
-	{
-		parent = current;
-		Node<Student>* largestChild = current->left;
-
-		while (largestChild->right)
+		if (curRoot->left == nullptr && curRoot->right == nullptr)
 		{
-			parent = largestChild;
-			largestChild = largestChild->right;
+			Node<Student>* temp = curRoot;
+			curRoot = nullptr;
+			delete temp;
 		}
-		current->data = largestChild->data;
+		else if (curRoot->left && curRoot->right)
+		{
+			Node<Student>* largestChild = curRoot->left;
+			while (largestChild->right)
+				largestChild = largestChild->right;
 
-		Node<Student>*& temp = largestChild;
-		if (temp->left)
-			temp = temp->left;
-		else
-			parent->left = nullptr;
+			curRoot->data = largestChild->data;
+			DeleteStudent(curRoot->left, largestChild->data->num);
+		}
+		else if (curRoot->left)
+		{
+			Node<Student>* temp = curRoot;
+			curRoot = curRoot->left;
 
-		delete largestChild;
+			if (root == temp)
+				root = curRoot;
+			
+			delete temp;
+		}
+		else if (curRoot->right)
+		{
+			Node<Student>* temp = curRoot;
+			curRoot = curRoot->right;
+
+			if (root == temp)
+				root = curRoot;
+
+			delete temp;
+		}
+		return true;
 	}
-		break;
-	}
-	return true;
+	return false;
 }
 
 void StudentTree::PrintStudents(Node<Student>* currentNode)
