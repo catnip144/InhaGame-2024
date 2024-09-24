@@ -18,10 +18,13 @@ using namespace std;
 
 extern vector<vector<bool>> occupied;
 extern vector<POINT> remainingArea;
+extern vector<vector<bool>> visited;
 
 void CreateOccupiedGrid();
+void CreateVisitedGrid();
 void FillOccupiedArea(vector<POINT>& path);
 int GetUserInput();
+bool IsInsideRmnArea(POINT& inputPos);
 
 ///////////////////////////  graphic_control.cpp   ///////////////////////////
 

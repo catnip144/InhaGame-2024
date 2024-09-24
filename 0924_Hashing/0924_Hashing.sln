@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35004.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "0924_Hashing", "0924_Hashing\0924_Hashing.vcxproj", "{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Debug|x64.ActiveCfg = Debug|x64
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Debug|x64.Build.0 = Debug|x64
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Debug|x86.ActiveCfg = Debug|Win32
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Debug|x86.Build.0 = Debug|Win32
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Release|x64.ActiveCfg = Release|x64
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Release|x64.Build.0 = Release|x64
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Release|x86.ActiveCfg = Release|Win32
+		{6884E043-DC50-4DAC-B8E3-9D0359E13FFF}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18837F29-0324-4CBF-91A6-A92A9ABF8175}
+	EndGlobalSection
+EndGlobal

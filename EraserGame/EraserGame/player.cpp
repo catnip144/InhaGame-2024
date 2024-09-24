@@ -42,11 +42,6 @@ void Player::DrawLine(HDC& hdc)
 	DeleteObject(hPen);
 }
 
-void Player::SetIsDrawing(bool state)
-{
-	isDrawing = state;
-}
-
 bool Player::IsPressing()
 {
 	return (GetAsyncKeyState(VK_CONTROL) & 0x8000);
@@ -72,24 +67,29 @@ void Player::Move(int inputType)
 
 	if (IsPressing())
 	{
-		pos = prevPos;
-	}
-	else if (IsPressing())
-	{
-		if (path.empty())
+		if (!IsInsideRmnArea(pos))
 		{
-			entryPos = prevPos;
-			path.push_back(prevPos);
+			if (path.empty())
+			{
+				entryPos = prevPos;
+				path.push_back(prevPos);
+			}
+			else if (visited[pos.y][pos.x])
+			{
+				pos = prevPos;
+				return;
+			}
+			path.push_back(pos);
+			visited[pos.y][pos.x] = true;
 		}
-		path.push_back(pos);
+		else if (!path.empty() && IsInsideRmnArea(pos))
+		{
+			path.push_back(pos);
+			FillOccupiedArea(path);
+			path.clear();
+		}
 	}
-	else if (IsPressing() && !path.empty())
-	{
-		path.push_back(pos);
-		FillOccupiedArea(path);
-		path.clear();
-	}
-	else if (!IsPressing())
+	else if (!IsInsideRmnArea(pos))
 	{
 		pos = prevPos;
 	}
@@ -99,6 +99,7 @@ void Player::Rollback()
 {
 	if (path.size() > 1)
 	{
+		visited[path.back().y][path.back().x] = false;
 		path.pop_back();
 		pos = path.back();
 	}

@@ -1,6 +1,7 @@
 #include "game_control.h"
 
 vector<vector<bool>> occupied;
+vector<vector<bool>> visited;
 vector<POINT> remainingArea;
 
 void CreateOccupiedGrid()
@@ -29,6 +30,12 @@ void CreateOccupiedGrid()
 	remainingArea.push_back({ rectView.right - playerRadius, playerRadius });
 }
 
+void CreateVisitedGrid()
+{
+	visited = vector<vector<bool>>
+		(screenHeight, vector<bool>(screenWidth, false));
+}
+
 int GetUserInput()
 {
 	if (GetAsyncKeyState('W') & 0x8000) return 'W';
@@ -41,20 +48,38 @@ int GetUserInput()
 
 bool IsInsideRmnArea(POINT& inputPos)
 {
-	for (int i = 1; i < remainingArea.size(); i++)
+	for (int i = 0; i < remainingArea.size(); i++)
 	{
-		int x1 = remainingArea[i - 1].x;
-		int y1 = remainingArea[i - 1].y;
+		int x1 = i == 0 ? remainingArea.back().x : remainingArea[i - 1].x;
+		int y1 = i == 0 ? remainingArea.back().y : remainingArea[i - 1].y;
 		int x2 = remainingArea[i].x;
 		int y2 = remainingArea[i].y;
 
-		if (x1 > x2) swap(x1, x2);
-
-		//if (inputPos.x >= x1 && inputPos.x <= x2) || (inputPos.y >= y1 && inputPos.y <= y2)
+		if (((min(x1, x2) <= inputPos.x && inputPos.x <= max(x1, x2)) && (inputPos.y == y1)) ||
+			((min(y1, y2) <= inputPos.y && inputPos.y <= max(y1, y2)) && (inputPos.x == x1))) {
+			return true;
+		}
 	}
+	return false;
 }
 
 void FillOccupiedArea(vector<POINT>& path)
 {
+	POINT start = path[0];
+	POINT end = path.back();
+	vector<POINT> dividingLine;
 	
+	for (int i = 2; i < path.size(); i++)
+	{
+		if ((path[i].y != path[i - 2].y) && (path[i].x != path[i - 2].x))
+			dividingLine.push_back(path[i - 1]);
+	}
+	POINT* area1, area2;
+
+	//for (int i = start;)
+
+	for (int i = 0; i < path.size(); i++)
+	{
+		visited[path[i].y][path[i].x] = false;
+	}
 }

@@ -134,6 +134,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         player.Init();
         CreateOccupiedGrid();
+        CreateVisitedGrid();
 
         SetTimer(hWnd, TIMER_ID, TIMER_ID_INTERVAL, NULL);
         SetTimer(hWnd, TIMER_ANI, TIMER_ANI_INTERVAL, NULL);
