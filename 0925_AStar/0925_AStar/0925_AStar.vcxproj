@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{41c6631a-7a8a-4ed0-8459-7d8ebb293bf5}</ProjectGuid>
-    <RootNamespace>My0924Server</RootNamespace>
+    <ProjectGuid>{93abf705-955b-4c7e-9ebd-1014f3541ad4}</ProjectGuid>
+    <RootNamespace>My0925AStar</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,20 +127,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="0924_Server.h" />
+    <ClInclude Include="0925_AStar.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="map_control.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="0924_Server.cpp" />
-    <ClCompile Include="assignment.cpp" />
+    <ClCompile Include="0925_AStar.cpp" />
+    <ClCompile Include="map_control.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="0924_Server.rc" />
+    <ResourceCompile Include="0925_AStar.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="0924_Server.ico" />
+    <Image Include="0925_AStar.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -24,6 +24,7 @@ int GetUserInput();
 void CreateOccupiedGrid();
 void CreateVisitedGrid();
 void FillOccupiedArea(vector<POINT>& path, pair<int, int> contextIndex);
+void SetFillArea(vector<POINT>& area1, vector<POINT>& area2);
 pair<int, int> IsInsideRmnArea(POINT& inputPos);
 
 ///////////////////////////  graphic_control.cpp   ///////////////////////////

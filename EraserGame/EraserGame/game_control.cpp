@@ -80,20 +80,27 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 	vector<POINT> area1 = dividingLine;
 	vector<POINT> area2 = dividingLine;
 
-	for (int i = endContextIdx.first; i != startContextIdx.first; i--)
+	for (int i = endContextIdx.first; ; i--)
 	{
 		if (i == -1) i = remainingArea.size() - 1;
 		area1.push_back(remainingArea[i]);
+		if (i == startContextIdx.first || i == startContextIdx.second) break;
 	}
-	for (int i = endContextIdx.second; i != startContextIdx.second; i++)
+	for (int i = endContextIdx.second; ; i++)
 	{
 		if (i == remainingArea.size()) i = 0;
-		area1.push_back(remainingArea[i]);
+		area2.push_back(remainingArea[i]);
+		if (i == startContextIdx.first || i == startContextIdx.second) break;
 	}
-	uncoveredPolygon = area1;
+	SetFillArea(area1, area2);
 
 	for (int i = 0; i < path.size(); i++)
 	{
 		visited[path[i].y][path[i].x] = false;
 	}
+}
+
+void SetFillArea(vector<POINT>& area1, vector<POINT>& area2)
+{
+	uncoveredPolygon = area1;
 }

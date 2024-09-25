@@ -1,16 +1,44 @@
 ﻿// 0924_Server.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+using namespace std;
 
+#pragma comment(lib, "ws2_32.lib")
 #include "framework.h"
 #include "0924_Server.h"
-
-// >> :
+#include <list>
 #include <WinSock2.h>
-#include <stdio.h>
-#pragma comment(lib, "ws2_32.lib")
+
+#define WM_ASYNC WM_USER+1
+#define MY_PORT 12346
+#define MY_IP "172.30.1.61"
+#define CHAT_LENGTH 100
+
+struct User
+{
+    SOCKET socket;
+    int id;
+};
+
+int nextId = 1;
+list<User> socketList;
+
+WSADATA wsdata;
+SOCKET s, cs;
+SOCKADDR_IN addr = { 0 }, c_addr = { 0 };
+TCHAR msg[200] = { 0 };
+
+int size, msgLen;
+char buffer[CHAT_LENGTH];
+
 int WinSock_Server();
-// >> :
+int InitServer(HWND hWnd);
+int CloseServer();
+SOCKET AcceptSocket(HWND hWnd, SOCKET s, SOCKADDR_IN& c_addr);
+
+void SendMessageToClient(char* buffer);
+void ReadMessage(TCHAR* msg, char* buffer);
+void CloseClient(SOCKET socket);
 
 #define MAX_LOADSTRING 100
 
@@ -25,72 +53,10 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-int WinSock_Server()
-{
-    WSADATA wsadata;
-    SOCKET  s;
-    SOCKADDR_IN addr = { 0 };
-
-    WSAStartup(MAKEWORD(2, 2), &wsadata);
-    s = socket(AF_INET, SOCK_STREAM, 0);
-    if (s == INVALID_SOCKET)
-    {
-        MessageBox(NULL, _T("socket() failed"), _T("Error"), MB_OK);
-        return 0;
-    }
-    MessageBox(NULL, _T("socket() OK"), _T("Success!"), MB_OK);
-
-    addr.sin_family = AF_INET;
-    addr.sin_port = 12346;
-    addr.sin_addr.S_un.S_addr = inet_addr("172.30.1.23");
-
-    if (bind(s, (LPSOCKADDR)&addr, sizeof(addr)))
-    {
-        MessageBox(NULL, _T("bind() failed"), _T("Error"), MB_OK);
-        return 0;
-    }
-    MessageBox(NULL, _T("bind() OK"), _T("Success!"), MB_OK);
-
-    if (listen(s, 25) == SOCKET_ERROR)
-    {
-        MessageBox(NULL, _T("listen() failed"), _T("Error"), MB_OK);
-        return 0;
-    }
-    MessageBox(NULL, _T("listen() OK"), _T("Success!"), MB_OK);
-
-    TCHAR message[256];
-
-    do
-    {
-        SOCKADDR_IN c_addr;
-        int size = sizeof(c_addr);
-        SOCKET cs = accept(s, (LPSOCKADDR)&c_addr, &size);
-        
-        char buffer[100];
-        int msgLen;
-        msgLen = recv(cs, buffer, 100, 0);
-        buffer[msgLen] = NULL;
-
-#ifdef _UNICODE
-        TCHAR wBuffer[100];
-        msgLen = MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), NULL, NULL);
-        MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), wBuffer, msgLen);
-        wBuffer[msgLen] = NULL;
-        _stprintf_s(message, _T("Client Message : %s, 서버종료?"), wBuffer);
-#else
-        sprintf(message, _T("Client Message : %s, 서버종료?"), buffer);
-#endif
-    } while (MessageBox(NULL, message, _T("Server Message"), MB_YESNO) == IDNO);
-
-    closesocket(s);
-    WSACleanup();
-    return 0;
-}
-
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -103,7 +69,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // 애플리케이션 초기화를 수행합니다:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!InitInstance(hInstance, nCmdShow))
     {
         return FALSE;
     }
@@ -121,10 +87,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
-    return (int) msg.wParam;
-
+    return (int)msg.wParam;
     //return WinSock_Server();
 }
+
 
 //
 //  함수: MyRegisterClass()
@@ -137,17 +103,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY0924SERVER));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY0924SERVER);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY0924SERVER));
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_MY0924SERVER);
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassExW(&wcex);
 }
@@ -164,20 +130,20 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
+    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+    if (!hWnd)
+    {
+        return FALSE;
+    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
 
-   return TRUE;
+    return TRUE;
 }
 
 //
@@ -192,79 +158,70 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static WSADATA wsadata;
-    static SOCKET  s, cs;
-    static SOCKADDR_IN addr = { 0 }, c_addr = { 0 };
-    static TCHAR msg[200] = { 0 };
-
-    int size, msgLen;
-    char buffer[100];
-
     switch (message)
     {
     case WM_CREATE:
-        WSAStartup(MAKEWORD(2, 2), &wsadata);
-        s = socket(AF_INET, SOCK_STREAM, 0);
+    {
+        return InitServer(hWnd);
+    }
+    break;
 
-        addr.sin_family = AF_INET;
-        addr.sin_port = 12346;
-        addr.sin_addr.S_un.S_addr = inet_addr("172.30.1.23");
-
-        bind(s, (LPSOCKADDR)&addr, sizeof(addr));
-        if (listen(s, 25) == SOCKET_ERROR) return 0;
-
-        size = sizeof(c_addr);
-
-        do
+    case WM_ASYNC:
+    {
+        switch (lParam)
         {
-            cs = accept(s, (LPSOCKADDR)&c_addr, &size);
-
-        } while (cs == INVALID_SOCKET);
-
-        msgLen = recv(cs, buffer, 99, 0);
-        buffer[msgLen] = NULL;
-
-#ifdef _UNICODE
-        TCHAR wBuffer[100];
-        msgLen = MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), NULL, NULL);
-        MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), msg, msgLen);
-        msg[msgLen] = NULL;
-#else
-        strcpy_s(msg, buffer);
-#endif
+        case FD_ACCEPT:
+        {
+            cs = AcceptSocket(hWnd, s, c_addr);
+        }
         break;
+        case FD_READ:
+        {
+            ReadMessage(msg, buffer);
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        break;
+        case FD_CLOSE:
+        {
+            // wParam : 소켓 정보
+            CloseClient(wParam);
+        }
+        break;
+        }
 
+    }
+    break;
     case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        // 메뉴 선택을 구문 분석합니다:
+        switch (wmId)
         {
-            int wmId = LOWORD(wParam);
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        break;
+    }
+    break;
     case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
 
-            TextOut(hdc, 10, 10, msg, (int)_tcslen(msg));
+        if (_tcscmp(msg, _T("")))
+            TextOut(hdc, 10, 10, msg, _tcslen(msg));
 
-            EndPaint(hWnd, &ps);
-        }
-        break;
+        EndPaint(hWnd, &ps);
+    }
+    break;
     case WM_DESTROY:
-        closesocket(s);
-        WSACleanup();
-
         PostQuitMessage(0);
+        CloseServer();
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -290,4 +247,177 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+
+int WinSock_Server()
+{
+    WSAStartup(MAKEWORD(2, 2), &wsdata);
+
+    s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s == INVALID_SOCKET)
+    {
+        MessageBox(NULL, _T("socket() Failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    MessageBox(NULL, _T("socket() Success"), _T("Success"), MB_OK);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = 12346;
+    addr.sin_addr.S_un.S_addr = inet_addr("172.30.1.61");
+
+    if (bind(s, (LPSOCKADDR)&addr, sizeof(addr)))
+    {
+        MessageBox(NULL, _T("bind() Failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    MessageBox(NULL, _T("bind() Success"), _T("Success"), MB_OK);
+
+    if (listen(s, 25) == SOCKET_ERROR)
+    {
+        MessageBox(NULL, _T("listen() Failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    MessageBox(NULL, _T("listen() Success"), _T("Success"), MB_OK);
+
+    TCHAR message[256];
+
+    do {
+        SOCKADDR_IN c_addr;
+        int size = sizeof(c_addr);
+        SOCKET cs = accept(s, (LPSOCKADDR)&c_addr, &size);
+
+        char buffer[CHAT_LENGTH];
+        int msgLen;
+        msgLen = recv(cs, buffer, CHAT_LENGTH, 0);
+        buffer[msgLen] = NULL;
+#ifdef _UNICODE
+        TCHAR wBuffer[100];
+        msgLen = MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), NULL, NULL);
+        MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), wBuffer, msgLen);
+        wBuffer[msgLen] = NULL;
+        _stprintf_s(message, _T("Client Message : %s, 서버종료?"), wBuffer);
+#else       
+        sprintf(message, _T("Client Message : %s, 서버종료?"), buffer);
+#endif 
+    } while (MessageBox(NULL, message, _T("Server Message"), MB_YESNO) == IDNO);
+
+    closesocket(s);
+    WSACleanup();
+
+    return 0;
+}
+
+int InitServer(HWND hWnd)
+{
+    WSAStartup(MAKEWORD(2, 2), &wsdata);
+    s = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (s == INVALID_SOCKET)
+    {
+        MessageBox(NULL, _T("socket() Failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    addr.sin_family = AF_INET;
+    addr.sin_port = MY_PORT;
+    addr.sin_addr.S_un.S_addr = inet_addr(MY_IP);
+
+    if (bind(s, (LPSOCKADDR)&addr, sizeof(addr)))
+    {
+        MessageBox(NULL, _T("bind() Failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+
+    if (listen(s, 25) == SOCKET_ERROR)
+    {
+        MessageBox(NULL, _T("listen() Failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    WSAAsyncSelect(s, hWnd, WM_ASYNC, FD_ACCEPT);
+    return 0;
+}
+
+int CloseServer()
+{
+    closesocket(s);
+    WSACleanup();
+    return 0;
+}
+
+SOCKET AcceptSocket(HWND hWnd, SOCKET s, SOCKADDR_IN& c_addr)
+{
+    SOCKET cs;
+    int size = sizeof(c_addr);
+    cs = accept(s, (LPSOCKADDR)&c_addr, &size);
+    WSAAsyncSelect(cs, hWnd, WM_ASYNC, FD_READ | FD_CLOSE);
+
+    socketList.push_back({ cs, nextId });
+    nextId++;
+
+    char joinMsg[200] = "";
+    sprintf_s(joinMsg, "User %d joined the chat. ", socketList.back().id);
+
+    SendMessageToClient(joinMsg);
+    return cs;
+}
+
+void SendMessageToClient(char* buffer)
+{
+    for (list<User>::iterator it = socketList.begin(); it != socketList.end(); it++)
+    {
+        SOCKET cs = (*it).socket;
+        send(cs, (LPSTR)buffer, strlen(buffer) + 1, 0);
+    }
+}
+
+void ReadMessage(TCHAR* msg, char* buffer)
+{
+    for (list<User>::iterator it = socketList.begin(); it != socketList.end(); it++)
+    {
+        SOCKET cs = (*it).socket;
+        int csId = (*it).id;
+        int msgLen = recv(cs, buffer, CHAT_LENGTH, 0);
+
+        if (msgLen > 0)
+        {
+            buffer[msgLen] = NULL;
+
+#ifdef _UNICODE
+            msgLen = MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), NULL, NULL);
+            MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), msg, msgLen);
+            msg[msgLen] = NULL;
+
+            char username[100];
+            sprintf_s(username, "User %d: ", csId);
+
+            char sendBuffer[200] = "";
+            strcat_s(sendBuffer, username);
+            strcat_s(sendBuffer, buffer);
+#else
+            stcpy_s(msg, buffer);
+#endif
+            SendMessageToClient(sendBuffer);
+        }
+    }
+}
+
+void CloseClient(SOCKET socket)
+{
+    char leaveMsg[200] = "";
+
+    for (list<User>::iterator it = socketList.begin(); it != socketList.end(); it++)
+    {
+        SOCKET cs = (*it).socket;
+        int csId = (*it).id;
+
+        if (cs == socket)
+        {
+            sprintf_s(leaveMsg, "User %d left the chat. ", csId);
+
+            closesocket(cs);
+            it = socketList.erase(it);
+            break;
+        }
+    }
+    SendMessageToClient(leaveMsg);
 }

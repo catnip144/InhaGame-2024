@@ -1,21 +1,50 @@
 ﻿// 0924_Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define WM_ASYNC WM_USER+1
+
+#define MY_PORT 12346
+#define MY_IP "172.30.1.61"
+#define CHAT_LENGTH 100
+
+#pragma comment(lib, "ws2_32.lib")
+using namespace std;
+
 #include "framework.h"
 #include "0924_Client.h"
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
-// >> :
 #include <WinSock2.h>
-#pragma comment(lib, "ws2_32.lib")
+#include <list>
+#include <vector>
+#include <string>
+
+WSADATA wsadata;
+SOCKET  s;
+SOCKADDR_IN addr = { 0 };
+TCHAR msg[200], str[CHAT_LENGTH];
+
+int textX = 10;
+int textY = 202;
+int chatBufferSize = 10;
+SIZE caretSize;
+vector<TCHAR*> chatLogs;
+
+char buffer[CHAT_LENGTH];
+int msgLen;
+int msgCount = 0;
+
 int WinSock_Client();
-// >> :
+int InitClient(HWND hWnd);
+void CloseClient();
+int SendMessageToServer();
 
+void DrawChatUI(HWND& hWnd, HDC& hdc, PAINTSTRUCT& ps);
 
-#define MAX_LOADSTRING 100
 
 // 전역 변수:
+#define MAX_LOADSTRING 100
+
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
@@ -63,40 +92,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     return (int) msg.wParam;
     //return WinSock_Client();
 }
-
-int WinSock_Client()
-{
-    WSADATA wsadata;
-    SOCKET  s;
-    SOCKADDR_IN addr = { 0 };
-
-    WSAStartup(MAKEWORD(2, 2), &wsadata);
-    s = socket(AF_INET, SOCK_STREAM, 0);
-    if (s == INVALID_SOCKET)
-    {
-        MessageBox(NULL, _T("socket() failed"), _T("Error"), MB_OK);
-        return 0;
-    }
-    MessageBox(NULL, _T("socket() OK"), _T("Success!"), MB_OK);
-
-    addr.sin_family = AF_INET;
-    addr.sin_port = 12346;
-    addr.sin_addr.S_un.S_addr = inet_addr("172.30.1.23");
-
-    if (connect(s, (LPSOCKADDR)&addr, sizeof(addr)) == SOCKET_ERROR)
-    {
-        MessageBox(NULL, _T("connect() failed"), _T("Error"), MB_OK);
-        return 0;
-    }
-    MessageBox(NULL, _T("connect() OK"), _T("Success!"), MB_OK);
-
-    send(s, "Hello Server!", 13, 0);
-
-    closesocket(s);
-    WSACleanup();
-    return 0;
-}
-
 //
 //  함수: MyRegisterClass()
 //
@@ -161,42 +156,90 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
+void DrawChatUI(HWND& hWnd, HDC& hdc, PAINTSTRUCT& ps)
+{
+    Rectangle(hdc, 0, 0, 200, 200);
+    Rectangle(hdc, 0, 200, 200, 220);
+    SetTextColor(hdc, RGB(0, 0, 0));
+
+    int yPos = textY;
+    for (int i = chatBufferSize - 1; i >= 0; i--)
+    {
+        if (chatLogs[i] == nullptr)
+            continue;
+
+        yPos -= 20;
+        TextOut(hdc, 2, yPos, chatLogs[i], _tcslen(chatLogs[i]));
+    }
+    SetTextColor(hdc, RGB(0, 0, 255));
+    TextOut(hdc, 2, textY, _T(">"), _tcslen(_T(">")));
+    TextOut(hdc, textX, textY, str, _tcslen(str));
+
+    GetTextExtentPoint(hdc, str, _tcslen(str), &caretSize);
+    SetCaretPos(textX + caretSize.cx, textY);
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static WSADATA wsadata;
-    static SOCKET  s, cs;
-    static SOCKADDR_IN addr = { 0 };
-    static TCHAR msg[200] = { 0 };
-
-    int size, msgLen;
-    char buffer[100];
-
     switch (message)
     {
     case WM_CREATE:
-        WSAStartup(MAKEWORD(2, 2), &wsadata);
-        s = socket(AF_INET, SOCK_STREAM, 0);
-        if (s == INVALID_SOCKET)
-        {
-            MessageBox(NULL, _T("socket() failed"), _T("Error"), MB_OK);
-            return 0;
-        }
-        MessageBox(NULL, _T("socket() OK"), _T("Success!"), MB_OK);
+        msgCount = 0;
+        for (int i = 0; i < chatBufferSize; i++)
+            chatLogs.push_back(nullptr);
 
-        addr.sin_family = AF_INET;
-        addr.sin_port = 12346;
-        addr.sin_addr.S_un.S_addr = inet_addr("172.30.1.23");
-
-        if (connect(s, (LPSOCKADDR)&addr, sizeof(addr)) == SOCKET_ERROR)
-        {
-            MessageBox(NULL, _T("connect() failed"), _T("Error"), MB_OK);
-            return 0;
-        }
-        MessageBox(NULL, _T("connect() OK"), _T("Success!"), MB_OK);
+        CreateCaret(hWnd, NULL, 5, 15);
+        ShowCaret(hWnd);
+        return InitClient(hWnd);
         break;
 
-    case WM_KEYDOWN:
-        send(s, "Hello Server!", 13, 0);
+    case WM_ASYNC:
+        {
+            switch (lParam)
+            {
+            case FD_READ:
+                msgLen = recv(s, buffer, CHAT_LENGTH, 0);
+                buffer[msgLen] = NULL;
+#ifdef _UNICODE
+                msgLen = MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), NULL, NULL);
+                MultiByteToWideChar(CP_ACP, 0, buffer, strlen(buffer), msg, msgLen);
+                msg[msgLen] = NULL;
+#else
+                strcpy_s(msg, buffer);
+                msgLen = strlen(buffer);
+#endif
+                TCHAR* copied = new TCHAR[CHAT_LENGTH];
+                for (int i = 0; i < CHAT_LENGTH; i++)
+                {
+                    copied[i] = msg[i];
+                }
+                chatLogs.erase(chatLogs.begin());
+                chatLogs.push_back(copied);
+
+                InvalidateRgn(hWnd, NULL, TRUE);
+                break;
+            }
+        }
+        break;
+
+    case WM_CHAR:
+        if (wParam == VK_BACK)
+        {
+            if (msgCount > 0)
+                msgCount--;
+            str[msgCount] = NULL;
+        }
+        else if (wParam == VK_RETURN)
+        {
+            return SendMessageToServer();
+        }
+        else
+        {
+            str[msgCount++] = wParam;
+            str[msgCount] = NULL;
+        }
+        InvalidateRgn(hWnd, NULL, true);
         break;
 
     case WM_COMMAND:
@@ -220,20 +263,94 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            DrawChatUI(hWnd, hdc, ps);
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
-        closesocket(s);
-        WSACleanup();
-
+        HideCaret(hWnd);
+        DestroyCaret();
+        CloseClient();
         PostQuitMessage(0);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
+}
+
+int WinSock_Client()
+{
+    WSAStartup(MAKEWORD(2, 2), &wsadata);
+    s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s == INVALID_SOCKET)
+    {
+        MessageBox(NULL, _T("socket() failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    MessageBox(NULL, _T("socket() OK"), _T("Success!"), MB_OK);
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = MY_PORT;
+    addr.sin_addr.S_un.S_addr = inet_addr(MY_IP);
+
+    if (connect(s, (LPSOCKADDR)&addr, sizeof(addr)) == SOCKET_ERROR)
+    {
+        MessageBox(NULL, _T("connect() failed"), _T("Error"), MB_OK);
+        return 0;
+    }
+    MessageBox(NULL, _T("connect() OK"), _T("Success!"), MB_OK);
+
+    send(s, "Hello Server!", 13, 0);
+
+    closesocket(s);
+    WSACleanup();
+    return 0;
+}
+
+int InitClient(HWND hWnd)
+{
+    WSAStartup(MAKEWORD(2, 2), &wsadata);
+    s = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (s == INVALID_SOCKET)
+        return 0;
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = MY_PORT;
+    addr.sin_addr.S_un.S_addr = inet_addr(MY_IP);
+
+    if (connect(s, (LPSOCKADDR)&addr, sizeof(addr)) == SOCKET_ERROR)
+    {
+        return 0;
+    }
+    WSAAsyncSelect(s, hWnd, WM_ASYNC, FD_READ);
+    return 1;
+}
+
+void CloseClient()
+{
+    closesocket(s);
+    WSACleanup();
+}
+
+int SendMessageToServer()
+{
+    if (s == INVALID_SOCKET)
+        return 0;
+
+#ifdef _UNICODE
+    msgLen = WideCharToMultiByte(CP_ACP, 0, str, -1, NULL, 0, NULL, NULL);
+    WideCharToMultiByte(CP_ACP, 0, str, -1, buffer, msgLen, NULL, NULL);
+    msg[msgLen] = NULL;
+#else
+    strcpy(buffer, str);
+    msgLen = strlen(buffer);
+#endif
+    send(s, (LPSTR)buffer, msgLen + 1, 0);
+    msgCount = 0;
+    str[msgCount] = NULL;
+    return 1;
 }
 
 // 정보 대화 상자의 메시지 처리기입니다.

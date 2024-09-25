@@ -24,20 +24,23 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="0924_Server.h">
+    <ClInclude Include="0925_AStar.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="map_control.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="0924_Server.cpp">
+    <ClCompile Include="0925_AStar.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="assignment.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="map_control.cpp">
+      <Filter>리소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="0924_Server.rc">
+    <ResourceCompile Include="0925_AStar.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -45,7 +48,7 @@
     <Image Include="small.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="0924_Server.ico">
+    <Image Include="0925_AStar.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
