@@ -3,7 +3,6 @@
 
 #include "framework.h"
 #include "0925_AStar.h"
-#include "map_control.h"
 
 #define MAX_LOADSTRING 100
 
@@ -123,11 +122,17 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-RECT rectView;
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static PAINTSTRUCT  ps;
+    static HDC          hdc, backMemDC;
+    static HBITMAP      backBitmap, hOldBitmap;
+    static HBRUSH       hBrush, oldBrush;
+    static POINT        ptMouse;
+
+
     switch (message)
     {
     case WM_CREATE:
@@ -152,19 +157,81 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+    case WM_MOUSEMOVE:
+        ptMouse.x = LOWORD(lParam);
+        ptMouse.y = HIWORD(lParam);
+        break;
+
+    case WM_RBUTTONDOWN:
+        {
+            Block* block = GetBlock(ptMouse);
+
+            if (block == nullptr)
+                break;
+            else if (block == startBlock)
+                startBlock = nullptr;
+
+            if (destBlock) destBlock->state = BLOCKSTATE_DEFAULT;
+            block->state = BLOCKSTATE_DEST;
+
+            destBlock = block;
+            //path = FindPath();
+            InvalidateRect(hWnd, NULL, true);
+        }
+        break;
+
+    case WM_LBUTTONDOWN:
+        {
+            Block* block = GetBlock(ptMouse);
+
+            if (block == nullptr)
+                break;
+            else if (block == destBlock)
+                destBlock = nullptr;
+        
+            if (startBlock) startBlock->state = BLOCKSTATE_DEFAULT;
+            block->state = BLOCKSTATE_START;
+
+            startBlock = block;
+            //path = FindPath();
+            InvalidateRect(hWnd, NULL, true);
+        }
+        break;
+
     case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            
-            DrawMap(hdc);
+            hdc = BeginPaint(hWnd, &ps);
+
+            // 화면DC 기반 메모리 DC 생성
+            backMemDC = CreateCompatibleDC(hdc);
+
+            // 도화지 준비 (비트맵 생성), 비트맵 선택
+            backBitmap = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
+            hOldBitmap = (HBITMAP)SelectObject(backMemDC, backBitmap);
+
+            // 메모리 DC에 그리기
+            FillRect(backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
+
+            DrawMap(backMemDC, hBrush);
+
+            // 화면에 복사
+            BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, backMemDC, 0, 0, SRCCOPY);
+
+            // 기존 비트맵 선택
+            SelectObject(backMemDC, hOldBitmap);
+
+            DeleteDC(backMemDC);
+            DeleteObject(hBrush);
 
             EndPaint(hWnd, &ps);
         }
         break;
+
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

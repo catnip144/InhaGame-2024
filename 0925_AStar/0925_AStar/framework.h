@@ -13,3 +13,11 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+
+#include <vector>
+#include <string>
+#include <cmath>
+#include <queue>
+#include "resource.h"
+#include "map_control.h"
+#include "astar.h"

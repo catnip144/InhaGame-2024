@@ -30,13 +30,19 @@
     <ClInclude Include="map_control.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="astar.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="0925_AStar.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="map_control.cpp">
-      <Filter>리소스 파일</Filter>
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="astar.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
