@@ -18,6 +18,7 @@
 #include <string>
 #include <cmath>
 #include <queue>
+#include <algorithm>
 #include "resource.h"
 #include "map_control.h"
 #include "astar.h"

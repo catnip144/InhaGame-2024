@@ -4,8 +4,7 @@ RECT rectView;
 Block* startBlock = nullptr;
 Block* destBlock = nullptr;
 vector<vector<Block*>> blocks;
-vector<Block*> closedBlocks;
-priority_queue<Block*> openBlocks;
+vector<vector<bool>> visited;
 
 void CreateMap()
 {
@@ -16,6 +15,9 @@ void CreateMap()
 
     blocks = vector<vector<Block*>>
         (BLOCK_ROW, vector<Block*>(BLOCK_COL));
+
+    visited = vector<vector<bool>>
+        (BLOCK_ROW, vector<bool>(BLOCK_COL));
 
     for (int i = 0; i < BLOCK_ROW; i++)
     {
@@ -34,6 +36,42 @@ void CreateMap()
     }
 }
 
+void ResetBlocks(bool excludeStartDest)
+{
+    for (int i = 0; i < BLOCK_ROW; i++)
+    {
+        for (int j = 0; j < BLOCK_COL; j++)
+        {
+            blocks[i][j]->costFromStart = 0;
+            blocks[i][j]->costToEnd = 0;
+            blocks[i][j]->totalCost = 0;
+            blocks[i][j]->parent = nullptr;
+            blocks[i][j]->state = BLOCKSTATE_DEFAULT;
+
+            visited[i][j] = false;
+        }
+    }
+    if (excludeStartDest)
+    {
+        if (startBlock) startBlock->state = BLOCKSTATE_START;
+        if (destBlock) destBlock->state = BLOCKSTATE_DEST;
+        return;
+    }
+    startBlock = nullptr;
+    destBlock = nullptr;
+}
+
+void RegisterPathBlocks()
+{
+    Block* current = destBlock;
+    while (current)
+    {
+        if (current->state != BLOCKSTATE_START && current->state != BLOCKSTATE_DEST)
+            current->state = BLOCKSTATE_PATH;
+        current = current->parent;
+    }
+}
+
 void DrawMap(HDC& hdc, HBRUSH& hBrush)
 {
     for (int i = 0; i < BLOCK_ROW; i++)
@@ -45,7 +83,12 @@ void DrawMap(HDC& hdc, HBRUSH& hBrush)
 
 bool IsValidPosition(int x, int y)
 {
-    return (x >= 0 && x <= BLOCK_COL && y >= 0 && y <= BLOCK_ROW);
+    return (x >= 0 && x < BLOCK_COL && y >= 0 && y < BLOCK_ROW);
+}
+
+void CreateWall(Block* block)
+{
+    block->state = (block->state == BLOCKSTATE_WALL) ? BLOCKSTATE_DEFAULT : BLOCKSTATE_WALL;
 }
 
 Block* GetBlock(POINT point)
@@ -63,10 +106,11 @@ Block* GetBlock(POINT point)
 
 Block::Block(RECT rect)
 {
-    this->rect = rect;
-    totalCost = costFromStart = costToEnd = 0;
+    row = col = 0;
     parent = nullptr;
+    this->rect = rect;
     state = BLOCKSTATE_DEFAULT;
+    totalCost = costFromStart = costToEnd = 0;
 }
 
 void Block::Draw(HDC& hdc, HBRUSH& hBrush)
@@ -81,6 +125,18 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
         hBrush = CreateSolidBrush(RGB(195, 75, 75));
         break;
 
+    case BLOCKSTATE_CANDIDATE:
+        hBrush = CreateSolidBrush(RGB(209, 206, 197));
+        break;
+
+    case BLOCKSTATE_PATH:
+        hBrush = CreateSolidBrush(RGB(3, 252, 207));
+        break;
+
+    case BLOCKSTATE_WALL:
+        hBrush = CreateSolidBrush(RGB(0, 0, 0));
+        break;
+
     default:
         hBrush = CreateSolidBrush(RGB(247, 240, 234));
         break;
@@ -88,20 +144,22 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
     HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 	Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
     SelectObject(hdc, oldBrush);
+	DeleteObject(hBrush);
+
+    if (state == BLOCKSTATE_WALL)
+        return;
 
     SetBkMode(hdc, TRANSPARENT);
     TCHAR str[10];
 
     swprintf(str, 10, L"%d", costFromStart);
-    TextOut(hdc, rect.left + 10, rect.top + 3, str, lstrlen(str));
+    TextOut(hdc, rect.left + 8, rect.top + 3, str, lstrlen(str));
 
     swprintf(str, 10, L"%d", costToEnd);
-    TextOut(hdc, rect.right - 16, rect.top + 3, str, lstrlen(str));
+    TextOut(hdc, rect.right - 25, rect.top + 3, str, lstrlen(str));
 
     swprintf(str, 10, L"%d", totalCost);
-    TextOut(hdc, rect.left + 10, rect.bottom - 18, str, lstrlen(str));
-
-	DeleteObject(hBrush);
+    TextOut(hdc, rect.left + 8, rect.bottom - 18, str, lstrlen(str));
 }
 
 bool Block::IsWithinBlock(POINT point)
@@ -117,7 +175,7 @@ bool Block::IsWithinBlock(POINT point)
 
 POINT Block::GetGridPos()
 {
-    return { row, col };
+    return { col, row };
 }
 
 POINT Block::GetCenter()

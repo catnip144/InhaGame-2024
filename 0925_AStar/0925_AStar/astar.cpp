@@ -1,25 +1,28 @@
 #include "framework.h"
 
-vector<POINT> path;
-
 int dx[] = { 0, 0,-1, 1,-1,-1, 1, 1 };
 int dy[] = {-1, 1, 0, 0,-1, 1,-1, 1 };
 
-vector<POINT> FindPath()
+bool FindPath()
 {
 	if (startBlock == nullptr || destBlock == nullptr)
-		return vector<POINT>();
+		return false;
 
-	startBlock->totalCost = startBlock->costToEnd = ManhattanDistance(
+	vector<Block*> closedBlocks;
+	priority_queue<Block*, vector<Block*>, BlockCompare> openBlocks;
+
+	startBlock->totalCost = startBlock->costToEnd = Heuristic(
 		startBlock->GetGridPos(),
 		destBlock->GetGridPos()
 	);
 	openBlocks.push(startBlock);
+	visited[startBlock->row][startBlock->col] = true;
 
 	while (!openBlocks.empty())
 	{
 		Block* current = openBlocks.top();
 
+		bool hasReachedDest = (current == destBlock);
 		int curCostFromStart = current->costFromStart;
 		int curcostToEnd     = current->costToEnd;
 		int curTotalCost	 = current->totalCost;
@@ -41,24 +44,42 @@ vector<POINT> FindPath()
 			// check wall
 				//continue;
 
-			Block* adjacent			= blocks[ny][nx];
+			Block* adjacent	= blocks[ny][nx];
 
-			// if adjacent exists in openBlocks
-				// compare cost, update parent
+			if (visited[ny][nx])
+			{
+				if (adjacent->costFromStart <= curCostFromStart + cost)
+					continue;
 
-			adjacent->costFromStart = curCostFromStart + cost;
-			adjacent->costToEnd		= ManhattanDistance({ nx, ny }, destBlock->GetGridPos());
-			adjacent->totalCost		= adjacent->costFromStart + adjacent->costToEnd;
-			adjacent->parent		= current;
+				adjacent->costFromStart = curCostFromStart + cost;
+				adjacent->totalCost = adjacent->costFromStart + adjacent->costToEnd;
+				adjacent->parent = current;
+			}
+			else
+			{
+				adjacent->costFromStart = curCostFromStart + cost;
+				adjacent->costToEnd = Heuristic({ nx, ny }, destBlock->GetGridPos());
+				adjacent->totalCost = adjacent->costFromStart + adjacent->costToEnd;
+				adjacent->parent = current;
 
-			openBlocks.push(blocks[ny][nx]);
+				if (adjacent != destBlock)
+					adjacent->state = BLOCKSTATE_CANDIDATE;
+
+				visited[ny][nx] = true;
+				openBlocks.push(blocks[ny][nx]);
+			}
 		}
+		if (hasReachedDest)
+			return true;
 	}
-
-	return vector<POINT>();
+	return false;
 }
 
-int ManhattanDistance(POINT pos1, POINT pos2)
+int Heuristic(POINT pos1, POINT pos2)
 {
-	return abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y);
+	int dX = abs(pos1.x - pos2.x);
+	int dY = abs(pos1.y - pos2.y);
+
+	// Octile Distance - Grid based movements
+	return COST_STRAIGHT * (dX + dY) + (COST_DIAGONAL - 2 * COST_STRAIGHT) * min(dX, dY);
 }

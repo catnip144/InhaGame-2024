@@ -1,31 +1,53 @@
 #include <vector>
 #include <string>
+#include <queue>
 #include <iostream>
 
 using namespace std;
 
-class Test
+
+class Block
 {
 public:
-	int a;
-	Test* parent;
+	int totalCost;		// f(n)
+	int costFromStart;	// g(n)
+	int costToEnd;		// h(n)
+};
+
+class BlockCompare
+{
+public:
+	bool operator() (Block* a, Block* b)
+	{
+		return a->totalCost > b->totalCost;
+	}
 };
 
 int main()
 {
-	Test* A = new Test();
-	Test* B = new Test();
-	A->a = 10;
-	B->a = 20;
+	Block* a = new Block();
+	a->totalCost = 2;
 
-	vector<Test*> listA;
-	listA.push_back(A);
+	Block* b = new Block();
+	b->totalCost = 5;
 
-	for (int i = 0; i < 1; i++)
+	Block* c = new Block();
+	c->totalCost = 1;
+
+	Block* d = new Block();
+	d->totalCost = 9;
+
+	priority_queue<Block*, vector<Block*>, BlockCompare> openBlocks;
+
+	openBlocks.push(a);
+	openBlocks.push(b);
+	openBlocks.push(c);
+	openBlocks.push(d);
+
+	while (!openBlocks.empty())
 	{
-		Test* temp = listA.back();
-		B->parent = temp;
+		cout << openBlocks.top()->totalCost << endl;
+		openBlocks.pop();
 	}
-	cout << B->parent->a;
-	return 0;
+
 }

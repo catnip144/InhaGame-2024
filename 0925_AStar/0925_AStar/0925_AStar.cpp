@@ -169,14 +169,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (block == nullptr)
                 break;
-            else if (block == startBlock)
-                startBlock = nullptr;
 
-            if (destBlock) destBlock->state = BLOCKSTATE_DEFAULT;
-            block->state = BLOCKSTATE_DEST;
+            ResetBlocks(true);
+            CreateWall(block);
 
-            destBlock = block;
-            //path = FindPath();
+            if (FindPath()) RegisterPathBlocks();
             InvalidateRect(hWnd, NULL, true);
         }
         break;
@@ -187,14 +184,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             if (block == nullptr)
                 break;
-            else if (block == destBlock)
-                destBlock = nullptr;
-        
-            if (startBlock) startBlock->state = BLOCKSTATE_DEFAULT;
-            block->state = BLOCKSTATE_START;
 
-            startBlock = block;
-            //path = FindPath();
+            if (startBlock && destBlock)
+                ResetBlocks();
+
+            if (startBlock && !destBlock)
+            {
+                block->state = BLOCKSTATE_DEST;
+                destBlock = block;
+
+                if (startBlock == destBlock)
+                    startBlock = nullptr;
+            }
+            else
+            {
+                block->state = BLOCKSTATE_START;
+                startBlock = block;
+
+                if (startBlock == destBlock)
+                    destBlock = nullptr;
+            }
+            if (FindPath()) RegisterPathBlocks();
             InvalidateRect(hWnd, NULL, true);
         }
         break;

@@ -9,7 +9,10 @@ enum BlockState
 {
 	BLOCKSTATE_DEFAULT,
 	BLOCKSTATE_START,
-	BLOCKSTATE_DEST
+	BLOCKSTATE_DEST,
+	BLOCKSTATE_CANDIDATE,
+	BLOCKSTATE_PATH,
+	BLOCKSTATE_WALL
 };
 
 class Block
@@ -32,13 +35,24 @@ public:
 	POINT GetCenter();
 };
 
+class BlockCompare
+{
+public:
+	bool operator() (Block* a, Block* b)
+	{
+		return a->totalCost > b->totalCost;
+	}
+};
+
 extern RECT rectView;
 extern Block *startBlock, *destBlock;
 extern vector<vector<Block*>> blocks;
-extern vector<Block*> closedBlocks;
-extern priority_queue<Block*> openBlocks;
+extern vector<vector<bool>> visited;
 
 void CreateMap();
+void ResetBlocks(bool excludeStartDest = false);
+void RegisterPathBlocks();
 void DrawMap(HDC& hdc, HBRUSH& hBrush);
+void CreateWall(Block* block);
 bool IsValidPosition(int x, int y);
 Block* GetBlock(POINT point);
