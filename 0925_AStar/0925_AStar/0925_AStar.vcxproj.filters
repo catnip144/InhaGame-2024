@@ -33,6 +33,12 @@
     <ClInclude Include="astar.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="graphic_control.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="guide.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="0925_AStar.cpp">
@@ -42,6 +48,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="astar.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_control.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="guide.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

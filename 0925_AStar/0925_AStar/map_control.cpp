@@ -5,6 +5,7 @@ Block* startBlock = nullptr;
 Block* destBlock = nullptr;
 vector<vector<Block*>> blocks;
 DrawMode currentDrawMode = DRAWMODE_NONE;
+vector<POINT> path;
 
 void CreateMap()
 {
@@ -78,10 +79,14 @@ void ResetBlocks(BlockReset mode)
 void RegisterPathBlocks()
 {
     Block* current = destBlock;
+    path.clear();
+
     while (current)
     {
         if (current->state != BLOCKSTATE_START && current->state != BLOCKSTATE_DEST)
             current->state = BLOCKSTATE_PATH;
+
+        path.push_back(current->GetCenter());
         current = current->parent;
     }
 }

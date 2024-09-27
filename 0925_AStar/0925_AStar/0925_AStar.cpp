@@ -122,10 +122,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-#define TIMER_ID 1
+#define TIMER_MOVE 1
 #define TIMER_ANI 2
-#define TIMER_ID_INTERVAL 1
-#define TIMER_ANI_INTERVAL 140
+#define TIMER_MOVE_INTERVAL 10
+#define TIMER_ANI_INTERVAL 90
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -139,8 +139,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
         GetClientRect(hWnd, &rectView);
+        SetTimer(hWnd, TIMER_MOVE, TIMER_MOVE_INTERVAL, NULL);
         SetTimer(hWnd, TIMER_ANI, TIMER_ANI_INTERVAL, NULL);
+        CreateBitmap();
         CreateMap();
+        break;
+
+    case WM_TIMER:
+        switch (wParam)
+        {
+            case TIMER_MOVE:
+                guide.MoveAlongPath(path);
+                break;
+
+            case TIMER_ANI:
+                guide.UpdateFrame();
+                break;
+        }
+        InvalidateRect(hWnd, NULL, false);
         break;
 
     case WM_COMMAND:
@@ -187,14 +203,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (FindPath())
             RegisterPathBlocks();
 
-        InvalidateRect(hWnd, NULL, true);
+        InvalidateRect(hWnd, NULL, false);
         break;
 
     case WM_KEYDOWN:
         if (wParam == VK_ESCAPE)
         {
             ResetBlocks(BLOCKRESET_ALL);
-            InvalidateRect(hWnd, NULL, true);
+            InvalidateRect(hWnd, NULL, false);
+        }
+        else if (wParam == VK_RETURN)
+        {
+            guide.SetEnabled(true);
+            InvalidateRect(hWnd, NULL, false);
         }
         break;
 
@@ -209,6 +230,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             FillRect(backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
 
             DrawMap(backMemDC, hBrush);
+            if (guide.isMoving)
+                guide.Draw(backMemDC);
 
             BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, backMemDC, 0, 0, SRCCOPY);
             SelectObject(backMemDC, hOldBitmap);
@@ -219,6 +242,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_DESTROY:
+        KillTimer(hWnd, TIMER_MOVE);
         KillTimer(hWnd, TIMER_ANI);
         PostQuitMessage(0);
         break;

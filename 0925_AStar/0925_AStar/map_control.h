@@ -64,6 +64,8 @@ extern RECT rectView;
 extern Block *startBlock, *destBlock;
 extern vector<vector<Block*>> blocks;
 extern DrawMode currentDrawMode;
+extern vector<POINT> path;
+
 
 void CreateMap();
 void ResetBlocks(BlockReset mode);
