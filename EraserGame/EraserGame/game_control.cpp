@@ -77,13 +77,20 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 	bool canSearchRight = !IsBetweenTwoPoints(dividingLine[0], dividingLine.back(), remainingArea[endContextIdx.second]);
 
 	int idx = endContextIdx.first;
+	int move = endContextIdx.first - endContextIdx.second;
+	if (abs(move) > 1)
+		move /= -abs(move);
+
 	while (canSearchLeft)
 	{
 		area1.push_back(remainingArea[idx]);
-		--idx;
+		idx += move;
 
 		if (idx == -1)
 			idx = remainingArea.size() - 1;
+		else if (idx == remainingArea.size())
+			idx = 0;
+
 		if (idx == startContextIdx.first || idx == startContextIdx.second)
 		{
 			area1.push_back(remainingArea[idx]);
@@ -91,13 +98,20 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 		}
 	}
 	idx = endContextIdx.second;
+	move = endContextIdx.second - endContextIdx.first;
+	if (abs(move) > 1)
+		move /= -abs(move);
+
 	while (canSearchRight)
 	{
 		area2.push_back(remainingArea[idx]);
-		++idx;
+		idx += move;
 
-		if (idx == remainingArea.size())
+		if (idx == -1)
+			idx = remainingArea.size() - 1;
+		else if (idx == remainingArea.size())
 			idx = 0;
+
 		if (idx == startContextIdx.first || idx == startContextIdx.second)
 		{
 			area2.push_back(remainingArea[idx]);
