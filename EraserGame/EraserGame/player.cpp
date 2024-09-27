@@ -75,6 +75,7 @@ void Player::Move(int inputType)
 			{
 				entryPos = prevPos;
 				path.push_back(prevPos);
+				visited[prevPos.y][prevPos.x] = true;
 			}
 			else if (visited[pos.y][pos.x])
 			{
@@ -87,6 +88,7 @@ void Player::Move(int inputType)
 		else if (!path.empty() && isInsideRmnArea)
 		{
 			path.push_back(pos);
+			visited[pos.y][pos.x] = true;
 			FillOccupiedArea(path, contextIndex);
 			path.clear();
 		}
