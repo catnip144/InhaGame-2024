@@ -73,8 +73,8 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 	vector<POINT> area1 = dividingLine;
 	vector<POINT> area2 = dividingLine;
 
-	bool canSearchLeft = IsBetweenTwoPoints(dividingLine[0], dividingLine.back(), remainingArea[endContextIdx.first]);
-	bool canSearchRight = IsBetweenTwoPoints(dividingLine[0], dividingLine.back(), remainingArea[endContextIdx.second]);
+	bool canSearchLeft = !IsBetweenTwoPoints(dividingLine[0], dividingLine.back(), remainingArea[endContextIdx.first]);
+	bool canSearchRight = !IsBetweenTwoPoints(dividingLine[0], dividingLine.back(), remainingArea[endContextIdx.second]);
 
 	int idx = endContextIdx.first;
 	while (canSearchLeft)
@@ -105,7 +105,7 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 		}
 	}
 	SetFillArea(area1, area2);
-	remainingArea = area1;
+	remainingArea = area2;
 
 	for (int i = 0; i < path.size(); i++)
 		visited[path[i].y][path[i].x] = false;
@@ -113,7 +113,7 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 
 void SetFillArea(vector<POINT>& area1, vector<POINT>& area2)
 {
-	uncoveredPolygon = area2;
+	uncoveredPolygon = area1;
 }
 
 bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b)
