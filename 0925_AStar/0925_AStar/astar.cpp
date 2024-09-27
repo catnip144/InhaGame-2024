@@ -8,7 +8,6 @@ bool FindPath()
 	if (startBlock == nullptr || destBlock == nullptr)
 		return false;
 
-	vector<Block*> closedBlocks;
 	priority_queue<Block*, vector<Block*>, BlockCompare> openBlocks;
 
 	startBlock->totalCost = startBlock->costToEnd = Heuristic(
@@ -16,7 +15,7 @@ bool FindPath()
 		destBlock->GetGridPos()
 	);
 	openBlocks.push(startBlock);
-	visited[startBlock->row][startBlock->col] = true;
+	startBlock->isOpen = true;
 
 	while (!openBlocks.empty())
 	{
@@ -29,8 +28,12 @@ bool FindPath()
 		int x				 = current->col;
 		int y				 = current->row;
 
-		closedBlocks.push_back(openBlocks.top());
+		openBlocks.top()->isOpen = false;
+		openBlocks.top()->isClosed = true;
 		openBlocks.pop();
+
+		if (hasReachedDest)
+			return true;
 
 		for (int i = 0; i < 8; i++)
 		{
@@ -41,12 +44,15 @@ bool FindPath()
 			if (!IsValidPosition(nx, ny))
 				continue;
 
-			// check wall
-				//continue;
-
 			Block* adjacent	= blocks[ny][nx];
 
-			if (visited[ny][nx])
+			if (adjacent->state == BLOCKSTATE_WALL)
+				continue;
+
+			if (adjacent->isClosed)
+				continue;
+
+			if (adjacent->isOpen)
 			{
 				if (adjacent->costFromStart <= curCostFromStart + cost)
 					continue;
@@ -65,12 +71,10 @@ bool FindPath()
 				if (adjacent != destBlock)
 					adjacent->state = BLOCKSTATE_CANDIDATE;
 
-				visited[ny][nx] = true;
+				adjacent->isOpen = true;
 				openBlocks.push(blocks[ny][nx]);
 			}
 		}
-		if (hasReachedDest)
-			return true;
 	}
 	return false;
 }
@@ -80,6 +84,6 @@ int Heuristic(POINT pos1, POINT pos2)
 	int dX = abs(pos1.x - pos2.x);
 	int dY = abs(pos1.y - pos2.y);
 
-	// Octile Distance - Grid based movements
-	return COST_STRAIGHT * (dX + dY) + (COST_DIAGONAL - 2 * COST_STRAIGHT) * min(dX, dY);
+	// Manhattan Distance
+	return COST_STRAIGHT * (dX + dY);
 }

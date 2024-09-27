@@ -122,7 +122,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-
+#define TIMER_ID 1
+#define TIMER_ANI 2
+#define TIMER_ID_INTERVAL 1
+#define TIMER_ANI_INTERVAL 140
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -132,11 +135,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static HBRUSH       hBrush, oldBrush;
     static POINT        ptMouse;
 
-
     switch (message)
     {
     case WM_CREATE:
         GetClientRect(hWnd, &rectView);
+        SetTimer(hWnd, TIMER_ANI, TIMER_ANI_INTERVAL, NULL);
         CreateMap();
         break;
 
@@ -161,50 +164,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
         ptMouse.x = LOWORD(lParam);
         ptMouse.y = HIWORD(lParam);
-        break;
 
-    case WM_RBUTTONDOWN:
+        if (currentDrawMode != DRAWMODE_NONE)
         {
-            Block* block = GetBlock(ptMouse);
-
-            if (block == nullptr)
-                break;
-
-            ResetBlocks(true);
-            CreateWall(block);
-
-            if (FindPath()) RegisterPathBlocks();
-            InvalidateRect(hWnd, NULL, true);
+            SetWall(ptMouse);
+            InvalidateRect(hWnd, NULL, false);
         }
         break;
 
+    case WM_RBUTTONDOWN:
+        SetCurrentDrawmode(ptMouse, true);
+        SetWall(ptMouse);
+        InvalidateRect(hWnd, NULL, false);
+        break;
+
+    case WM_RBUTTONUP:
+        SetCurrentDrawmode(ptMouse, false);
+        break;
+
     case WM_LBUTTONDOWN:
+        SetPathContext(GetBlock(ptMouse));
+        if (FindPath())
+            RegisterPathBlocks();
+
+        InvalidateRect(hWnd, NULL, true);
+        break;
+
+    case WM_KEYDOWN:
+        if (wParam == VK_ESCAPE)
         {
-            Block* block = GetBlock(ptMouse);
-
-            if (block == nullptr)
-                break;
-
-            if (startBlock && destBlock)
-                ResetBlocks();
-
-            if (startBlock && !destBlock)
-            {
-                block->state = BLOCKSTATE_DEST;
-                destBlock = block;
-
-                if (startBlock == destBlock)
-                    startBlock = nullptr;
-            }
-            else
-            {
-                block->state = BLOCKSTATE_START;
-                startBlock = block;
-
-                if (startBlock == destBlock)
-                    destBlock = nullptr;
-            }
-            if (FindPath()) RegisterPathBlocks();
+            ResetBlocks(BLOCKRESET_ALL);
             InvalidateRect(hWnd, NULL, true);
         }
         break;
@@ -212,33 +201,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             hdc = BeginPaint(hWnd, &ps);
-
-            // 화면DC 기반 메모리 DC 생성
             backMemDC = CreateCompatibleDC(hdc);
 
-            // 도화지 준비 (비트맵 생성), 비트맵 선택
             backBitmap = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
             hOldBitmap = (HBITMAP)SelectObject(backMemDC, backBitmap);
 
-            // 메모리 DC에 그리기
             FillRect(backMemDC, &rectView, (HBRUSH)(GetStockObject)(WHITE_BRUSH));
 
             DrawMap(backMemDC, hBrush);
 
-            // 화면에 복사
             BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, backMemDC, 0, 0, SRCCOPY);
-
-            // 기존 비트맵 선택
             SelectObject(backMemDC, hOldBitmap);
-
             DeleteDC(backMemDC);
             DeleteObject(hBrush);
-
             EndPaint(hWnd, &ps);
         }
         break;
 
     case WM_DESTROY:
+        KillTimer(hWnd, TIMER_ANI);
         PostQuitMessage(0);
         break;
 

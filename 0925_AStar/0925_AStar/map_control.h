@@ -15,6 +15,20 @@ enum BlockState
 	BLOCKSTATE_WALL
 };
 
+enum BlockReset
+{
+	BLOCKRESET_ALL,
+	BLOCKRESET_EXCEPT_WALL,
+	BLOCKRESET_EXCEPT_CONTEXT
+};
+
+enum DrawMode
+{
+	DRAWMODE_NONE,
+	DRAWMODE_WALL,
+	DRAWMODE_ERASER
+};
+
 class Block
 {
 private:
@@ -25,6 +39,8 @@ public:
 	int costFromStart;	// g(n)
 	int costToEnd;		// h(n)
 	int row, col;
+	bool isOpen;
+	bool isClosed;
 	Block* parent;
 	BlockState state;
 
@@ -47,12 +63,14 @@ public:
 extern RECT rectView;
 extern Block *startBlock, *destBlock;
 extern vector<vector<Block*>> blocks;
-extern vector<vector<bool>> visited;
+extern DrawMode currentDrawMode;
 
 void CreateMap();
-void ResetBlocks(bool excludeStartDest = false);
+void ResetBlocks(BlockReset mode);
 void RegisterPathBlocks();
 void DrawMap(HDC& hdc, HBRUSH& hBrush);
-void CreateWall(Block* block);
+void SetCurrentDrawmode(POINT ptMouse, bool isDrawing);
+void SetWall(POINT ptMouse);
+void SetPathContext(Block* block);
 bool IsValidPosition(int x, int y);
 Block* GetBlock(POINT point);

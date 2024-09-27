@@ -4,7 +4,7 @@ RECT rectView;
 Block* startBlock = nullptr;
 Block* destBlock = nullptr;
 vector<vector<Block*>> blocks;
-vector<vector<bool>> visited;
+DrawMode currentDrawMode = DRAWMODE_NONE;
 
 void CreateMap()
 {
@@ -15,9 +15,6 @@ void CreateMap()
 
     blocks = vector<vector<Block*>>
         (BLOCK_ROW, vector<Block*>(BLOCK_COL));
-
-    visited = vector<vector<bool>>
-        (BLOCK_ROW, vector<bool>(BLOCK_COL));
 
     for (int i = 0; i < BLOCK_ROW; i++)
     {
@@ -36,7 +33,7 @@ void CreateMap()
     }
 }
 
-void ResetBlocks(bool excludeStartDest)
+void ResetBlocks(BlockReset mode)
 {
     for (int i = 0; i < BLOCK_ROW; i++)
     {
@@ -46,19 +43,36 @@ void ResetBlocks(bool excludeStartDest)
             blocks[i][j]->costToEnd = 0;
             blocks[i][j]->totalCost = 0;
             blocks[i][j]->parent = nullptr;
-            blocks[i][j]->state = BLOCKSTATE_DEFAULT;
+            blocks[i][j]->isOpen = false;
+            blocks[i][j]->isClosed = false;
 
-            visited[i][j] = false;
+            BlockState state = blocks[i][j]->state;
+            bool isWall = (state == BLOCKSTATE_WALL);
+            bool isContext = (isWall || state == BLOCKSTATE_START || state == BLOCKSTATE_DEST);
+
+            switch (mode)
+            {
+                case BLOCKRESET_EXCEPT_WALL:
+                    if (!isWall)
+                        blocks[i][j]->state = BLOCKSTATE_DEFAULT;
+                    break;
+
+                case BLOCKRESET_EXCEPT_CONTEXT:
+                    if (!isContext)
+                        blocks[i][j]->state = BLOCKSTATE_DEFAULT;
+                    break;
+
+                default:
+                    blocks[i][j]->state = BLOCKSTATE_DEFAULT;
+                    break;
+            }
         }
     }
-    if (excludeStartDest)
+    if (mode != BLOCKRESET_EXCEPT_CONTEXT)
     {
-        if (startBlock) startBlock->state = BLOCKSTATE_START;
-        if (destBlock) destBlock->state = BLOCKSTATE_DEST;
-        return;
+        startBlock = nullptr;
+        destBlock = nullptr;
     }
-    startBlock = nullptr;
-    destBlock = nullptr;
 }
 
 void RegisterPathBlocks()
@@ -81,14 +95,71 @@ void DrawMap(HDC& hdc, HBRUSH& hBrush)
     }
 }
 
+void SetCurrentDrawmode(POINT ptMouse, bool isDrawing)
+{
+    Block* block = GetBlock(ptMouse);
+
+    if (block == nullptr)
+        return;
+
+    if (!isDrawing)
+    {
+        currentDrawMode = DRAWMODE_NONE;
+        return;
+    }
+    currentDrawMode = (block->state == BLOCKSTATE_WALL) ? DRAWMODE_ERASER : DRAWMODE_WALL;
+}
+
 bool IsValidPosition(int x, int y)
 {
     return (x >= 0 && x < BLOCK_COL && y >= 0 && y < BLOCK_ROW);
 }
 
-void CreateWall(Block* block)
+void SetWall(POINT ptMouse)
 {
-    block->state = (block->state == BLOCKSTATE_WALL) ? BLOCKSTATE_DEFAULT : BLOCKSTATE_WALL;
+    if (startBlock && destBlock)
+        ResetBlocks(BLOCKRESET_EXCEPT_CONTEXT);
+
+    Block* block = GetBlock(ptMouse);
+
+    if (block == nullptr)
+        return;
+
+    block->state = (currentDrawMode == DRAWMODE_ERASER) ? BLOCKSTATE_DEFAULT : BLOCKSTATE_WALL;
+
+    if (block == startBlock)
+        startBlock = nullptr;
+    
+    else if (block == destBlock)
+        destBlock = nullptr;
+
+    if (FindPath())
+        RegisterPathBlocks();
+}
+void SetPathContext(Block* block)
+{
+    if (block == nullptr)
+        return;
+
+    if (startBlock && destBlock)
+        ResetBlocks(BLOCKRESET_EXCEPT_WALL);
+
+    if (startBlock && !destBlock)
+    {
+        block->state = BLOCKSTATE_DEST;
+        destBlock = block;
+
+        if (startBlock == destBlock)
+            startBlock = nullptr;
+    }
+    else
+    {
+        block->state = BLOCKSTATE_START;
+        startBlock = block;
+
+        if (startBlock == destBlock)
+            destBlock = nullptr;
+    }
 }
 
 Block* GetBlock(POINT point)
@@ -110,6 +181,7 @@ Block::Block(RECT rect)
     parent = nullptr;
     this->rect = rect;
     state = BLOCKSTATE_DEFAULT;
+    isOpen = isClosed = false;
     totalCost = costFromStart = costToEnd = 0;
 }
 
@@ -126,7 +198,10 @@ void Block::Draw(HDC& hdc, HBRUSH& hBrush)
         break;
 
     case BLOCKSTATE_CANDIDATE:
-        hBrush = CreateSolidBrush(RGB(209, 206, 197));
+        if (isClosed)
+            hBrush = CreateSolidBrush(RGB(155, 150, 150));
+        else
+            hBrush = CreateSolidBrush(RGB(238, 189, 125));
         break;
 
     case BLOCKSTATE_PATH:
