@@ -16,7 +16,7 @@ namespace MatchGame
         int matchesFound;
 
         const int MAX_FOOD_TYPE = 8;
-        const string scoreDataPath = @"D:\WorkSpace\InhaGame-2024\MatchGame\MatchGame\score\best_score.txt";
+        string scoreDataPath = $"{Directory.GetCurrentDirectory()}\\score\\best_score.txt";
 
         List<string> foodEmoji = new List<string>() {
             "🍕", "🍔", "🍟", "🌭", "🍙",
