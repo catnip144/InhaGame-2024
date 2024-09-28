@@ -4,13 +4,25 @@ using System.Windows.Input;
 
 namespace MatchGame
 {
+    using System;
+    using System.IO;
     using System.Windows.Threading;
 
     public partial class MainWindow : Window
     {
         DispatcherTimer timer = new DispatcherTimer();
+        float currentTime;
         int tenthsOfSecondsElapsed;
         int matchesFound;
+
+        const int MAX_FOOD_TYPE = 8;
+        const string scoreDataPath = @"D:\WorkSpace\InhaGame-2024\MatchGame\MatchGame\score\best_score.txt";
+
+        List<string> foodEmoji = new List<string>() {
+            "🍕", "🍔", "🍟", "🌭", "🍙",
+            "🍛", "🍜", "🍣", "🍤", "🍝",
+            "🥪", "🌮", "🌯", "🧀", "🥞"
+        };
 
         public MainWindow()
         {
@@ -24,42 +36,53 @@ namespace MatchGame
         private void Timer_Tick(object? sender, EventArgs e)
         {
             tenthsOfSecondsElapsed++;
-            TimeTextBlock.Text = (tenthsOfSecondsElapsed / 10F).ToString("0.0s");
-            if (matchesFound == 8)
+            currentTime = (tenthsOfSecondsElapsed * 0.1f);
+            TimeTextBlock.Text = currentTime.ToString("0.0s");
+
+            if (matchesFound == MAX_FOOD_TYPE)
             {
                 timer.Stop();
-                TimeTextBlock.Text = TimeTextBlock.Text + " - Play again?";
+                ShowScore();
             }
         }
 
         private void SetUpGame()
         {
-            List<string> foodEmoji = new List<string>()
-            {
-                "🍕", "🍕",
-                "🍔", "🍔",
-                "🍟", "🍟",
-                "🌭", "🌭",
-                "🍘", "🍘",
-                "🍙", "🍙",
-                "🍚", "🍚",
-                "🍛", "🍛"
-            };
             Random random = new Random();
+            List<string> foodPool = CreateFoodPool(random);
+
             foreach (TextBlock textBlock in mainGrid.Children.OfType<TextBlock>())
             {
-                if (textBlock.Name != "TimeTextBlock")
-                {
-                    textBlock.Visibility = Visibility.Visible;
-                    int index = random.Next(foodEmoji.Count);
-                    string nextemoji = foodEmoji[index];
-                    textBlock.Text = nextemoji;
-                    foodEmoji.RemoveAt(index);
-                }
+                if (textBlock.Name == "TimeTextBlock")
+                    continue;
+
+                textBlock.Visibility = Visibility.Visible;
+                int index = random.Next(foodPool.Count);
+                string nextemoji = foodPool[index];
+                textBlock.Text = nextemoji;
+                foodPool.RemoveAt(index);
             }
             timer.Start();
             tenthsOfSecondsElapsed = 0;
             matchesFound = 0;
+        }
+
+        private List<string> CreateFoodPool(Random random)
+        {
+            List<string> foodPool = new List<string>();
+            bool[] selected = new bool[foodEmoji.Count];
+
+            while (foodPool.Count < MAX_FOOD_TYPE * 2)
+            {
+                int index = random.Next(foodEmoji.Count);
+                if (selected[index])
+                    continue;
+
+                selected[index] = true;
+                foodPool.Add(foodEmoji[index]);
+                foodPool.Add(foodEmoji[index]);
+            }
+            return foodPool;
         }
 
         TextBlock lastTextBlockClicked;
@@ -89,12 +112,32 @@ namespace MatchGame
             }
         }
 
+        private void ShowScore()
+        {
+            float bestTime = -1f;
+            using (StreamReader sr = new StreamReader(scoreDataPath))
+            {
+                string previousScore = sr.ReadLine();
+                if (!String.IsNullOrEmpty(previousScore))
+                    bestTime = float.Parse(previousScore);
+            }
+            if (bestTime < 0)
+                bestTime = currentTime;
+
+            TimeTextBlock.Text = $"Current: {currentTime.ToString("0.0s")}\nBest: {bestTime.ToString("0.0s")}";
+
+            if (currentTime <= bestTime)
+            {
+                TimeTextBlock.Text += "\nNew Record!";
+                using (StreamWriter wr = new StreamWriter(scoreDataPath))
+                    wr.WriteLine(currentTime);
+            }
+        }
+
         private void TimeTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (matchesFound == 8)
-            {
+            if (matchesFound == MAX_FOOD_TYPE)
                 SetUpGame();
-            }
         }
     }
 }
