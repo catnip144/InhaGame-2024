@@ -1,16 +1,17 @@
 #include "game_control.h"
 
+vector<POINT> borders;
 vector<vector<bool>> occupied;
 vector<vector<bool>> visited;
 vector<POINT> remainingArea;
 
 void CreateOccupiedGrid()
 {
-	occupied = vector<vector<bool>>
-		(screenHeight, vector<bool>(screenWidth, false));
-
 	int playerRadius = player.GetRadius();
 	int rightX = screenWidth - playerRadius;
+
+	occupied = vector<vector<bool>>
+		(screenHeight, vector<bool>(screenWidth, false));
 
 	for (int i = playerStartPos.x; i <= rightX; i++)
 	{
@@ -28,6 +29,11 @@ void CreateOccupiedGrid()
 	remainingArea.push_back({ playerRadius, rectView.bottom - playerRadius });
 	remainingArea.push_back({ rectView.right - playerRadius, rectView.bottom - playerRadius });
 	remainingArea.push_back({ rectView.right - playerRadius, playerRadius });
+
+	borders.push_back({ playerRadius, playerRadius });
+	borders.push_back({ playerRadius, rectView.bottom - playerRadius });
+	borders.push_back({ rectView.right - playerRadius, rectView.bottom - playerRadius });
+	borders.push_back({ rectView.right - playerRadius, playerRadius });
 }
 
 void CreateVisitedGrid()
@@ -44,6 +50,17 @@ int GetUserInput()
 	if (GetAsyncKeyState('D') & 0x8000) return 'D';
 	if (GetAsyncKeyState(VK_CONTROL) & 0x8000) return VK_CONTROL;
 	return '\0';
+}
+
+bool IsWithinBorders(POINT& inputPos)
+{
+	for (int i = 0; i < borders.size(); i++)
+	{
+		int j = (i == 0) ? borders.size() - 1 : i - 1;
+		if (IsBetweenTwoPoints(inputPos, borders[j], borders[i]))
+			return true;
+	}
+	return false;
 }
 
 pair<int, int> IsInsideRmnArea(POINT& inputPos)
@@ -118,16 +135,16 @@ void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 			break;
 		}
 	}
-	SetFillArea(area1, area2);
+	SetFillArea(area1);
 	remainingArea = area2;
 
 	for (int i = 0; i < path.size(); i++)
 		visited[path[i].y][path[i].x] = false;
 }
 
-void SetFillArea(vector<POINT>& area1, vector<POINT>& area2)
+void SetFillArea(vector<POINT> area1)
 {
-	uncoveredPolygon = area1;
+	uncovered.push_back(area1);
 }
 
 bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b)

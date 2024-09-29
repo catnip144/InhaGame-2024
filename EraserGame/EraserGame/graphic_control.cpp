@@ -17,7 +17,7 @@ BITMAP	        bitBg;
 HBITMAP         hFrontImage;
 BITMAP          bitFront;
 
-vector<POINT>   uncoveredPolygon;
+vector<vector<POINT>> uncovered;
 
 void SetScreenSize(RECT& rectView)
 {
@@ -114,8 +114,10 @@ void DrawUncoveredPolygon(HDC& hdc)
     hBrush = CreateSolidBrush(RGB(92, 150, 255));
     oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 
-    Polygon(hdc, uncoveredPolygon.data(), uncoveredPolygon.size());
-
+    for (auto polygon : uncovered)
+    {
+        Polygon(hdc, polygon.data(), polygon.size());
+    }
     SelectObject(hdc, hBrush);
     SelectObject(hdc, oldPen);
 

@@ -9,7 +9,7 @@ void Player::Init()
 	radius = PLAYER_SIZE;
 	speed = PLAYER_SPEED;
 
-	playerStartPos = { radius, screenHeight - radius };
+	playerStartPos = { radius, rectView.bottom - radius };
 	pos = playerStartPos;
 }
 
@@ -65,7 +65,7 @@ void Player::Move(int inputType)
 
 	AdjustPosition();
 	pair<int, int> contextIndex = IsInsideRmnArea(pos);
-	bool isInsideRmnArea = contextIndex.first != -1;
+	bool isInsideRmnArea = (contextIndex.first != -1) || IsWithinBorders(pos);
 
 	if (IsPressing())
 	{
@@ -116,14 +116,16 @@ void Player::Rollback()
 
 void Player::AdjustPosition()
 {
-	if (pos.x < rectView.left + radius)
-		pos.x = rectView.left + radius;
+	int playerRadius = player.GetRadius();
+
+	if (pos.x < playerRadius)
+		pos.x = playerRadius;
 
 	else if (pos.x > rectView.right - radius)
 		pos.x = rectView.right - radius;
 
-	if (pos.y < rectView.top + radius)
-		pos.y = rectView.top + radius;
+	if (pos.y < playerRadius)
+		pos.y = playerRadius;
 
 	else if (pos.y > rectView.bottom - radius)
 		pos.y = rectView.bottom - radius;

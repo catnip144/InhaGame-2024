@@ -1,7 +1,7 @@
 #pragma once
 
 #define PLAYER_SIZE 10
-#define PLAYER_SPEED 10
+#define PLAYER_SPEED 5
 
 class Player
 {

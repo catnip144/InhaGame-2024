@@ -5,8 +5,8 @@ using std::vector;
 #define IMAGE_BG_PATH "images/background.bmp"
 #define IMAGE_FRONT_PATH "images/totoro.bmp"
 
-#define WINDOW_WIDTH 1100
-#define WINDOW_HEIGHT 760
+#define WINDOW_WIDTH 1096
+#define WINDOW_HEIGHT 759
 
 void SetScreenSize(RECT& rectView);
 void CreateBitmap();
