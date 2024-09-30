@@ -29,6 +29,8 @@ pair<int, int> IsRmnBorders(POINT& inputPos);
 bool IsGameBorders(POINT& inputPos);
 bool IsInsideOccupied(POINT& inputPos);
 bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b);
+bool DoesLineIntersect(POINT a, POINT b, POINT c, POINT d);
+int CCW(POINT a, POINT b, POINT c);
 
 ///////////////////////////  graphic_control.cpp   ///////////////////////////
 

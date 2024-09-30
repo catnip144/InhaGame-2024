@@ -62,14 +62,15 @@ pair<int, int> IsRmnBorders(POINT& inputPos)
 bool IsInsideOccupied(POINT& inputPos)
 {
 	POINT leftEnd = { gameBorders.left, inputPos.y };
-	POINT rightEnd = { gameBorders.right, inputPos.y };
+	POINT rightEnd = { inputPos.x, inputPos.y };
 
 	for (const auto& polygon : uncovered)
 	{
 		int count = 0;
-		for (const auto& point : polygon)
+		for (int i = 0; i < polygon.size(); i++)
 		{
-			if (IsBetweenTwoPoints(point, leftEnd, rightEnd))
+			int j = (i == 0) ? polygon.size() - 1 : i - 1;
+			if (DoesLineIntersect(polygon[j], polygon[i], leftEnd, rightEnd))
 				++count;
 		}
 		if (count % 2 != 0)
@@ -161,4 +162,31 @@ bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b)
 		return true;
 	}
 	return false;
+}
+
+bool DoesLineIntersect(POINT a, POINT b, POINT c, POINT d)
+{
+	int c1 = CCW(a, b, c);
+	int c2 = CCW(a, b, d);
+	int c3 = CCW(c, d, a);
+	int c4 = CCW(c, d, b);
+
+	if (c1 != c2 && c3 != c4)
+		return true;
+
+	if (c1 == 0 && IsBetweenTwoPoints(c, a, b)) return true;
+	if (c2 == 0 && IsBetweenTwoPoints(d, a, b)) return true;
+	if (c3 == 0 && IsBetweenTwoPoints(a, c, d)) return true;
+	if (c4 == 0 && IsBetweenTwoPoints(b, c, d)) return true;
+	return false;
+}
+
+int CCW(POINT a, POINT b, POINT c)
+{
+	int val = (b.y - a.y) * (c.x - b.x) -
+			  (b.x - a.x) * (c.y - b.y);
+
+	if (val > 0) return 1;
+	if (val < 0) return -1;
+	return 0;
 }
