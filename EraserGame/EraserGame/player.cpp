@@ -64,14 +64,19 @@ void Player::Move(int inputType)
 	pos.y += moveY;
 
 	AdjustPosition();
-	pair<int, int> contextIndex = IsInsideRmnArea(pos);
-	bool isInsideRmnArea = (contextIndex.first != -1) || IsWithinBorders(pos);
+	pair<int, int> contextIndex = IsRmnBorders(pos);
+	bool isRmnBorders = (contextIndex.first != -1);
 
 	if (IsPressing())
 	{
-		if (!isInsideRmnArea)
+		if (!isRmnBorders)
 		{
-			if (path.empty())
+			if (IsInsideOccupied(pos))
+			{
+				pos = prevPos;
+				return;
+			}
+			else if (path.empty())
 			{
 				entryPos = prevPos;
 				path.push_back(prevPos);
@@ -85,7 +90,7 @@ void Player::Move(int inputType)
 			path.push_back(pos);
 			visited[pos.y][pos.x] = true;
 		}
-		else if (!path.empty() && isInsideRmnArea)
+		else if (!path.empty() && isRmnBorders)
 		{
 			path.push_back(pos);
 			visited[pos.y][pos.x] = true;
@@ -93,7 +98,7 @@ void Player::Move(int inputType)
 			path.clear();
 		}
 	}
-	else if (!isInsideRmnArea)
+	else if (!isRmnBorders && !IsGameBorders(pos))
 	{
 		pos = prevPos;
 	}
@@ -116,17 +121,15 @@ void Player::Rollback()
 
 void Player::AdjustPosition()
 {
-	int playerRadius = player.GetRadius();
+	if (pos.x < gameBorders.left)
+		pos.x = gameBorders.left;
 
-	if (pos.x < playerRadius)
-		pos.x = playerRadius;
+	else if (pos.x > gameBorders.right)
+		pos.x = gameBorders.right;
 
-	else if (pos.x > rectView.right - radius)
-		pos.x = rectView.right - radius;
+	if (pos.y < gameBorders.top)
+		pos.y = gameBorders.top;
 
-	if (pos.y < playerRadius)
-		pos.y = playerRadius;
-
-	else if (pos.y > rectView.bottom - radius)
-		pos.y = rectView.bottom - radius;
+	else if (pos.y > gameBorders.bottom)
+		pos.y = gameBorders.bottom;
 }

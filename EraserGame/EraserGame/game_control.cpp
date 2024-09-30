@@ -1,39 +1,24 @@
 #include "game_control.h"
 
 vector<POINT> borders;
-vector<vector<bool>> occupied;
 vector<vector<bool>> visited;
 vector<POINT> remainingArea;
 
 void CreateOccupiedGrid()
 {
 	int playerRadius = player.GetRadius();
-	int rightX = screenWidth - playerRadius;
 
-	occupied = vector<vector<bool>>
-		(screenHeight, vector<bool>(screenWidth, false));
+	gameBorders = { playerRadius, playerRadius, rectView.right - playerRadius, rectView.bottom - playerRadius };
 
-	for (int i = playerStartPos.x; i <= rightX; i++)
-	{
-		occupied[playerRadius][i] = true;
-		occupied[playerStartPos.y][i] = true;
-	}
-	for (int i = playerRadius + 1; i <= playerStartPos.y - 1; i++)
-	{
-		occupied[i][playerRadius] = true;
-		occupied[i][rightX] = true;
-	}
-	occupied[playerStartPos.y][playerStartPos.x] = true;
+	remainingArea.push_back({ gameBorders.left, gameBorders.top });
+	remainingArea.push_back({ gameBorders.left, gameBorders.bottom });
+	remainingArea.push_back({ gameBorders.right, gameBorders.bottom });
+	remainingArea.push_back({ gameBorders.right, gameBorders.top });
 
-	remainingArea.push_back({ playerRadius, playerRadius });
-	remainingArea.push_back({ playerRadius, rectView.bottom - playerRadius });
-	remainingArea.push_back({ rectView.right - playerRadius, rectView.bottom - playerRadius });
-	remainingArea.push_back({ rectView.right - playerRadius, playerRadius });
-
-	borders.push_back({ playerRadius, playerRadius });
-	borders.push_back({ playerRadius, rectView.bottom - playerRadius });
-	borders.push_back({ rectView.right - playerRadius, rectView.bottom - playerRadius });
-	borders.push_back({ rectView.right - playerRadius, playerRadius });
+	borders.push_back({ gameBorders.left, gameBorders.top });
+	borders.push_back({ gameBorders.left, gameBorders.bottom });
+	borders.push_back({ gameBorders.right, gameBorders.bottom });
+	borders.push_back({ gameBorders.right, gameBorders.top });
 }
 
 void CreateVisitedGrid()
@@ -52,7 +37,7 @@ int GetUserInput()
 	return '\0';
 }
 
-bool IsWithinBorders(POINT& inputPos)
+bool IsGameBorders(POINT& inputPos)
 {
 	for (int i = 0; i < borders.size(); i++)
 	{
@@ -63,7 +48,7 @@ bool IsWithinBorders(POINT& inputPos)
 	return false;
 }
 
-pair<int, int> IsInsideRmnArea(POINT& inputPos)
+pair<int, int> IsRmnBorders(POINT& inputPos)
 {
 	for (int i = 0; i < remainingArea.size(); i++)
 	{
@@ -74,9 +59,28 @@ pair<int, int> IsInsideRmnArea(POINT& inputPos)
 	return { -1, -1 };
 }
 
+bool IsInsideOccupied(POINT& inputPos)
+{
+	POINT leftEnd = { gameBorders.left, inputPos.y };
+	POINT rightEnd = { gameBorders.right, inputPos.y };
+
+	for (const auto& polygon : uncovered)
+	{
+		int count = 0;
+		for (const auto& point : polygon)
+		{
+			if (IsBetweenTwoPoints(point, leftEnd, rightEnd))
+				++count;
+		}
+		if (count % 2 != 0)
+			return true;
+	}
+	return false;
+}
+
 void FillOccupiedArea(vector<POINT>& path, pair<int, int> endContextIdx)
 {
-	pair<int, int> startContextIdx = IsInsideRmnArea(path[0]);
+	pair<int, int> startContextIdx = IsRmnBorders(path[0]);
 	vector<POINT> dividingLine;
 
 	dividingLine.push_back(path[0]);
@@ -152,8 +156,8 @@ bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b)
 	int x1 = a.x, y1 = a.y;
 	int x2 = b.x, y2 = b.y;
 
-	if (((min(x1, x2) <= inputPos.x && inputPos.x <= max(x1, x2)) && (inputPos.y == y1)) ||
-		((min(y1, y2) <= inputPos.y && inputPos.y <= max(y1, y2)) && (inputPos.x == x1))) {
+	if ((min(x1, x2) <= inputPos.x && inputPos.x <= max(x1, x2)) &&
+		(min(y1, y2) <= inputPos.y && inputPos.y <= max(y1, y2))) {
 		return true;
 	}
 	return false;

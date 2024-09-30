@@ -3,7 +3,7 @@
 HWND	        g_hWnd = NULL;
 HDC		        g_hdc, g_backMemDC;
 
-RECT            rectView;
+RECT            rectView, gameBorders;
 int		        screenWidth, screenHeight;
 
 HBRUSH          hBrush, oldBrush;

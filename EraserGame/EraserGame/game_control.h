@@ -16,7 +16,6 @@ using namespace std;
 #define TIMER_ID_INTERVAL 30
 #define TIMER_ANI_INTERVAL 140
 
-extern vector<vector<bool>> occupied;
 extern vector<POINT> remainingArea;
 extern vector<POINT> borders;
 extern vector<vector<bool>> visited;
@@ -26,8 +25,9 @@ void CreateOccupiedGrid();
 void CreateVisitedGrid();
 void FillOccupiedArea(vector<POINT>& path, pair<int, int> contextIndex);
 void SetFillArea(vector<POINT> area1);
-pair<int, int> IsInsideRmnArea(POINT& inputPos);
-bool IsWithinBorders(POINT& inputPos);
+pair<int, int> IsRmnBorders(POINT& inputPos);
+bool IsGameBorders(POINT& inputPos);
+bool IsInsideOccupied(POINT& inputPos);
 bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b);
 
 ///////////////////////////  graphic_control.cpp   ///////////////////////////
@@ -35,7 +35,7 @@ bool IsBetweenTwoPoints(POINT inputPos, POINT a, POINT b);
 extern HWND					 g_hWnd;
 extern HDC					 g_hdc, g_backMemDC;
 
-extern RECT					 rectView;
+extern RECT					 rectView, gameBorders;
 extern int					 screenWidth, screenHeight;
 
 extern HBRUSH				 hBrush, oldBrush;
