@@ -3,6 +3,7 @@
 #include "cMatrix.h"
 #include "framework.h"
 
+
 class cMainGame
 {
 public:
@@ -10,8 +11,8 @@ public:
 	~cMainGame();
 
 private:
-	HDC			m_MemDC;
-	HBITMAP		m_hOldBitmap, m_hBitmap;
+	HDC						m_MemDC;
+	HBITMAP					m_hOldBitmap, m_hBitmap;
 	
 	std::vector<cVector3>	m_vecVertex;
 	std::vector<DWORD>		m_vecIndex;

@@ -18,6 +18,15 @@
 #include "cMainGame.h"
 
 #define MAX_LOADSTRING 100
+using namespace std;
+
+// >> :
+HWND g_hWnd;
+cMainGame* g_pMainGame;
+
+#define TIMER_ID 123
+
+// << :
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -53,6 +62,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINAPI3D));
 
+    // >> :
+    g_pMainGame = new cMainGame;
+    g_pMainGame->Setup();
+    SetTimer(g_hWnd, TIMER_ID, 10, NULL);
+    // << :
+
     MSG msg;
 
     // 기본 메시지 루프입니다:
@@ -65,10 +80,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
+    // >> :
+    KillTimer(g_hWnd, TIMER_ID);
+    delete g_pMainGame;
+    // << :
+
     return (int) msg.wParam;
 }
-
-
 
 //
 //  함수: MyRegisterClass()
@@ -113,6 +131,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
+
+   g_hWnd = hWnd;
+
    if (!hWnd)
    {
       return FALSE;
@@ -136,8 +157,17 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (g_pMainGame)
+        g_pMainGame->WndProc(hWnd, message, wParam, lParam);
+
     switch (message)
     {
+    case WM_TIMER:
+        if (g_pMainGame)
+            g_pMainGame->Update();
+        InvalidateRect(g_hWnd, NULL, false);
+        break;
+
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -160,6 +190,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+
+            if (g_pMainGame != NULL)
+                g_pMainGame->Render(hdc);
+
             EndPaint(hWnd, &ps);
         }
         break;

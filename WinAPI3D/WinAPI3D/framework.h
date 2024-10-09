@@ -9,6 +9,7 @@
 // Windows 헤더 파일
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
+
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -19,3 +20,5 @@
 
 extern HWND g_hWnd;
 #define PI 3.141592f
+
+using namespace std;
