@@ -297,7 +297,8 @@ void Gdi_Draw(HDC hdc)
     graphics.DrawImage(&img, 100, 100, w, h);
 
     // :
-    Image img2((WCHAR*)L"images/zero_run.png");
+    Image img2((WCHAR*)L"images/zero_run.png"); // 이거 클래스 생성자라서 정적인 변수 선언 이후
+    
     w = img2.GetWidth() / SPRITE_COUNT;
     h = img2.GetHeight() / SPRITE_DIR;
     int xStart = curFrame * w;
@@ -316,8 +317,8 @@ void Gdi_Draw(HDC hdc)
     graphics.FillRectangle(&brush, 100, 100, 200, 300);
 
     // 회전 :
-    Image* pImg = nullptr;
-    pImg = Image::FromFile((WCHAR*)L"images/sigong.png");
+    Gdiplus::Image* pImg = nullptr;
+    pImg = Gdiplus::Image::FromFile((WCHAR*)L"images/sigong.png"); // << 이렇게 하면 아마 해당 image가 저장되서 어디서든 사용할 수 있을 것임.
     int xPos = 300;
     int yPos = 100;
     if (pImg)
