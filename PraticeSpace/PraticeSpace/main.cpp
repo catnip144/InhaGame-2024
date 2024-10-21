@@ -5,49 +5,57 @@
 
 using namespace std;
 
-
-class Block
-{
-public:
-	int totalCost;		// f(n)
-	int costFromStart;	// g(n)
-	int costToEnd;		// h(n)
-};
-
-class BlockCompare
-{
-public:
-	bool operator() (Block* a, Block* b)
-	{
-		return a->totalCost > b->totalCost;
-	}
-};
+//void Test()
+//{
+//    HDC hMemDC = CreateCompatibleDC(hdc);
+//
+//    float increaseX = 3.5;
+//    float increaseY = 4.0;
+//
+//    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemDC, animMap[ANIMTAG_UI_PASSIVE_MAINBOX].bitmapInfo.hImg);
+//    int sizePerSprite = animMap[ANIMTAG_UI_PASSIVE_MAINBOX].sizePerSprite;
+//
+//    int bx = animMap[ANIMTAG_UI_PASSIVE_MAINBOX].bitmapInfo.bitBg.bmWidth;
+//    int by = animMap[ANIMTAG_UI_PASSIVE_MAINBOX].bitmapInfo.bitBg.bmHeight;
+//    int drawX = widthPerTile * ((double)bx * increaseX / (SPRITE_SIZE * 2));
+//    int drawY = heightPerTile * ((double)by * increaseY / (SPRITE_SIZE * 2));
+//
+//    int posX = (rectView.right) / 2 - (drawX / 2);
+//    int posY = (rectView.bottom / 2) - (drawY / 2);
+//    int mainBoxHeight = drawY - posY;
+//
+//    int xStart = 0;
+//    int yStart = 0;
+//
+//    TransparentBlt(hdc, posX, posY, drawX, drawY, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255));
+//    SelectObject(hMemDC, hOldBitmap);
+//
+//    posY += mainBoxHeight / 5 * 2;
+//
+//    for (int i = 1; i <= 3; i++)
+//    {
+//        hOldBitmap = (HBITMAP)SelectObject(hMemDC, animMap[ANIMTAG_UI_PASSIVE_SUBBOX].bitmapInfo.hImg);
+//        sizePerSprite = animMap[ANIMTAG_UI_PASSIVE_SUBBOX].sizePerSprite;
+//
+//        bx = animMap[ANIMTAG_UI_PASSIVE_SUBBOX].bitmapInfo.bitBg.bmWidth;
+//        by = animMap[ANIMTAG_UI_PASSIVE_SUBBOX].bitmapInfo.bitBg.bmHeight;
+//        drawX = widthPerTile * ((double)bx * increaseX / (SPRITE_SIZE * 2));
+//        drawY = heightPerTile * ((double)by * increaseY / (SPRITE_SIZE * 2));
+//
+//        posX = (rectView.right) / 2 - (drawX / 2);
+//
+//        xStart = 0;
+//        yStart = 0;
+//
+//        TransparentBlt(hdc, posX, posY, drawX, drawY, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255));
+//        SelectObject(hMemDC, hOldBitmap);
+//
+//        posY += drawY * 1.2;
+//    }
+//    DeleteDC(hMemDC);
+//}
 
 int main()
 {
-	Block* a = new Block();
-	a->totalCost = 2;
-
-	Block* b = new Block();
-	b->totalCost = 5;
-
-	Block* c = new Block();
-	c->totalCost = 1;
-
-	Block* d = new Block();
-	d->totalCost = 9;
-
-	priority_queue<Block*, vector<Block*>, BlockCompare> openBlocks;
-
-	openBlocks.push(a);
-	openBlocks.push(b);
-	openBlocks.push(c);
-	openBlocks.push(d);
-
-	while (!openBlocks.empty())
-	{
-		cout << openBlocks.top()->totalCost << endl;
-		openBlocks.pop();
-	}
 
 }
