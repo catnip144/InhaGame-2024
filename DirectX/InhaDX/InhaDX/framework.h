@@ -14,10 +14,61 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <vector>
+#include <string>
+#include <map>
+#include <list>
+#include <assert.h>
+#include <time.h>
+
 #include <d3dx9.h>
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 
 extern HWND g_hWnd;
+
 #define Safe_Release(p) { if(p) p->Release() ; p=NULL ; }
 #define Safe_Delete(p) { if(p) delete p ; p=NULL ; }
+
+#define Singleton(class_name) \
+				private : \
+					class_name(void) ; \
+					~class_name(void) ; \
+				public : \
+					static class_name* GetInstance() \
+				{ \
+					static class_name instance ; \
+					return &instance ; \
+				}
+
+struct ST_PC_VERTEX
+{
+	// vertex
+	D3DXVECTOR3 p;
+
+	// color
+	D3DCOLOR c;
+
+	enum { FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE };
+};
+
+struct ST_PNT_VERTEX
+{
+	D3DXVECTOR3 p;
+	D3DXVECTOR3 n;
+
+	// texture
+	D3DXVECTOR2 t;
+
+	enum { FVF = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1 };
+};
+
+struct ST_PT_VERTEX
+{
+	D3DXVECTOR3 p;
+	D3DXVECTOR2 t;
+
+	enum { FVF = D3DFVF_XYZ | D3DFVF_TEX1 };
+};
+
+#include "cDeviceManager.h"

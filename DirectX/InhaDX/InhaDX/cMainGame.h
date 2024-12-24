@@ -1,15 +1,21 @@
 #pragma once
 class cMainGame
 {
+private:
+	std::vector<ST_PC_VERTEX> m_vecLineVertex;
+	std::vector<ST_PC_VERTEX> m_vecTriangleVertex;
+
 public:
 	cMainGame();
 	~cMainGame();
 
-private:
-	LPDIRECT3D9			m_pD3D;
-	LPDIRECT3DDEVICE9	m_pD3DDevice;
-
 public:
+	void Setup_Line();
+	void Setup_Triangle();
+
+	void Draw_Line();
+	void Draw_Triangle();
+
 	void Setup();
 	void Update();
 	void Render();

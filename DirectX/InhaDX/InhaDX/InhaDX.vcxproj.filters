@@ -30,12 +30,18 @@
     <ClInclude Include="cMainGame.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="cDeviceManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InhaDX.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="cMainGame.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cDeviceManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
