@@ -11,6 +11,17 @@ extern HWND g_hWnd;
 
 // << : DirectX 9 추가
 
+#define Synthsize(varType, varName, funName) \
+	protected : varType varName ; \
+	public : inline varType Get##funName(void) const {return varName ; }\
+	public : inline void Set##funName(varType var) { varName = var; }
+
+#define Synthsize_Pass_By_Ref(varType, varName, funName) \
+	protected : varType varName ; \
+	public : inline varType& Get##funName(void) {return varName ; }\
+	public : inline void Set##funName(varType& var) { varName = var; }
+
+
 // >> : Singleton 매크로 \뒤에 공백 없게 해라
 #define Singleton(class_name) \
 			private : \

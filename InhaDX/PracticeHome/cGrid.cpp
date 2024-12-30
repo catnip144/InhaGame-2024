@@ -1,3 +1,5 @@
+#include "cGrid.h"
+#include "cGizmo.h"
 #include "framework.h"
 
 cGrid::cGrid()
@@ -6,6 +8,11 @@ cGrid::cGrid()
 
 cGrid::~cGrid()
 {
+	for (auto p : m_vecGizmo)
+	{
+		Safe_Delete(p);
+	}
+	m_vecGizmo.clear();
 }
 
 void cGrid::Setup(int nNumHalfTile, float fInterval)
@@ -54,6 +61,31 @@ void cGrid::Setup(int nNumHalfTile, float fInterval)
 	v.p = D3DXVECTOR3(0, 0, fMin); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(0, 0, fMax); m_vecVertex.push_back(v);
 
+	// >> : Gizmo
+
+	cGizmo* pGizmo = NULL;
+	D3DXMATRIXA16 matR;
+
+	// : x-coord
+	pGizmo = new cGizmo;
+	D3DXMatrixRotationZ(&matR, D3DX_PI / 2.0f);
+	pGizmo->Setup(D3DCOLOR_XRGB(255, 0, 0), matR);
+	m_vecGizmo.push_back(pGizmo);
+
+	// : y-coord
+	pGizmo = new cGizmo;
+	D3DXMatrixRotationZ(&matR, D3DX_PI);
+	pGizmo->Setup(D3DCOLOR_XRGB(0, 255, 0), matR);
+	m_vecGizmo.push_back(pGizmo);
+
+	// : z-coord
+	pGizmo = new cGizmo;
+	D3DXMatrixRotationX(&matR, D3DX_PI / 2.0f);
+	pGizmo->Setup(D3DCOLOR_XRGB(0, 0, 255), matR);
+	m_vecGizmo.push_back(pGizmo);
+
+	// << : 
+
 }
 
 void cGrid::Render()
@@ -64,6 +96,11 @@ void cGrid::Render()
 
 	g_pD3DDevice->SetFVF(ST_PC_VERTEX::FVF);
 	g_pD3DDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vecVertex.size() / 2, &m_vecVertex[0], sizeof(ST_PC_VERTEX));
+
+	for (auto p : m_vecGizmo)
+	{
+		p->Render();
+	}
 
 	//g_pD3DDevice->SetTransform(D3DTS_WORLD, &m_matWorld); // 위에서 적용됬으니 여기서는 안해도 상관 없다...
 

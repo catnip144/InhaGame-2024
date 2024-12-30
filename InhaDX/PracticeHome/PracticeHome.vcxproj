@@ -72,13 +72,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\C_PLUSPLUS\DirectXPracticeHome\DX9\Include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>D:\JooWoan-WorkSpace\InhaGame-2024\InhaDX\DX9\Include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>D:\JooWoan-WorkSpace\InhaGame-2024\InhaDX\DX9\Lib\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\WorkSpace\InhaGame-2024\InhaDX\DX9\Include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>D:\WorkSpace\InhaGame-2024\InhaDX\DX9\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>D:\C_PLUSPLUS\DirectXPracticeHome\PracticeHome\DX9\Include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>D:\JooWoan-WorkSpace\InhaGame-2024\InhaDX\DX9\Include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>D:\JooWoan-WorkSpace\InhaGame-2024\InhaDX\DX9\Lib\x86;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>D:\WorkSpace\InhaGame-2024\InhaDX\DX9\Include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>D:\WorkSpace\InhaGame-2024\InhaDX\DX9\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -139,7 +139,9 @@
   <ItemGroup>
     <ClInclude Include="cCamera.h" />
     <ClInclude Include="cCubePC.h" />
+    <ClInclude Include="cCubePNT.h" />
     <ClInclude Include="cDeviceManager.h" />
+    <ClInclude Include="cGizmo.h" />
     <ClInclude Include="cGrid.h" />
     <ClInclude Include="cMainGame.h" />
     <ClInclude Include="framework.h" />
@@ -151,7 +153,9 @@
   <ItemGroup>
     <ClCompile Include="cCamera.cpp" />
     <ClCompile Include="cCubePC.cpp" />
+    <ClCompile Include="cCubePNT.cpp" />
     <ClCompile Include="cDeviceManager.cpp" />
+    <ClCompile Include="cGizmo.cpp" />
     <ClCompile Include="cGrid.cpp" />
     <ClCompile Include="cMainGame.cpp" />
     <ClCompile Include="PracticeHome.cpp" />

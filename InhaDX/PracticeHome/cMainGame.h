@@ -1,8 +1,8 @@
 #pragma once
 
-//class cCubePC;
-//class cGrid;
-//class cCamera;
+class cCubePC;
+class cGrid;
+class cCamera;
 
 class cMainGame
 {
