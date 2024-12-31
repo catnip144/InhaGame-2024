@@ -1,6 +1,6 @@
 #include "framework.h"
 
-cCubePC::cCubePC() : m_vDirection(0, 0, 1) , m_vPosition(0,0,0), m_fRotY(0.0f)
+cCubePC::cCubePC() : m_vDirection(0, 0, 1), m_vPosition(0, 0, 0), m_fRotY(0.0f)
 {
 	//¹¹ ¸ÞÆ®¸¯½º ¾îÂ¼°í
 	D3DXMatrixIdentity(&m_matWorld);
@@ -17,41 +17,41 @@ void cCubePC::Setup()
 	// : front
 	v.c = D3DCOLOR_XRGB(rand() % 256, rand() % 256, rand() % 256);
 	v.p = D3DXVECTOR3(-1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3(-1.0f,  1.0f, -1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3( 1.0f,  1.0f, -1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, 1.0f, -1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, 1.0f, -1.0f); m_vecVertex.push_back(v);
 
 	v.p = D3DXVECTOR3(-1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3( 1.0f,  1.0f, -1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3( 1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, 1.0f, -1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
 
 	// : back
 	v.c = D3DCOLOR_XRGB(rand() % 256, rand() % 256, rand() % 256);
-	v.p = D3DXVECTOR3(-1.0f,-1.0f, 1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3( 1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(-1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
 
 	v.p = D3DXVECTOR3(-1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3( 1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3( 1.0f,  1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
 
 	// : left
 	v.c = D3DCOLOR_XRGB(rand() % 256, rand() % 256, rand() % 256);
-	v.p = D3DXVECTOR3(-1.0f,-1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(-1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3(-1.0f, 1.0f,-1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, 1.0f, -1.0f); m_vecVertex.push_back(v);
 
-	v.p = D3DXVECTOR3(-1.0f,-1.0f, 1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3(-1.0f, 1.0f,-1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3(-1.0f,-1.0f,-1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, 1.0f, -1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(-1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
 	// : right
 	v.c = D3DCOLOR_XRGB(rand() % 256, rand() % 256, rand() % 256);
-	v.p = D3DXVECTOR3(1.0f,-1.0f,-1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3(1.0f, 1.0f,-1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, 1.0f, -1.0f); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
 
-	v.p = D3DXVECTOR3(1.0f,-1.0f,-1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(1.0f, 1.0f, 1.0f); m_vecVertex.push_back(v);
-	v.p = D3DXVECTOR3(1.0f,-1.0f, 1.0f); m_vecVertex.push_back(v);
+	v.p = D3DXVECTOR3(1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
 
 	// : top
 	v.c = D3DCOLOR_XRGB(rand() % 256, rand() % 256, rand() % 256);
@@ -72,7 +72,7 @@ void cCubePC::Setup()
 	v.p = D3DXVECTOR3(-1.0f, -1.0f, -1.0f); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
 	v.p = D3DXVECTOR3(-1.0f, -1.0f, 1.0f); m_vecVertex.push_back(v);
-	
+
 }
 
 void cCubePC::Update()

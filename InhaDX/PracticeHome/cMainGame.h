@@ -3,6 +3,7 @@
 class cCubePC;
 class cGrid;
 class cCamera;
+class cCubeMan;
 
 class cMainGame
 {
@@ -12,6 +13,8 @@ private:
 	std::vector<ST_PC_VERTEX> m_vecTrianleVertex;
 
 	cCubePC* m_pCubePC;
+	cCubeMan* m_pCubeMan;
+
 	cGrid* m_pGrid;
 	cCamera* m_pCamera;
 
@@ -31,6 +34,8 @@ public:
 	void Render();
 
 	void WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	void Setup_Light();
 };
 
 

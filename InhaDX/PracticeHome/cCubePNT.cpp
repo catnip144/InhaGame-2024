@@ -32,7 +32,7 @@ void cCubePNT::Setup()
 
 	// : back
 	vecIndex.push_back(4); vecIndex.push_back(6); vecIndex.push_back(5);
-	vecIndex.push_back(4); vecIndex.push_back(7); vecIndex.push_back(8);
+	vecIndex.push_back(4); vecIndex.push_back(7); vecIndex.push_back(6);
 
 	// : left
 	vecIndex.push_back(4); vecIndex.push_back(5); vecIndex.push_back(1);
@@ -61,7 +61,7 @@ void cCubePNT::Setup()
 
 	// normal vector
 	D3DXVECTOR3 u, v, n;
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < 36; i += 3)
 	{
 		u = m_vecVertex[i + 1].p - m_vecVertex[i].p;
 		v = m_vecVertex[i + 2].p - m_vecVertex[i].p;

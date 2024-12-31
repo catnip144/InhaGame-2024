@@ -1,6 +1,7 @@
 #pragma once
 class cCubePNT
 {
+public:
 	cCubePNT();
 	virtual ~cCubePNT();
 

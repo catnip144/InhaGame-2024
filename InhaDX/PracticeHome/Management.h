@@ -11,12 +11,12 @@ extern HWND g_hWnd;
 
 // << : DirectX 9 Ãß°¡
 
-#define Synthsize(varType, varName, funName) \
+#define Synthesize(varType, varName, funName) \
 	protected : varType varName ; \
 	public : inline varType Get##funName(void) const {return varName ; }\
 	public : inline void Set##funName(varType var) { varName = var; }
 
-#define Synthsize_Pass_By_Ref(varType, varName, funName) \
+#define Synthesize_Pass_By_Ref(varType, varName, funName) \
 	protected : varType varName ; \
 	public : inline varType& Get##funName(void) {return varName ; }\
 	public : inline void Set##funName(varType& var) { varName = var; }
@@ -67,7 +67,11 @@ struct ST_PT_VERTEX
 #include "cCamera.h"
 #include "cDeviceManager.h"
 #include "cGrid.h"
+#include "cGizmo.h"
+#include "cCubePNT.h"
+#include "cCubeNode.h"
 #include "cCubePC.h"
+#include "cCubeMan.h"
 #include "cMainGame.h"
 
 // << : My Class
