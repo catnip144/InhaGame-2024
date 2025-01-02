@@ -9,7 +9,7 @@ cMainGame::cMainGame() : m_pCubePC(NULL), m_pGrid(NULL), m_pCamera(NULL), m_pCub
 
 cMainGame::~cMainGame()
 {
-	Safe_Delete(m_pTexture);
+	Safe_Release(m_pTexture);
 	Safe_Delete(m_pCamera);
 	Safe_Delete(m_pGrid);
 	Safe_Delete(m_pCubePC);
