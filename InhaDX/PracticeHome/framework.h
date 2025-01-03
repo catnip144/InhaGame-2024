@@ -15,6 +15,8 @@
 #include <tchar.h>
 
 #include <vector>
+#include <list>
+#include <set>
 #include <string>
 #include <map>
 #include <list>

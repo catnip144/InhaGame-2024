@@ -31,6 +31,8 @@ void cCubeMan::Setup()
 	m_stMt1.Diffuse = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 	m_stMt1.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 
+	//D3DXCreateTextureFromFile(g_pD3DDevice, L"grass.jpg", &m_pTexture);
+
 	cBody* pBody = new cBody;
 	pBody->Setup();
 	pBody->SetParentWorldTM(&m_matWorld);
@@ -83,7 +85,6 @@ void cCubeMan::Render()
 
 		D3DXMATRIXA16 matWorld;
 		D3DXMatrixIdentity(&matWorld);
-
 		g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
 
 		if (m_pRoot)

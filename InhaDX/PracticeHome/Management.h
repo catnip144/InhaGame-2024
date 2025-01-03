@@ -21,6 +21,19 @@ extern HWND g_hWnd;
 	public : inline varType& Get##funName(void) {return varName ; }\
 	public : inline void Set##funName(varType& var) { varName = var; }
 
+#define Safe_Add_Ref(p) { if(p) p->AddRef(); }
+
+#define Synthesize_Add_Ref(varType, varName, funName) \
+	protected : varType varName ; \
+	public : inline varType Get##funName(void) const {return varName ; }\
+	public : inline void Set##funName(varType var) { \
+					if ( varName != var ) { \
+						Safe_Add_Ref(var) ; \
+						Safe_Release(varName) ; \
+						varName = var; \
+					} \
+				}
+
 
 // >> : Singleton 매크로 \뒤에 공백 없게 해라
 #define Singleton(class_name) \
@@ -65,6 +78,12 @@ struct ST_PT_VERTEX
 
 // >> : My Class
 #include "cCamera.h"
+#include "cGroup.h"
+#include "cMtlTex.h"
+#include "cObject.h"
+#include "cObjectManager.h"
+#include "cObjLoader.h"
+#include "cTextureManager.h"
 #include "cDeviceManager.h"
 #include "cGrid.h"
 #include "cGizmo.h"
