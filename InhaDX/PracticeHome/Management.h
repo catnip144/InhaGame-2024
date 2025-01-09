@@ -77,14 +77,14 @@ struct ST_PT_VERTEX
 
 
 // >> : My Class
+#include "cDeviceManager.h"
+#include "cObject.h"
+#include "cObjectManager.h"
+#include "cTextureManager.h"
 #include "cCamera.h"
 #include "cGroup.h"
 #include "cMtlTex.h"
-#include "cObject.h"
-#include "cObjectManager.h"
 #include "cObjLoader.h"
-#include "cTextureManager.h"
-#include "cDeviceManager.h"
 #include "cGrid.h"
 #include "cGizmo.h"
 #include "cCubePNT.h"

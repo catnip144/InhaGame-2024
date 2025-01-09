@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\CubeMan">
+      <UniqueIdentifier>{7b44f8b7-bfd7-4670-9952-c7a9bbbf8d4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\CubeMan">
+      <UniqueIdentifier>{028d8ee1-93f6-4b23-86e1-c8a1b287de58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Obj">
+      <UniqueIdentifier>{0512d343-4ea7-4ef6-835c-ab34edad6e25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Obj">
+      <UniqueIdentifier>{87dca753-2507-4b22-83d9-dbccb327daaa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InhaDX.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cMainGame.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cDeviceManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cCubePC.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cGrid.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cCamera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cGizmo.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cCubePNT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="cBody.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cHead.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cLeftArm.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cLeftLeg.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cRightArm.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cRightLeg.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cCubeMan.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cCharacter.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cCubeNode.h">
+      <Filter>헤더 파일\CubeMan</Filter>
+    </ClInclude>
+    <ClInclude Include="cGroup.h">
+      <Filter>헤더 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="cObject.h">
+      <Filter>헤더 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="cObjectManager.h">
+      <Filter>헤더 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="cMtlTex.h">
+      <Filter>헤더 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="cTextureManager.h">
+      <Filter>헤더 파일\Obj</Filter>
+    </ClInclude>
+    <ClInclude Include="cObjLoader.h">
+      <Filter>헤더 파일\Obj</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InhaDX.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cMainGame.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cDeviceManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cCubePC.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cGrid.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cCamera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cGizmo.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cCubePNT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cBody.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cHead.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cLeftArm.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cLeftLeg.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cRightArm.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cRightLeg.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cCharacter.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cCubeMan.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cCubeNode.cpp">
+      <Filter>소스 파일\CubeMan</Filter>
+    </ClCompile>
+    <ClCompile Include="cObject.cpp">
+      <Filter>소스 파일\Obj</Filter>
+    </ClCompile>
+    <ClCompile Include="cObjectManager.cpp">
+      <Filter>소스 파일\Obj</Filter>
+    </ClCompile>
+    <ClCompile Include="cGroup.cpp">
+      <Filter>소스 파일\Obj</Filter>
+    </ClCompile>
+    <ClCompile Include="cMtlTex.cpp">
+      <Filter>소스 파일\Obj</Filter>
+    </ClCompile>
+    <ClCompile Include="cTextureManager.cpp">
+      <Filter>소스 파일\Obj</Filter>
+    </ClCompile>
+    <ClCompile Include="cObjLoader.cpp">
+      <Filter>소스 파일\Obj</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="InhaDX.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="InhaDX.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
