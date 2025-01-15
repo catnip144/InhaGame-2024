@@ -92,3 +92,4 @@ struct  ST_PT_VERTEX
 #include "cObject.h"
 #include "cObjectManager.h"
 #include "cTextureManager.h"
+#include "iMap.h"

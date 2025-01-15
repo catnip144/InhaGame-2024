@@ -4,7 +4,7 @@ class cCubePC;
 class cGrid; 
 class cCamera; 
 class cCubeMan; 
-class cGroup; 
+class cGroup;
 
 class cMainGame
 {
@@ -24,7 +24,10 @@ private :
 
 
 	LPDIRECT3DTEXTURE9		m_pTexture; 
-	std::vector<ST_PT_VERTEX>	m_vecVertex; 
+	std::vector<ST_PT_VERTEX>	m_vecVertex;
+
+	iMap* m_pMap;
+	std::vector<cGroup*>	m_vecMap;
 
 public :
 	cMainGame(); 
@@ -49,7 +52,11 @@ public :
 
 	void WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void Setup_Light(); 
+	void Setup_Light();
 
+
+	void Setup_Map();
+	void Draw_Map();
+	void Setup_Surface();
 };
 

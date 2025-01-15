@@ -19,6 +19,7 @@ public :
 
 	void LoadMtlLib(char* szFolder, char* szFile); 
 
-
+	void LoadSurface(OUT std::vector<D3DXVECTOR3>& vecSurface,
+		IN char* szFolder, IN char* szFile, IN D3DXMATRIXA16* pmat = NULL);
 };
 
