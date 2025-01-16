@@ -28,6 +28,9 @@
     <Filter Include="소스 파일\Map">
       <UniqueIdentifier>{c48769f9-b227-4ad9-96ed-ecad9ea765bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\HeightMap">
+      <UniqueIdentifier>{4092d167-fbce-4e6b-bb2b-98c2cd8b4131}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -114,6 +117,9 @@
     <ClInclude Include="cObjMap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="cHeightMap.h">
+      <Filter>소스 파일\HeightMap</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InhaDX.cpp">
@@ -190,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="cObjMap.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="cHeightMap.cpp">
+      <Filter>소스 파일\HeightMap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

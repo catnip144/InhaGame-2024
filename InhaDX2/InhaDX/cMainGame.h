@@ -58,5 +58,8 @@ public :
 	void Setup_Map();
 	void Draw_Map();
 	void Setup_Surface();
+
+	void Setup_HeightMap();
+	void Draw_HeightMap();
 };
 

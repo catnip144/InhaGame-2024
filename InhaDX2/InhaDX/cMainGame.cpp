@@ -7,6 +7,7 @@
 #include "cObjLoader.h"
 #include "cGroup.h"
 #include "cObjMap.h"
+#include "cHeightMap.h"
 
 cMainGame::cMainGame()
 	: m_pCubePC(NULL)
@@ -180,8 +181,9 @@ void cMainGame::Setup()
 	Setup_Triangle(); 
 	Setup_Texture(); 
 	Setup_Obj();
-	Setup_Map();
-	Setup_Surface();
+	//Setup_Map();
+	//Setup_Surface();
+	Setup_HeightMap();
 
 	m_pCubePC = new cCubePC; 
 	m_pCubePC->Setup(); 
@@ -228,7 +230,9 @@ void cMainGame::Render()
 	//Draw_Triangle(); 
 	//Draw_Texture(); 
 	//Draw_Obj(); 
-	Draw_Map();
+	//Draw_Map();
+
+	Draw_HeightMap();
 
 	if (m_pGrid)
 		m_pGrid->Render(); 
@@ -293,10 +297,23 @@ void cMainGame::Draw_Map()
 
 void cMainGame::Setup_Surface()
 {
-	D3DXMATRIXA16 matWorld, matS, matR;
-	D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
-	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0F);
-	matWorld = matS * matR;
+	//D3DXMATRIXA16 matWorld, matS, matR;
+	//D3DXMatrixScaling(&matS, 0.01f, 0.01f, 0.01f);
+	//D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0F);
+	//matWorld = matS * matR;
 
-	m_pMap = new cObjMap((char*)"obj", (char*)"map_surface.obj", &matWorld);
+	//m_pMap = new cObjMap((char*)"obj", (char*)"map_surface.obj", &matWorld);
+}
+
+void cMainGame::Setup_HeightMap()
+{
+	cHeightMap* pMap = new cHeightMap;
+	pMap->Setup((char*)"HeightMapData/", (char*)"HeightMap.raw", (char*)"terrain.jpg");
+	m_pMap = pMap;
+}
+
+void cMainGame::Draw_HeightMap()
+{
+	if (m_pMap)
+		m_pMap->Render();
 }
