@@ -5,6 +5,7 @@ class cGrid;
 class cCamera; 
 class cCubeMan; 
 class cGroup;
+class cFrustum;
 
 class cMainGame
 {
@@ -17,17 +18,25 @@ private :
 	cCubePC* m_pCubePC; 
 	cCubeMan* m_pCubeMan; 
 
-	std::vector<cGroup*>	m_vecGroup; 
+	std::vector<cGroup*>		m_vecGroup; 
 
 	cGrid* m_pGrid; 
 	cCamera* m_pCamera; 
 
 
-	LPDIRECT3DTEXTURE9		m_pTexture; 
+	LPDIRECT3DTEXTURE9			m_pTexture; 
 	std::vector<ST_PT_VERTEX>	m_vecVertex;
 
 	iMap* m_pMap;
 	std::vector<cGroup*>	m_vecMap;
+
+	// >> :
+	LPD3DXMESH				m_pSphere;
+	std::vector<ST_SPHERE*> m_vecCullingSphere;
+	D3DMATERIAL9			m_stCullingMtl;
+	cFrustum*				m_pFrustum;
+
+	// << :
 
 public :
 	cMainGame(); 
@@ -61,5 +70,8 @@ public :
 
 	void Setup_HeightMap();
 	void Draw_HeightMap();
+
+	void Setup_Frustum();
+	void Draw_Frustum();
 };
 

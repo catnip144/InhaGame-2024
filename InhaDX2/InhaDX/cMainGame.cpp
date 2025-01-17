@@ -8,6 +8,7 @@
 #include "cGroup.h"
 #include "cObjMap.h"
 #include "cHeightMap.h"
+#include "cFrustum.h"
 
 cMainGame::cMainGame()
 	: m_pCubePC(NULL)
@@ -16,6 +17,7 @@ cMainGame::cMainGame()
 	, m_pCubeMan(NULL)
 	, m_pTexture(NULL)
 	, m_pMap(NULL)
+	, m_pFrustum(NULL)
 {
 	srand(time(0)); 
 }
@@ -23,10 +25,16 @@ cMainGame::cMainGame()
 cMainGame::~cMainGame()
 {
 	for (auto p : m_vecGroup)
-	{
 		Safe_Release(p); 
-	}
+
 	m_vecGroup.clear(); 
+
+	Safe_Delete(m_pFrustum);
+
+	for (auto p : m_vecCullingSphere)
+		Safe_Delete(p);
+
+	m_vecCullingSphere.clear();
 
 	Safe_Delete(m_pMap);
 	Safe_Release(m_pTexture); 
@@ -184,6 +192,7 @@ void cMainGame::Setup()
 	//Setup_Map();
 	//Setup_Surface();
 	Setup_HeightMap();
+	Setup_Frustum();
 
 	m_pCubePC = new cCubePC; 
 	m_pCubePC->Setup(); 
@@ -213,7 +222,10 @@ void cMainGame::Update()
 		m_pCubeMan->Update(m_pMap); 
 
 	if (m_pCamera)
-		m_pCamera->Update(); 
+		m_pCamera->Update();
+
+	if (m_pFrustum)
+		m_pFrustum->Update();
 }
 
 void cMainGame::Render()
@@ -233,6 +245,7 @@ void cMainGame::Render()
 	//Draw_Map();
 
 	Draw_HeightMap();
+	Draw_Frustum();
 
 	if (m_pGrid)
 		m_pGrid->Render(); 
@@ -255,6 +268,17 @@ void cMainGame::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if (m_pCamera)
 		m_pCamera->WndProc(hWnd, message, wParam, lParam); 
 
+	switch (message)
+	{
+		case WM_RBUTTONDOWN:
+		{
+			for (ST_SPHERE* s : m_vecCullingSphere)
+			{
+				s->isPicked = m_pFrustum->IsIn(s);
+			}
+		}
+		break;
+	}
 }
 
 void cMainGame::Setup_Light()
@@ -316,4 +340,54 @@ void cMainGame::Draw_HeightMap()
 {
 	if (m_pMap)
 		m_pMap->Render();
+}
+
+void cMainGame::Setup_Frustum()
+{
+	D3DXCreateSphere(g_pD3DDevice, 0.5f, 10, 10, &m_pSphere, NULL);
+
+	for (int i = -20; i <= 20; ++i)
+	{
+		for (int j = -20; j <= 20; ++j)
+		{
+			for (int k = -20; k <= 20; ++k)
+			{
+				ST_SPHERE* s = new ST_SPHERE;
+				s->fRadius = 0.5f;
+				s->vCenter = D3DXVECTOR3((float)i, (float)j, (float)k);
+				s->isPicked = true;
+				m_vecCullingSphere.push_back(s);
+			}
+		}
+	}
+
+	ZeroMemory(&m_stCullingMtl, sizeof(D3DMATERIAL9));
+	m_stCullingMtl.Ambient = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	m_stCullingMtl.Diffuse = D3DXCOLOR(0.7f, 1.0f, 1.0f, 1.0f);
+	m_stCullingMtl.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+
+	m_pFrustum = new cFrustum;
+	m_pFrustum->Setup();
+}
+
+void cMainGame::Draw_Frustum()
+{
+	D3DXMATRIXA16 matWorld;
+	D3DXMatrixIdentity(&matWorld);
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+
+	for (ST_SPHERE* sphere : m_vecCullingSphere)
+	{
+		if (sphere->isPicked)
+		{
+			D3DXMatrixIdentity(&matWorld);
+			matWorld._41 = sphere->vCenter.x;
+			matWorld._42 = sphere->vCenter.y;
+			matWorld._43 = sphere->vCenter.z;
+
+			g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+			g_pD3DDevice->SetMaterial(&m_stCullingMtl);
+			m_pSphere->DrawSubset(0);
+		}
+	}
 }
